@@ -10,6 +10,8 @@ $hyoo_survey_app $mol_book2_catalog
 			sub /
 				<= Meet_add_icon $mol_icon_plus
 	menu_foot /
+		<= Sources $mol_link_source
+			uri \https://github.com/hyoo-ru/survey.hyoo.ru
 		<= Crus_status $hyoo_crus_status
 			realm <= realm
 	Spread*0 <= Meet* $hyoo_survey_meet_form

@@ -1,7 +1,8 @@
 namespace $ {
 	
 	export class $hyoo_survey_meet extends $hyoo_crus_entity.with({
-		Opinions: $hyoo_crus_dict_to( $hyoo_crus_atom_ref_to( ()=> $hyoo_survey_meet_opinion ) )
+		Owner: $hyoo_crus_atom_ref_to( ()=> $hyoo_survey_person ),
+		Opinions: $hyoo_crus_dict_to( $hyoo_crus_atom_ref_to( ()=> $hyoo_survey_meet_opinion ) ),
 	}) {
 
 		@ $mol_mem

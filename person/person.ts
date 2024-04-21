@@ -5,7 +5,9 @@ namespace $ {
 		
 		@ $mol_action
 		meet_make() {
-			return this.Meets(true)?.remote_make( $hyoo_crus_rank_orgy )
+			const meet = this.Meets(true)?.remote_make( $hyoo_crus_rank_orgy )!
+			meet.Owner( true )!.val( this.land().auth().lord() )
+			return meet
 		}
 
 	}

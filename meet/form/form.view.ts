@@ -19,6 +19,7 @@ namespace $.$$ {
 
 		@ $mol_mem
 		opinions() {
+			if( this.meet().Owner()?.val() !== this.meet().land().auth().lord() ) return []
 			return this.meet().Opinions()?.keys().map( key => this.Opinion( key ) ) ?? []
 		}
 

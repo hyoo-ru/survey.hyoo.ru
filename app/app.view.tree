@@ -1,5 +1,6 @@
 $hyoo_survey_app $mol_book2_catalog
 	- \Конструктивный отзыв делает мир лучше!
+	theme \$mol_theme_dark
 	param \meet
 	realm $hyoo_crus_realm
 	menu_title \$hyoo_survey
@@ -8,8 +9,8 @@ $hyoo_survey_app $mol_book2_catalog
 			click? <=> meet_add? null
 			sub /
 				<= Meet_add_icon $mol_icon_plus
-	spread_ids /string
-		\1
-		\2
+	menu_foot /
+		<= Crus_status $hyoo_crus_status
+			realm <= realm
 	Spread*0 <= Meet* $hyoo_survey_meet_form
 		meet <= meet* $hyoo_survey_meet

@@ -1,0 +1,22 @@
+$hyoo_survey_meet_form $mol_page
+	meet $hyoo_survey_meet
+	Title $mol_string_button
+		value? <=> title? \
+		hint \Как всё прошло?
+	body /
+		<= Pleasant_field $mol_form_field
+			name \Что понравилось?
+			control <= Pleasant $mol_textarea
+				value? <=> pleasant? \
+		<= Improvement_field $mol_form_field
+			name \Что можно улучшить?
+			control <= Improvement $mol_textarea
+				value? <=> improvement? \
+		<= Request_field $mol_form_field
+			name \Идеи? Предложения?
+			control <= Request $mol_textarea
+				value? <=> request? \
+		<= Opinions $mol_list
+			rows <= opinions /
+				<= Opinion*0 $mol_text
+					text <= opinion* \

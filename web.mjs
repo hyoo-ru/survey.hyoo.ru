@@ -14943,6 +14943,15 @@ var $;
     var $$;
     (function ($$) {
         $mol_style_define($hyoo_survey_meet_form, {
+            flex: {
+                basis: `40rem`,
+            },
+            margin: [0, 'auto'],
+            Tools: {
+                flex: {
+                    grow: 0,
+                },
+            },
             Opinion: {
                 background: {
                     color: $mol_theme.card,
@@ -15066,6 +15075,29 @@ var $;
             $mol_mem_key
         ], $hyoo_survey_app.prototype, "meet", null);
         $$.$hyoo_survey_app = $hyoo_survey_app;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        $mol_style_define($hyoo_survey_app, {
+            '--mol_theme_hue': '275deg',
+            Menu: {
+                flex: {
+                    basis: `15rem`,
+                },
+            },
+            Placeholder: {
+                flex: {
+                    basis: `15rem`,
+                    grow: 0,
+                },
+            },
+        });
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
 

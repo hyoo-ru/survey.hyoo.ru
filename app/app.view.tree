@@ -19,7 +19,7 @@ $hyoo_survey_app $mol_book2_catalog
 		meet <= meet* $hyoo_survey_meet
 		visible? <=> meet_visible*? false
 		Close <= Spread_close
-	Spread_default <= Meet*HzmGerrV_wKbYhRnp
+	- Spread_default <= Meet*HzmGerrV_wKbYhRnp
 	Placeholder $mol_page
 		title \🤗 Ламповые отзывы
 		body /

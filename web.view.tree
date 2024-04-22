@@ -424,6 +424,22 @@ $hyoo_crus_status $mol_select
 				<= Fail $mol_icon_sync_off
 			hint <= message <= hint \Sync status
 
+$mol_icon_eye $mol_icon path \M12,9C10.34,9 9,10.34 9,12C9,13.66 10.34,15 12,15C13.66,15 15,13.66 15,12C15,10.34 13.66,9 12,9M12,17C9.24,17 7,14.76 7,12C7,9.24 9.24,7 12,7C14.76,7 17,9.24 17,12C17,14.76 14.76,17 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z
+
+$mol_check_icon $mol_check
+
+$mol_icon_share $mol_icon path \M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z
+
+$mol_icon_share_variant $mol_icon path \M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8C19.66,8 21,6.66 21,5C21,3.34 19.66,2 18,2C16.34,2 15,3.34 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9C4.34,9 3,10.34 3,12C3,13.66 4.34,15 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19C20.92,17.39 19.61,16.08 18,16.08Z
+
+$mol_button_share $mol_button_minor
+	uri \
+	capture null
+	hint @ \Share
+	sub /
+		<= Icon $mol_icon_share_variant
+		<= title \
+
 $mol_stack $mol_view
 
 $mol_text_code_token $mol_dimmer
@@ -590,6 +606,33 @@ $mol_form_field $mol_labeler
 		<= Bid $mol_view
 			sub / <= bid \
 	content / <= control null
+
+$mol_row $mol_view
+
+$mol_form $mol_list
+	submit_allowed true
+	submit_blocked false
+	event *
+		^
+		keydown?event <=> keydown?event null
+	submit?event null
+	rows /
+		<= Body $mol_list
+			sub <= body <= form_fields /$mol_form_field
+		<= Foot $mol_row
+			sub <= foot <= buttons /$mol_view
+
+$mol_icon_help $mol_icon path \M10,19H13V22H10V19M12,2C17.35,2.22 19.68,7.62 16.5,11.67C15.67,12.67 14.33,13.33 13.67,14.17C13,15 13,16 13,17H10C10,15.33 10,13.92 10.67,12.92C11.33,11.92 12.67,11.33 13.5,10.67C15.92,8.43 15.32,5.26 12,5C10.34,5 9,6.34 9,8H6C6,4.69 8.69,2 12,2Z
+
+$mol_icon_help_circle $mol_icon path \M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7C10.9,7 10,7.9 10,9H8C8,6.79 9.79,5 12,5C14.21,5 16,6.79 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.47 17.5,2 12,2Z
+
+$mol_icon_help_circle_outline $mol_icon path \M11,18H13V16H11V18M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6C9.79,6 8,7.79 8,10H10C10,8.9 10.9,8 12,8C13.1,8 14,8.9 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10C16,7.79 14.21,6 12,6Z
+
+$mol_hint $mol_check
+	dictionary *
+	Icon $mol_icon_help_circle_outline
+	hint_close @ \Hide
+	hint_open @ \Hint
 
 $mol_float $mol_view
 	style *
@@ -843,22 +886,19 @@ $mol_text_span $mol_paragraph
 		^
 		mol_text_type <= type \
 
-$mol_string_button $mol_string
-
-$mol_row $mol_view
-
-$mol_form $mol_list
-	submit_allowed true
-	submit_blocked false
-	event *
-		^
-		keydown?event <=> keydown?event null
-	submit?event null
+$mol_section $mol_list
+	level 1
 	rows /
-		<= Body $mol_list
-			sub <= body <= form_fields /$mol_form_field
-		<= Foot $mol_row
-			sub <= foot <= buttons /$mol_view
+		<= Head $mol_view
+			sub <= head /
+				<= Title $mol_paragraph
+					dom_name <= title_dom_name \h1
+					title <= title
+				<= Tools $mol_view sub <= tools /
+		<= Content $mol_list
+			rows <= content /
+
+$mol_string_button $mol_string
 
 $mol_text_list $mol_text
 	auto_scroll null
@@ -879,21 +919,34 @@ $hyoo_survey_meet_form $mol_page
 	Title $mol_string_button
 		value? <=> title? \
 		hint \Как всё прошло?
+	tools /
+		<= Visible $mol_check_icon
+			Icon <= Visible_icon $mol_icon_eye
+			checked? <=> visible? false
+		<= Share $mol_button_share
+			capture <= Title
 	body /
-		<= Pleasant_field $mol_form_field
-			name \Что понравилось?
-			control <= Pleasant $mol_textarea
-				value? <=> pleasant? \
-		<= Improvement_field $mol_form_field
-			name \Что можно улучшить?
-			control <= Improvement $mol_textarea
-				value? <=> improvement? \
-		<= Request_field $mol_form_field
-			name \Идеи? Предложения?
-			control <= Request $mol_textarea
-				value? <=> request? \
-		<= Opinions $mol_list
-			rows <= opinions /
+		<= Form $mol_form
+			form_fields /
+				<= Pleasant_field $mol_form_field
+					name \💗 Что понравилось?
+					control <= Pleasant $mol_textarea
+						value? <=> pleasant? \
+				<= Improvement_field $mol_form_field
+					name \📌 Что можно улучшить?
+					control <= Improvement $mol_textarea
+						value? <=> improvement? \
+				<= Request_field $mol_form_field
+					name \🙏 Идеи? Предложения?
+					control <= Request $mol_textarea
+						value? <=> request? \
+		<= Opinions $mol_section
+			title \Отзывы
+			level 2
+			tools /
+				<= Opinions_hint $mol_hint
+					dictionary * visible \Видны только вам
+			content <= opinions /
 				<= Opinion*0 $mol_text
 					text <= opinion* \
 
@@ -902,10 +955,11 @@ $hyoo_survey_app $mol_book2_catalog
 	theme \$mol_theme_dark
 	param \meet
 	realm $hyoo_crus_realm
-	menu_title \$hyoo_survey
+	menu_title \Встречи
 	menu_tools /
 		<= Meet_add $mol_button_minor
 			click? <=> meet_add? null
+			hint \Добавить свою встречу
 			sub /
 				<= Meet_add_icon $mol_icon_plus
 	menu_foot /
@@ -915,3 +969,4 @@ $hyoo_survey_app $mol_book2_catalog
 			realm <= realm
 	Spread*0 <= Meet* $hyoo_survey_meet_form
 		meet <= meet* $hyoo_survey_meet
+		visible? <=> meet_visible*? false

@@ -3,7 +3,7 @@ $hyoo_survey_app $mol_book2_catalog
 	theme \$mol_theme_dark
 	param \meet
 	realm $hyoo_crus_realm
-	menu_title \Встречи
+	menu_title \✨ Встречи
 	menu_tools /
 		<= Meet_add $mol_button_minor
 			click? <=> meet_add? null
@@ -18,3 +18,19 @@ $hyoo_survey_app $mol_book2_catalog
 	Spread*0 <= Meet* $hyoo_survey_meet_form
 		meet <= meet* $hyoo_survey_meet
 		visible? <=> meet_visible*? false
+		Close <= Spread_close
+	Spread_default <= Meet*HzmGerrV_wKbYhRnp
+	Placeholder $mol_page
+		title \🤗 Ламповые отзывы
+		body /
+			<= About $mol_text
+				text \
+					\= Как этим пользоваться
+					\➕ Создаёшь встречу слева в меню
+					\🔗 Делишься ссылкой на неё
+					\👁‍🗨 Видишь приход обратной связи
+					\
+					\= Как оно работает
+					\🔐 Отзывы доступны только автору
+					\💨 Всё сохраняется мгновенно
+					\💟 Никакой рекламы или слежки

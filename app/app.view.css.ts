@@ -2,18 +2,21 @@ namespace $.$$ {
 	
 	$mol_style_define( $hyoo_survey_app, {
 
-		'--mol_theme_hue': '275deg',
+		justify: {
+			content: 'space-between',
+		},
 		
 		Menu: {
 			flex: {
-				basis: `15rem`,
+				basis: `20rem`,
 			},
 		},
 
 		Placeholder: {
 			flex: {
-				basis: `15rem`,
+				basis: `20rem`,
 				grow: 0,
+				shrink: 0,
 			},
 		},
 		

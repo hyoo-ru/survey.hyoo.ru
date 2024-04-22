@@ -428,18 +428,6 @@ $mol_icon_eye $mol_icon path \M12,9C10.34,9 9,10.34 9,12C9,13.66 10.34,15 12,15C
 
 $mol_check_icon $mol_check
 
-$mol_icon_share $mol_icon path \M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z
-
-$mol_icon_share_variant $mol_icon path \M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8C19.66,8 21,6.66 21,5C21,3.34 19.66,2 18,2C16.34,2 15,3.34 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9C4.34,9 3,10.34 3,12C3,13.66 4.34,15 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19C20.92,17.39 19.61,16.08 18,16.08Z
-
-$mol_button_share $mol_button_minor
-	uri \
-	capture null
-	hint @ \Share
-	sub /
-		<= Icon $mol_icon_share_variant
-		<= title \
-
 $mol_stack $mol_view
 
 $mol_text_code_token $mol_dimmer
@@ -923,7 +911,8 @@ $hyoo_survey_meet_form $mol_page
 		<= Visible $mol_check_icon
 			Icon <= Visible_icon $mol_icon_eye
 			checked? <=> visible? false
-		<= Share $mol_button_share
+		<= Close null
+		- <= Share $mol_button_share
 			capture <= Title
 	body /
 		<= Bid $mol_text text \--//Конструктивная обратная связь делает мир лучше!//--
@@ -956,7 +945,7 @@ $hyoo_survey_app $mol_book2_catalog
 	theme \$mol_theme_dark
 	param \meet
 	realm $hyoo_crus_realm
-	menu_title \Встречи
+	menu_title \✨ Встречи
 	menu_tools /
 		<= Meet_add $mol_button_minor
 			click? <=> meet_add? null
@@ -971,3 +960,19 @@ $hyoo_survey_app $mol_book2_catalog
 	Spread*0 <= Meet* $hyoo_survey_meet_form
 		meet <= meet* $hyoo_survey_meet
 		visible? <=> meet_visible*? false
+		Close <= Spread_close
+	Spread_default <= Meet*HzmGerrV_wKbYhRnp
+	Placeholder $mol_page
+		title \🤗 Ламповые отзывы
+		body /
+			<= About $mol_text
+				text \
+					\= Как этим пользоваться
+					\➕ Создаёшь встречу слева в меню
+					\🔗 Делишься ссылкой на неё
+					\👁‍🗨 Видишь приход обратной связи
+					\
+					\= Как оно работает
+					\🔐 Отзывы доступны только автору
+					\💨 Всё сохраняется мгновенно
+					\💟 Никакой рекламы или слежки

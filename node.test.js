@@ -6860,7 +6860,8 @@ var $;
                 const page = this.Spread(spread);
                 return page instanceof $mol_book2
                     && page.menu_title()
-                    || page.title();
+                    || page.title()
+                    || spread;
             }
         }
         __decorate([
@@ -12534,173 +12535,6 @@ var $;
 "use strict";
 
 ;
-	($.$mol_icon_share) = class $mol_icon_share extends ($.$mol_icon) {
-		path(){
-			return "M21,12L14,5V9C7,10 4,15 3,20C5.5,16.5 9,14.9 14,14.9V19L21,12Z";
-		}
-	};
-
-
-;
-"use strict";
-
-;
-	($.$mol_icon_share_variant) = class $mol_icon_share_variant extends ($.$mol_icon) {
-		path(){
-			return "M18,16.08C17.24,16.08 16.56,16.38 16.04,16.85L8.91,12.7C8.96,12.47 9,12.24 9,12C9,11.76 8.96,11.53 8.91,11.3L15.96,7.19C16.5,7.69 17.21,8 18,8C19.66,8 21,6.66 21,5C21,3.34 19.66,2 18,2C16.34,2 15,3.34 15,5C15,5.24 15.04,5.47 15.09,5.7L8.04,9.81C7.5,9.31 6.79,9 6,9C4.34,9 3,10.34 3,12C3,13.66 4.34,15 6,15C6.79,15 7.5,14.69 8.04,14.19L15.16,18.34C15.11,18.55 15.08,18.77 15.08,19C15.08,20.61 16.39,21.91 18,21.91C19.61,21.91 20.92,20.61 20.92,19C20.92,17.39 19.61,16.08 18,16.08Z";
-		}
-	};
-
-
-;
-"use strict";
-
-;
-	($.$mol_button_share) = class $mol_button_share extends ($.$mol_button_minor) {
-		Icon(){
-			const obj = new this.$.$mol_icon_share_variant();
-			return obj;
-		}
-		title(){
-			return "";
-		}
-		uri(){
-			return "";
-		}
-		capture(){
-			return null;
-		}
-		hint(){
-			return (this.$.$mol_locale.text("$mol_button_share_hint"));
-		}
-		sub(){
-			return [(this.Icon()), (this.title())];
-		}
-	};
-	($mol_mem(($.$mol_button_share.prototype), "Icon"));
-
-
-;
-"use strict";
-var $;
-(function ($) {
-    async function $mol_dom_capture_svg(el) {
-        function restyle(el, styles) {
-            for (let i = 0; i < styles.length; ++i) {
-                const prop = styles[i];
-                el.style[prop] = styles[prop];
-            }
-        }
-        function clone(el) {
-            const re = el.cloneNode();
-            if (el instanceof HTMLImageElement && !/^(data|blob):/.test(el.src)) {
-                const canvas = $mol_jsx("canvas", { width: el.naturalWidth, height: el.naturalHeight });
-                const context = canvas.getContext('2d');
-                context.drawImage(el, 0, 0);
-                try {
-                    ;
-                    re.src = canvas.toDataURL();
-                }
-                catch (error) {
-                    $mol_fail_log(error);
-                }
-            }
-            if (re instanceof HTMLInputElement) {
-                re.setAttribute('value', el.value);
-                if (el.checked)
-                    re.setAttribute('checked', '');
-            }
-            if (re instanceof HTMLTextAreaElement) {
-                re.setAttribute('value', el.value);
-            }
-            const styles = $mol_dom_context.getComputedStyle(el);
-            restyle(re, styles);
-            const before = $mol_dom_context.getComputedStyle(el, ':before');
-            if (before.content[0] === '"') {
-                const kid = $mol_jsx("span", null, JSON.parse(before.content));
-                restyle(kid, before);
-                re.appendChild(kid);
-            }
-            for (const kid of el.childNodes) {
-                const dup = (kid.nodeType === kid.ELEMENT_NODE)
-                    ? clone(kid)
-                    : kid.cloneNode();
-                re.appendChild(dup);
-            }
-            const after = $mol_dom_context.getComputedStyle(el, ':after');
-            if (after.content[0] === '"') {
-                const kid = $mol_jsx("span", null, JSON.parse(after.content));
-                restyle(kid, after);
-                re.appendChild(kid);
-            }
-            return re;
-        }
-        const { width, height } = el.getBoundingClientRect();
-        return $mol_jsx("svg", { xmlns: "http://www.w3.org/2000/svg", viewBox: `0 0 ${width} ${height}`, width: String(width), height: String(height) },
-            $mol_jsx("foreignObject", { xmlns: "http://www.w3.org/2000/svg", width: String(width), height: String(height) }, clone(el)));
-    }
-    $.$mol_dom_capture_svg = $mol_dom_capture_svg;
-    async function $mol_dom_capture_image(el) {
-        const xml = $mol_dom_serialize(await $mol_dom_capture_svg(el));
-        const uri = 'data:image/svg+xml,' + encodeURIComponent(xml);
-        const image = $mol_jsx("img", { src: uri });
-        await wait_load(image);
-        return image;
-    }
-    $.$mol_dom_capture_image = $mol_dom_capture_image;
-    async function $mol_dom_capture_canvas(el) {
-        const image = await $mol_dom_capture_image(el);
-        const canvas = $mol_jsx("canvas", { width: image.width, height: image.height });
-        const context = canvas.getContext('2d');
-        context.drawImage(image, 0, 0);
-        return canvas;
-    }
-    $.$mol_dom_capture_canvas = $mol_dom_capture_canvas;
-    function wait_load(el) {
-        return new Promise((done, fail) => {
-            el.onload = () => done(el);
-            el.onerror = fail;
-        });
-    }
-})($ || ($ = {}));
-
-;
-"use strict";
-
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_button_share extends $.$mol_button_share {
-            capture() {
-                return this.$.$mol_dom_context.document.body;
-            }
-            uri() {
-                return this.$.$mol_state_arg.href();
-            }
-            async click() {
-                const title = this.title();
-                const url = this.uri() ?? undefined;
-                const files = [];
-                let el = this.capture();
-                if (el) {
-                    if (el instanceof $mol_view)
-                        el = el.dom_tree();
-                    const canvas = await $mol_dom_capture_canvas(el);
-                    const blob = await new Promise(done => canvas.toBlob(done));
-                    const file = new File([blob], title + '.png', { type: blob.type });
-                    files.push(file);
-                }
-                await this.$.$mol_dom_context.navigator.share({ title, files, url });
-            }
-        }
-        $$.$mol_button_share = $mol_button_share;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-
-;
 	($.$mol_stack) = class $mol_stack extends ($.$mol_view) {};
 
 
@@ -15812,10 +15646,8 @@ var $;
 			(obj.checked) = (next) => ((this.visible(next)));
 			return obj;
 		}
-		Share(){
-			const obj = new this.$.$mol_button_share();
-			(obj.capture) = () => ((this.Title()));
-			return obj;
+		Close(){
+			return null;
 		}
 		Bid(){
 			const obj = new this.$.$mol_text();
@@ -15911,7 +15743,7 @@ var $;
 			return obj;
 		}
 		tools(){
-			return [(this.Visible()), (this.Share())];
+			return [(this.Visible()), (this.Close())];
 		}
 		body(){
 			return [
@@ -15925,7 +15757,6 @@ var $;
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Visible_icon"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "visible"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Visible"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Share"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Bid"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "pleasant"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Pleasant"));
@@ -16061,6 +15892,12 @@ var $;
 			const obj = new this.$.$hyoo_survey_meet_form();
 			(obj.meet) = () => ((this.meet(id)));
 			(obj.visible) = (next) => ((this.meet_visible(id, next)));
+			(obj.Close) = () => ((this.Spread_close()));
+			return obj;
+		}
+		About(){
+			const obj = new this.$.$mol_text();
+			(obj.text) = () => ("= Как этим пользоваться\n➕ Создаёшь встречу слева в меню\n🔗 Делишься ссылкой на неё\n👁‍🗨 Видишь приход обратной связи\n\n= Как оно работает\n🔐 Отзывы доступны только автору\n💨 Всё сохраняется мгновенно\n💟 Никакой рекламы или слежки");
 			return obj;
 		}
 		theme(){
@@ -16074,7 +15911,7 @@ var $;
 			return obj;
 		}
 		menu_title(){
-			return "Встречи";
+			return "✨ Встречи";
 		}
 		menu_tools(){
 			return [(this.Meet_add())];
@@ -16085,6 +15922,15 @@ var $;
 		Spread(id){
 			return (this.Meet(id));
 		}
+		Spread_default(){
+			return (this.Meet("HzmGerrV_wKbYhRnp"));
+		}
+		Placeholder(){
+			const obj = new this.$.$mol_page();
+			(obj.title) = () => ("🤗 Ламповые отзывы");
+			(obj.body) = () => ([(this.About())]);
+			return obj;
+		}
 	};
 	($mol_mem(($.$hyoo_survey_app.prototype), "meet_add"));
 	($mol_mem(($.$hyoo_survey_app.prototype), "Meet_add_icon"));
@@ -16094,7 +15940,9 @@ var $;
 	($mol_mem_key(($.$hyoo_survey_app.prototype), "meet"));
 	($mol_mem_key(($.$hyoo_survey_app.prototype), "meet_visible"));
 	($mol_mem_key(($.$hyoo_survey_app.prototype), "Meet"));
+	($mol_mem(($.$hyoo_survey_app.prototype), "About"));
 	($mol_mem(($.$hyoo_survey_app.prototype), "realm"));
+	($mol_mem(($.$hyoo_survey_app.prototype), "Placeholder"));
 
 
 ;
@@ -16156,16 +16004,19 @@ var $;
     var $$;
     (function ($$) {
         $mol_style_define($hyoo_survey_app, {
-            '--mol_theme_hue': '275deg',
+            justify: {
+                content: 'space-between',
+            },
             Menu: {
                 flex: {
-                    basis: `15rem`,
+                    basis: `20rem`,
                 },
             },
             Placeholder: {
                 flex: {
-                    basis: `15rem`,
+                    basis: `20rem`,
                     grow: 0,
+                    shrink: 0,
                 },
             },
         });

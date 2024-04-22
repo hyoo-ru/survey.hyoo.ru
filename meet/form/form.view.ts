@@ -16,19 +16,27 @@ namespace $.$$ {
 		request( next?: string ) {
 			return this.meet().opinion_my()?.Request( next )?.val( next ) ?? ''
 		}
+		
+		@ $mol_mem
+		is_my() {
+			return this.meet().Owner()?.val() === this.meet().land().auth().lord()
+		}
+		
+		@ $mol_mem
+		body() {
+			return [
+				this.Form(),
+				... this.is_my() ? [ this.Opinions() ] : [],
+			]
+		}
 
 		@ $mol_mem
 		opinions() {
-			if( this.meet().Owner()?.val() !== this.meet().land().auth().lord() ) return []
 			return this.meet().Opinions()?.keys().map( key => this.Opinion( key ) ) ?? []
 		}
 
 		opinion( key: string ) {
-			const opinion = this.meet().Opinions()?.key( key )?.remote()
-			if( !opinion ) return ''
-			return ( opinion.Pleasant()?.val() ?? '' ) + '\n'
-				+ ( opinion.Improvement()?.val() ?? '' ) + '\n'
-				+ ( opinion.Request()?.val() ?? '' ) + '\n'
+			return this.meet().Opinions()?.key( key )?.remote()?.brief() ?? ''
 		}
 		
 	}

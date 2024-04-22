@@ -3,10 +3,11 @@ $hyoo_survey_app $mol_book2_catalog
 	theme \$mol_theme_dark
 	param \meet
 	realm $hyoo_crus_realm
-	menu_title \$hyoo_survey
+	menu_title \Встречи
 	menu_tools /
 		<= Meet_add $mol_button_minor
 			click? <=> meet_add? null
+			hint \Добавить свою встречу
 			sub /
 				<= Meet_add_icon $mol_icon_plus
 	menu_foot /
@@ -16,3 +17,4 @@ $hyoo_survey_app $mol_book2_catalog
 			realm <= realm
 	Spread*0 <= Meet* $hyoo_survey_meet_form
 		meet <= meet* $hyoo_survey_meet
+		visible? <=> meet_visible*? false

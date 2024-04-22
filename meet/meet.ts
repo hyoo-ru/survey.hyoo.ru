@@ -7,8 +7,18 @@ namespace $ {
 
 		@ $mol_mem
 		opinion_my() {
-			const key = this.land().auth().peer()
-			return this.Opinions( true )?.key( key, true )?.remote_ensure( $hyoo_crus_rank_public ) ?? null
+			
+			const auth_my = this.land().auth()
+			const auth_owner = this.Owner()?.remote()?.land().key()
+			if( !auth_owner ) return null
+			
+			const opinion = this.Opinions( true )?.key( auth_my.peer(), true )?.remote_ensure({
+				[ auth_owner.toString() ]: auth_my.lord() === auth_owner.lord()
+					? $hyoo_crus_rank.law
+					: $hyoo_crus_rank.get,
+			}) ?? null
+			
+			return opinion
 		}
 
 	}
@@ -18,6 +28,16 @@ namespace $ {
 		Improvement: $hyoo_crus_atom_str,
 		Continue: $hyoo_crus_atom_bool,
 		Request: $hyoo_crus_atom_str,
-	}) {}
+	}) {
+		
+		@ $mol_mem
+		brief() {
+			const pleasant = this.Pleasant()?.val() ?? ''
+			const improvement = this.Improvement()?.val() ?? ''
+			const request = this.Request()?.val() ?? ''
+			return `💗 ${pleasant}\n📌 ${improvement}\n🙏 ${request}`
+		}
+		
+	}
 
 }

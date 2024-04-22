@@ -28,5 +28,10 @@ namespace $.$$ {
 			return this.realm().Node( $hyoo_crus_ref( id ), $hyoo_survey_meet )
 		}
 		
+		@ $mol_mem_key
+		meet_visible( id: string, next?: boolean ) {
+			return this.profile()?.Meets()?.has( $hyoo_crus_ref( id ), next ) ?? false
+		}
+		
 	}
 }

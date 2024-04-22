@@ -10,6 +10,7 @@ $hyoo_survey_meet_form $mol_page
 		<= Share $mol_button_share
 			capture <= Title
 	body /
+		<= Bid $mol_text text \--//Конструктивная обратная связь делает мир лучше!//--
 		<= Form $mol_form
 			form_fields /
 				<= Pleasant_field $mol_form_field

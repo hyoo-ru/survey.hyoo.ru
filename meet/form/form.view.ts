@@ -25,6 +25,7 @@ namespace $.$$ {
 		@ $mol_mem
 		body() {
 			return [
+				this.Bid(),
 				this.Form(),
 				... this.is_my() ? [ this.Opinions() ] : [],
 			]

@@ -30,7 +30,7 @@ namespace $.$$ {
 		
 		@ $mol_mem_key
 		meet_visible( id: string, next?: boolean ) {
-			return this.profile()?.Meets()?.has( $hyoo_crus_ref( id ), next ) ?? false
+			return this.profile()?.Meets( next )?.has( $hyoo_crus_ref( id ), next ) ?? false
 		}
 		
 	}

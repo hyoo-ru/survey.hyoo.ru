@@ -141,7 +141,7 @@
     "$mol_action",
     "$mol_compare_array",
     "$mol_string",
-    "$mol_icon_cross",
+    "$mol_icon_close",
     "$mol_icon",
     "$mol_svg_root",
     "$mol_svg",

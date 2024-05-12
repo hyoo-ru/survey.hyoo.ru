@@ -1,6 +1,10 @@
 namespace $.$$ {
 	export class $hyoo_survey_meet_form extends $.$hyoo_survey_meet_form {
 
+		title( next?: string ) {
+			return this.meet().Title( next )?.val( next ) ?? ''
+		}
+		
 		opinion_my( next?: string ) {
 			return this.meet().opinion_my()?.Descr( next )?.text( next ) ?? ''
 		}
@@ -21,11 +25,11 @@ namespace $.$$ {
 
 		@ $mol_mem
 		opinions() {
-			return this.meet().Opinions()?.remote()?.keys().map( key => this.Opinion( key ) ) ?? []
+			return this.meet().responders().map( person => this.Opinion( person ) ) ?? []
 		}
 
-		opinion( key: string ) {
-			return this.meet().Opinions()?.remote()?.key( key )?.remote()?.Descr()?.text() ?? ''
+		opinion( person: $hyoo_survey_person ) {
+			return this.meet().opinion( person )?.Descr()?.text() ?? ''
 		}
 		
 	}

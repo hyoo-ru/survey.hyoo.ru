@@ -21,6 +21,17 @@ namespace $ {
 			
 			return opinion
 		}
+		
+		@ $mol_mem
+		responders() {
+			const realm = this.realm()!
+			return this.Opinions()?.remote()?.keys().map( id => realm.Node( $hyoo_crus_ref( $hyoo_crus_vary_cast_str( id )! ), $hyoo_survey_person ) ) ?? []
+		}
+		
+		@ $mol_mem_key
+		opinion( person: $hyoo_survey_person ) {
+			return this.Opinions()?.remote()?.key( person.ref().description! )?.remote() ?? null
+		}
 
 	}
 	

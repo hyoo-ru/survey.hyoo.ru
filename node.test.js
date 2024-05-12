@@ -12709,12 +12709,14 @@ var $;
             }) ?? null;
             return opinion;
         }
-        responders() {
-            const realm = this.realm();
-            return this.Opinions()?.remote()?.keys().map(id => realm.Node($hyoo_crus_ref($hyoo_crus_vary_cast_str(id)), $hyoo_survey_person)) ?? [];
+        responder_refs() {
+            return this.Opinions()?.remote()?.keys()
+                .map($hyoo_crus_vary_cast_ref)
+                .filter($mol_guard_defined) ?? [];
         }
-        opinion(person) {
-            return this.Opinions()?.remote()?.key(person.ref().description)?.remote() ?? null;
+        opinion(responder) {
+            const options = this.Opinions()?.remote();
+            return options?.key(responder.description)?.remote() ?? null;
         }
     }
     __decorate([
@@ -12722,7 +12724,7 @@ var $;
     ], $hyoo_survey_meet.prototype, "opinion_my", null);
     __decorate([
         $mol_mem
-    ], $hyoo_survey_meet.prototype, "responders", null);
+    ], $hyoo_survey_meet.prototype, "responder_refs", null);
     __decorate([
         $mol_mem_key
     ], $hyoo_survey_meet.prototype, "opinion", null);
@@ -15673,6 +15675,7 @@ var $;
 			const obj = new this.$.$mol_check_icon();
 			(obj.Icon) = () => ((this?.Visible_icon()));
 			(obj.checked) = (next) => ((this?.visible(next)));
+			(obj.hint) = () => ("Видимость в меню");
 			return obj;
 		}
 		Close(){
@@ -15778,10 +15781,10 @@ var $;
                 ];
             }
             opinions() {
-                return this.meet().responders().map(person => this.Opinion(person)) ?? [];
+                return this.meet().responder_refs().map(person => this.Opinion(person)) ?? [];
             }
-            opinion(person) {
-                return this.meet().opinion(person)?.Descr()?.text() ?? '';
+            opinion(responder) {
+                return this.meet().opinion(responder)?.Descr()?.text() ?? '';
             }
         }
         __decorate([

@@ -25,11 +25,11 @@ namespace $.$$ {
 
 		@ $mol_mem
 		opinions() {
-			return this.meet().responders().map( person => this.Opinion( person ) ) ?? []
+			return this.meet().responder_refs().map( person => this.Opinion( person ) ) ?? []
 		}
 
-		opinion( person: $hyoo_survey_person ) {
-			return this.meet().opinion( person )?.Descr()?.text() ?? ''
+		opinion( responder: $hyoo_crus_ref ) {
+			return this.meet().opinion( responder )?.Descr()?.text() ?? ''
 		}
 		
 	}

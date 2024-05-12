@@ -23,14 +23,16 @@ namespace $ {
 		}
 		
 		@ $mol_mem
-		responders() {
-			const realm = this.realm()!
-			return this.Opinions()?.remote()?.keys().map( id => realm.Node( $hyoo_crus_ref( $hyoo_crus_vary_cast_str( id )! ), $hyoo_survey_person ) ) ?? []
+		responder_refs() {
+			return this.Opinions()?.remote()?.keys()
+				.map( $hyoo_crus_vary_cast_ref )
+				.filter( $mol_guard_defined ) ?? []
 		}
 		
 		@ $mol_mem_key
-		opinion( person: $hyoo_survey_person ) {
-			return this.Opinions()?.remote()?.key( person.ref().description! )?.remote() ?? null
+		opinion( responder: $hyoo_crus_ref ) {
+			const options = this.Opinions()?.remote()
+			return options?.key( responder.description! )?.remote() ?? null
 		}
 
 	}

@@ -8,6 +8,7 @@ $hyoo_survey_meet_form $mol_page
 		<= Visible $mol_check_icon
 			Icon <= Visible_icon $mol_icon_eye
 			checked? <=> visible? false
+			hint \Видимость в меню
 		<= Close null
 		- <= Share $mol_button_share
 			capture <= Title

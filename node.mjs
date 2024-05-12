@@ -15667,6 +15667,9 @@ var $;
 			if(next !== undefined) return next;
 			return "";
 		}
+		is_my(){
+			return false;
+		}
 		Visible_icon(){
 			const obj = new this.$.$mol_icon_eye();
 			return obj;
@@ -15729,6 +15732,7 @@ var $;
 			const obj = new this.$.$mol_string_button();
 			(obj.value) = (next) => ((this?.title(next)));
 			(obj.hint) = () => ("Как всё прошло?");
+			(obj.enabled) = () => ((this?.is_my()));
 			return obj;
 		}
 		tools(){

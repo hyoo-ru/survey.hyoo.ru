@@ -10218,14 +10218,10 @@ var $;
         return class Dict extends $hyoo_crus_dict {
             Value = Value;
             key(key, auto) {
-                this.has(key, auto === undefined ? undefined : true, Value.tag);
-                const unit = this.find(key);
-                if (!unit)
-                    return null;
-                return this.land().Node(this.Value).Item(unit.self());
+                return this.dive(key, this.Value, auto);
             }
             static toString() {
-                return '$hyoo_crus_dict_to(' + Value + ')';
+                return this === Dict ? '$hyoo_crus_dict_to<' + Value + '>' : super.toString();
             }
         };
     }
@@ -11096,6 +11092,7 @@ var $;
         }
         gists_ordered(head) {
             this.sync();
+            this.secret();
             const queue = [...this.gists.get(head)?.values() ?? []];
             const res = [];
             const slices = new WeakMap;
@@ -12446,8 +12443,8 @@ var $;
         Meets: $hyoo_crus_list_ref_to(() => $hyoo_survey_meet),
     }) {
         meet_make() {
-            const meet = this.Meets(true)?.remote_make($hyoo_crus_rank_orgy);
-            meet.Owner(true).val(this.land().auth().lord());
+            const meet = this.Meets(null)?.remote_make($hyoo_crus_rank_public);
+            meet.Owner(null).val(this.land().auth().lord());
             return meet;
         }
     }
@@ -12461,19 +12458,254 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    const { unicode_only, line_end, tab, repeat_greedy, optional, forbid_after, force_after, char_only, char_except } = $mol_regexp;
+    $.$hyoo_crus_text_tokens = $mol_regexp.from({
+        token: {
+            'line-break': line_end,
+            'indents': repeat_greedy(tab, 1),
+            'emoji': [
+                unicode_only('Extended_Pictographic'),
+                optional(unicode_only('Emoji_Modifier')),
+                repeat_greedy([
+                    unicode_only('Emoji_Component'),
+                    unicode_only('Extended_Pictographic'),
+                    optional(unicode_only('Emoji_Modifier')),
+                ]),
+            ],
+            'link': /\b(https?:\/\/[^\s,.;:!?")]+(?:[,.;:!?")][^\s,.;:!?")]+)+)/,
+            'Word': [
+                [
+                    forbid_after(line_end),
+                    unicode_only('White_Space'),
+                ],
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ]), 1),
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ])),
+            ],
+            'word': [
+                [
+                    forbid_after(line_end),
+                    unicode_only('White_Space'),
+                ],
+                repeat_greedy(char_only([
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ]), 1),
+            ],
+            'spaces': [
+                forbid_after(line_end),
+                repeat_greedy(unicode_only('White_Space'), 1),
+                force_after(unicode_only('White_Space')),
+            ],
+            'space': [
+                forbid_after(line_end),
+                unicode_only('White_Space'),
+                forbid_after([
+                    unicode_only('White_Space'),
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                ]),
+            ],
+            'others': [
+                repeat_greedy(char_except([
+                    unicode_only('General_Category', 'Uppercase_Letter'),
+                    unicode_only('General_Category', 'Lowercase_Letter'),
+                    unicode_only('Diacritic'),
+                    unicode_only('General_Category', 'Number'),
+                    unicode_only('White_Space'),
+                ]), 1),
+            ],
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crus_text extends $hyoo_crus_node {
+        static tag = $hyoo_crus_gist_tag[$hyoo_crus_gist_tag.vals];
+        value(next) {
+            return this.text(next);
+        }
+        text(next) {
+            if (next !== undefined) {
+                const land = this.land();
+                const prev = this.units();
+                const lines = next.match(/.*\n|.+$/g) ?? [];
+                $mol_reconcile({
+                    prev,
+                    from: 0,
+                    to: prev.length,
+                    next: lines,
+                    equal: (next, prev) => {
+                        return land.Node($hyoo_crus_text).Item(prev.self()).str() === next;
+                    },
+                    drop: (prev, lead) => this.land().post(lead?.self() ?? '', prev.head(), prev.self(), null),
+                    insert: (next, lead) => {
+                        const gist = this.land().post(lead?.self() ?? '', this.head(), land.self_make($hyoo_crus_area_of(this.head())), 'p', 'vals');
+                        land.Node($hyoo_crus_text).Item(gist.self()).str(next);
+                        return gist;
+                    },
+                    update: (next, prev, lead) => {
+                        land.Node($hyoo_crus_text).Item(prev.self()).str(next);
+                        return prev;
+                    },
+                });
+            }
+            return this.str();
+        }
+        str(next) {
+            if (next === undefined) {
+                let str = '';
+                const land = this.land();
+                for (const unit of this.units()) {
+                    if (unit.tag() === 'term')
+                        str += $hyoo_crus_vary_cast_str(land.gist_decode(unit)) ?? '';
+                    else
+                        str += land.Node($hyoo_crus_text).Item(unit.self()).str();
+                }
+                return str;
+            }
+            else {
+                this.write(next, 0, -1);
+                return this.str();
+            }
+        }
+        write(next, str_from = -1, str_to = str_from) {
+            const land = this.land();
+            const list = this.units();
+            let from = str_from < 0 ? list.length : 0;
+            let word = '';
+            while (from < list.length) {
+                word = $hyoo_crus_vary_cast_str(land.gist_decode(list[from])) ?? '';
+                if (str_from <= word.length) {
+                    next = word.slice(0, str_from) + next;
+                    break;
+                }
+                str_from -= word.length;
+                if (str_to > 0)
+                    str_to -= word.length;
+                from++;
+            }
+            let to = str_to < 0 ? list.length : from;
+            while (to < list.length) {
+                word = $hyoo_crus_vary_cast_str(land.gist_decode(list[to])) ?? '';
+                to++;
+                if (str_to < word.length) {
+                    next = next + word.slice(str_to);
+                    break;
+                }
+                str_to -= word.length;
+            }
+            if (from && from === list.length) {
+                --from;
+                next = ($hyoo_crus_vary_cast_str(land.gist_decode(list[from])) ?? '') + next;
+            }
+            const words = next.match($hyoo_crus_text_tokens) ?? [];
+            this.cast($hyoo_crus_list_vary).splice(words, from, to);
+            return this;
+        }
+        point_by_offset(offset) {
+            const land = this.land();
+            let off = offset;
+            for (const unit of this.units()) {
+                if (unit.tag() === 'term') {
+                    const len = $hyoo_crus_vary_cast_str(land.gist_decode(unit))?.length ?? 0;
+                    if (off <= len)
+                        return [unit.self(), off];
+                    else
+                        off -= len;
+                }
+                else {
+                    const found = land.Node($hyoo_crus_text).Item(unit.self()).point_by_offset(off);
+                    if (found[0])
+                        return found;
+                    off = found[1];
+                }
+            }
+            return ['', off];
+        }
+        offset_by_point([self, offset]) {
+            const land = this.land();
+            for (const unit of this.units()) {
+                if (unit.self() === self)
+                    return [self, offset];
+                if (unit.tag() === 'term') {
+                    offset += $hyoo_crus_vary_cast_str(land.gist_decode(unit))?.length ?? 0;
+                }
+                else {
+                    const found = land.Node($hyoo_crus_text).Item(unit.self()).offset_by_point([self, offset]);
+                    if (found[0])
+                        return [self, found[1]];
+                    offset = found[1];
+                }
+            }
+            return ['', offset];
+        }
+        selection(lord, next) {
+            const base = this.realm().Land(lord).Data($hyoo_crus_home);
+            if (next) {
+                base.Selection(null)?.val(next.map(offset => this.point_by_offset(offset).join(':')).join('|'));
+                return next;
+            }
+            else {
+                this.text();
+                return base.Selection()?.val()?.split('|').map(point => {
+                    const chunks = point.split(':');
+                    return this.offset_by_point([chunks[0], Number(chunks[1]) || 0])[1];
+                }) ?? [0, 0];
+            }
+        }
+    }
+    __decorate([
+        $mol_mem
+    ], $hyoo_crus_text.prototype, "text", null);
+    __decorate([
+        $mol_mem
+    ], $hyoo_crus_text.prototype, "str", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crus_text.prototype, "write", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crus_text.prototype, "point_by_offset", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crus_text.prototype, "offset_by_point", null);
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crus_text.prototype, "selection", null);
+    $.$hyoo_crus_text = $hyoo_crus_text;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     class $hyoo_survey_meet extends $hyoo_crus_entity.with({
         Owner: $hyoo_crus_atom_ref_to(() => $hyoo_survey_person),
-        Opinions: $hyoo_crus_dict_to($hyoo_crus_atom_ref_to(() => $hyoo_survey_meet_opinion)),
+        Opinions: $hyoo_crus_atom_ref_to(() => $hyoo_survey_meet_opinions),
     }) {
         opinion_my() {
-            const auth_my = this.land().auth();
-            const auth_owner = this.Owner()?.remote()?.land().key();
-            if (!auth_owner)
+            const my_auth = this.land().auth();
+            const owner_key = this.Owner()?.remote()?.land().key();
+            if (!owner_key)
                 return null;
-            const opinion = this.Opinions(true)?.key(auth_my.peer(), true)?.remote_ensure({
-                [auth_owner.toString()]: auth_my.lord() === auth_owner.lord()
-                    ? $hyoo_crus_rank.law
-                    : $hyoo_crus_rank.get,
+            const opinions = this.Opinions(null)?.remote_ensure($hyoo_crus_rank_lobby);
+            const opinion = opinions?.key(my_auth.peer(), null)?.remote_ensure({
+                [owner_key.toString()]: $hyoo_crus_rank.get,
+                [my_auth.public().toString()]: $hyoo_crus_rank.law,
             }) ?? null;
             return opinion;
         }
@@ -12482,22 +12714,13 @@ var $;
         $mol_mem
     ], $hyoo_survey_meet.prototype, "opinion_my", null);
     $.$hyoo_survey_meet = $hyoo_survey_meet;
-    class $hyoo_survey_meet_opinion extends $hyoo_crus_entity.with({
-        Pleasant: $hyoo_crus_atom_str,
-        Improvement: $hyoo_crus_atom_str,
-        Continue: $hyoo_crus_atom_bool,
-        Request: $hyoo_crus_atom_str,
-    }) {
-        brief() {
-            const pleasant = this.Pleasant()?.val() ?? '';
-            const improvement = this.Improvement()?.val() ?? '';
-            const request = this.Request()?.val() ?? '';
-            return `💗 ${pleasant}\n📌 ${improvement}\n🙏 ${request}`;
-        }
+    class $hyoo_survey_meet_opinions extends $hyoo_crus_dict_to($hyoo_crus_atom_ref_to(() => $hyoo_survey_meet_opinion)) {
     }
-    __decorate([
-        $mol_mem
-    ], $hyoo_survey_meet_opinion.prototype, "brief", null);
+    $.$hyoo_survey_meet_opinions = $hyoo_survey_meet_opinions;
+    class $hyoo_survey_meet_opinion extends $hyoo_crus_dict.with({
+        Descr: $hyoo_crus_text,
+    }) {
+    }
     $.$hyoo_survey_meet_opinion = $hyoo_survey_meet_opinion;
 })($ || ($ = {}));
 
@@ -15130,208 +15353,6 @@ var $;
 })($ || ($ = {}));
 
 ;
-	($.$mol_labeler) = class $mol_labeler extends ($.$mol_list) {
-		label(){
-			return [(this.title())];
-		}
-		Label(){
-			const obj = new this.$.$mol_view();
-			(obj.minimal_height) = () => (32);
-			(obj.sub) = () => ((this.label()));
-			return obj;
-		}
-		content(){
-			return [];
-		}
-		Content(){
-			const obj = new this.$.$mol_view();
-			(obj.minimal_height) = () => (24);
-			(obj.sub) = () => ((this.content()));
-			return obj;
-		}
-		rows(){
-			return [(this.Label()), (this.Content())];
-		}
-	};
-	($mol_mem(($.$mol_labeler.prototype), "Label"));
-	($mol_mem(($.$mol_labeler.prototype), "Content"));
-
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_style_attach("mol/labeler/labeler.view.css", "[mol_labeler] {\n\tdisplay: flex;\n\tflex-direction: column;\n\talign-items: stretch;\n\tcursor: inherit;\n}\n\n[mol_labeler_label] {\n\tmin-height: 2rem;\n\tcolor: var(--mol_theme_shade);\n\tpadding: .5rem .75rem 0;\n\tgap: 0 var(--mol_gap_block);\n\tflex-wrap: wrap;\n}\n\n[mol_labeler_content] {\n\tdisplay: flex;\n\tpadding: var(--mol_gap_text);\n}\n");
-})($ || ($ = {}));
-
-;
-"use strict";
-
-;
-	($.$mol_form_field) = class $mol_form_field extends ($.$mol_labeler) {
-		name(){
-			return "";
-		}
-		bid(){
-			return "";
-		}
-		Bid(){
-			const obj = new this.$.$mol_view();
-			(obj.sub) = () => ([(this.bid())]);
-			return obj;
-		}
-		control(){
-			return null;
-		}
-		bids(){
-			return [];
-		}
-		label(){
-			return [(this.name()), (this.Bid())];
-		}
-		content(){
-			return [(this.control())];
-		}
-	};
-	($mol_mem(($.$mol_form_field.prototype), "Bid"));
-
-
-;
-"use strict";
-
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_form_field extends $.$mol_form_field {
-            bid() {
-                return this.bids().filter(Boolean)[0] ?? '';
-            }
-        }
-        __decorate([
-            $mol_mem
-        ], $mol_form_field.prototype, "bid", null);
-        $$.$mol_form_field = $mol_form_field;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_style_attach("mol/form/field/field.view.css", "[mol_form_field] {\n\talign-items: stretch;\n}\n\n[mol_form_field_bid] {\n\tcolor: var(--mol_theme_focus);\n\tdisplay: inline-block;\n\ttext-shadow: 0 0;\n}\n\n[mol_form_field_content] {\n\tborder-radius: var(--mol_gap_round);\n}\n");
-})($ || ($ = {}));
-
-;
-	($.$mol_row) = class $mol_row extends ($.$mol_view) {};
-
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_style_attach("mol/row/row.view.css", "[mol_row] {\n\tdisplay: flex;\n\tflex-wrap: wrap;\n\talign-items: flex-start;\n\talign-content: flex-start;\n\tjustify-content: flex-start;\n\tpadding: var(--mol_gap_block);\n\tgap: var(--mol_gap_block);\n\tflex: 0 0 auto;\n\tbox-sizing: border-box;\n\tmax-width: 100%;\n}\n\n[mol_row] > * {\n\tmax-width: 100%;\n}\n");
-})($ || ($ = {}));
-
-;
-"use strict";
-
-;
-	($.$mol_form) = class $mol_form extends ($.$mol_list) {
-		keydown(next){
-			if(next !== undefined) return next;
-			return null;
-		}
-		form_fields(){
-			return [];
-		}
-		body(){
-			return (this.form_fields());
-		}
-		Body(){
-			const obj = new this.$.$mol_list();
-			(obj.sub) = () => ((this.body()));
-			return obj;
-		}
-		buttons(){
-			return [];
-		}
-		foot(){
-			return (this.buttons());
-		}
-		Foot(){
-			const obj = new this.$.$mol_row();
-			(obj.sub) = () => ((this.foot()));
-			return obj;
-		}
-		submit_allowed(){
-			return true;
-		}
-		submit_blocked(){
-			return false;
-		}
-		event(){
-			return {...(super.event()), "keydown": (next) => (this.keydown(next))};
-		}
-		submit(next){
-			if(next !== undefined) return next;
-			return null;
-		}
-		rows(){
-			return [(this.Body()), (this.Foot())];
-		}
-	};
-	($mol_mem(($.$mol_form.prototype), "keydown"));
-	($mol_mem(($.$mol_form.prototype), "Body"));
-	($mol_mem(($.$mol_form.prototype), "Foot"));
-	($mol_mem(($.$mol_form.prototype), "submit"));
-
-
-;
-"use strict";
-
-;
-"use strict";
-var $;
-(function ($) {
-    var $$;
-    (function ($$) {
-        class $mol_form extends $.$mol_form {
-            form_fields() {
-                return [...this.view_find(view => view instanceof $mol_form_field)]
-                    .map(path => path[path.length - 1]);
-            }
-            submit_allowed() {
-                return this.form_fields().every(field => !field.bid());
-            }
-            submit_blocked() {
-                return !this.submit_allowed();
-            }
-            keydown(next) {
-                if (next.ctrlKey && next.keyCode === $mol_keyboard_code.enter && !this.submit_blocked())
-                    this.submit(event);
-            }
-        }
-        __decorate([
-            $mol_mem
-        ], $mol_form.prototype, "form_fields", null);
-        __decorate([
-            $mol_mem
-        ], $mol_form.prototype, "submit_allowed", null);
-        $$.$mol_form = $mol_form;
-    })($$ = $.$$ || ($.$$ = {}));
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_style_attach("mol/form/form.view.css", "[mol_form] {\r\n\tgap: var(--mol_gap_block);\r\n}\r\n\r\n[mol_form_body] {\r\n\tgap: var(--mol_gap_block);\r\n}");
-})($ || ($ = {}));
-
-;
 	($.$mol_icon_help) = class $mol_icon_help extends ($.$mol_icon) {
 		path(){
 			return "M10,19H13V22H10V19M12,2C17.35,2.22 19.68,7.62 16.5,11.67C15.67,12.67 14.33,13.33 13.67,14.17C13,15 13,16 13,17H10C10,15.33 10,13.92 10.67,12.92C11.33,11.92 12.67,11.33 13.5,10.67C15.92,8.43 15.32,5.26 12,5A3,3 0 0,0 9,8H6A6,6 0 0,1 12,2Z";
@@ -15643,61 +15664,16 @@ var $;
 		}
 		Bid(){
 			const obj = new this.$.$mol_text();
-			(obj.text) = () => ("--//Конструктивная обратная связь делает мир лучше!//--");
+			(obj.text) = () => ("//Конструктивная обратная связь делает мир лучше!// Расскажи:\n💗 Что **понравилось**?\n📌 Что можно было бы сделать **лучше**?\n🙏 Ещё идеи и **предложения** на будущее?");
 			return obj;
 		}
-		pleasant(next){
+		opinion_my(next){
 			if(next !== undefined) return next;
 			return "";
 		}
-		Pleasant(){
+		Opinion_my(){
 			const obj = new this.$.$mol_textarea();
-			(obj.value) = (next) => ((this.pleasant(next)));
-			return obj;
-		}
-		Pleasant_field(){
-			const obj = new this.$.$mol_form_field();
-			(obj.name) = () => ("💗 Что понравилось?");
-			(obj.control) = () => ((this.Pleasant()));
-			return obj;
-		}
-		improvement(next){
-			if(next !== undefined) return next;
-			return "";
-		}
-		Improvement(){
-			const obj = new this.$.$mol_textarea();
-			(obj.value) = (next) => ((this.improvement(next)));
-			return obj;
-		}
-		Improvement_field(){
-			const obj = new this.$.$mol_form_field();
-			(obj.name) = () => ("📌 Что можно улучшить?");
-			(obj.control) = () => ((this.Improvement()));
-			return obj;
-		}
-		request(next){
-			if(next !== undefined) return next;
-			return "";
-		}
-		Request(){
-			const obj = new this.$.$mol_textarea();
-			(obj.value) = (next) => ((this.request(next)));
-			return obj;
-		}
-		Request_field(){
-			const obj = new this.$.$mol_form_field();
-			(obj.name) = () => ("🙏 Идеи? Предложения?");
-			(obj.control) = () => ((this.Request()));
-			return obj;
-		}
-		Form(){
-			const obj = new this.$.$mol_form();
-			(obj.form_fields) = () => ([
-				(this.Pleasant_field()), 
-				(this.Improvement_field()), 
-				(this.Request_field())
-			]);
+			(obj.value) = (next) => ((this.opinion_my(next)));
 			return obj;
 		}
 		Opinions_hint(){
@@ -15740,7 +15716,7 @@ var $;
 		body(){
 			return [
 				(this.Bid()), 
-				(this.Form()), 
+				(this.Opinion_my()), 
 				(this.Opinions())
 			];
 		}
@@ -15750,16 +15726,8 @@ var $;
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "visible"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Visible"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Bid"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "pleasant"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Pleasant"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Pleasant_field"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "improvement"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Improvement"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Improvement_field"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "request"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Request"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Request_field"));
-	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Form"));
+	($mol_mem(($.$hyoo_survey_meet_form.prototype), "opinion_my"));
+	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinion_my"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinions_hint"));
 	($mol_mem_key(($.$hyoo_survey_meet_form.prototype), "Opinion"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinions"));
@@ -15780,14 +15748,8 @@ var $;
             title(next) {
                 return this.meet().Title(next)?.val(next) ?? '';
             }
-            pleasant(next) {
-                return this.meet().opinion_my()?.Pleasant(next)?.val(next) ?? '';
-            }
-            improvement(next) {
-                return this.meet().opinion_my()?.Improvement(next)?.val(next) ?? '';
-            }
-            request(next) {
-                return this.meet().opinion_my()?.Request(next)?.val(next) ?? '';
+            opinion_my(next) {
+                return this.meet().opinion_my()?.Descr(next)?.text(next) ?? '';
             }
             is_my() {
                 return this.meet().Owner()?.val() === this.meet().land().auth().lord();
@@ -15795,15 +15757,15 @@ var $;
             body() {
                 return [
                     this.Bid(),
-                    this.Form(),
+                    this.Opinion_my(),
                     ...this.is_my() ? [this.Opinions()] : [],
                 ];
             }
             opinions() {
-                return this.meet().Opinions()?.keys().map(key => this.Opinion(key)) ?? [];
+                return this.meet().Opinions()?.remote()?.keys().map(key => this.Opinion(key)) ?? [];
             }
             opinion(key) {
-                return this.meet().Opinions()?.key(key)?.remote()?.brief() ?? '';
+                return this.meet().Opinions()?.remote()?.key(key)?.remote()?.Descr()?.text() ?? '';
             }
         }
         __decorate([
@@ -15834,6 +15796,9 @@ var $;
                 flex: {
                     grow: 0,
                 },
+            },
+            Opinion_my: {
+                margin: $mol_gap.block,
             },
             Opinion: {
                 background: {
@@ -21176,6 +21141,139 @@ var $;
             const base = realm.home();
             const hall = base.hall_by($hyoo_crus_dict, $hyoo_crus_rank_public);
             $mol_assert_unique(base.land(), hall);
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'empty string'() {
+            $mol_assert_equal(''.match($hyoo_crus_text_tokens), null);
+        },
+        'new lines'() {
+            $mol_assert_equal('\n\r\n'.match($hyoo_crus_text_tokens), ['\n', '\r\n']);
+        },
+        'numbers'() {
+            $mol_assert_equal('123'.match($hyoo_crus_text_tokens), ['123']);
+        },
+        'emoji'() {
+            $mol_assert_equal('😀😁'.match($hyoo_crus_text_tokens), ['😀', '😁']);
+        },
+        'emoji with modifier'() {
+            $mol_assert_equal('👩🏿👩🏿'.match($hyoo_crus_text_tokens), ['👩🏿', '👩🏿']);
+        },
+        'combo emoji with modifier'() {
+            $mol_assert_equal('👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿'.match($hyoo_crus_text_tokens), ['👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿']);
+        },
+        'word with spaces'() {
+            $mol_assert_equal('foo1  bar2'.match($hyoo_crus_text_tokens), ['foo1', ' ', ' bar2']);
+        },
+        'word with diactric'() {
+            $mol_assert_equal('Е́е́'.match($hyoo_crus_text_tokens), ['Е́е́']);
+        },
+        'word with punctuation'() {
+            $mol_assert_equal('foo--bar'.match($hyoo_crus_text_tokens), ['foo', '--', 'bar']);
+        },
+        'CamelCase'() {
+            $mol_assert_equal('Foo1BAR2'.match($hyoo_crus_text_tokens), ['Foo1', 'BAR2']);
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($_1) {
+    $mol_test({
+        'Change sequences'($) {
+            const land = $hyoo_crus_land.make({ $ });
+            const text = land.Data($hyoo_crus_text);
+            const list = land.Data($hyoo_crus_list_vary);
+            $mol_assert_equal(text.str(), '');
+            $mol_assert_equal(list.items_vary(), []);
+            text.str('foo');
+            $mol_assert_equal(text.str(), 'foo');
+            $mol_assert_equal(list.items_vary(), ['foo']);
+            text.str('foo bar');
+            $mol_assert_equal(text.str(), 'foo bar');
+            $mol_assert_equal(list.items_vary(), ['foo', ' bar']);
+            text.str('foo lol bar');
+            $mol_assert_equal(text.str(), 'foo lol bar');
+            $mol_assert_equal(list.items_vary(), ['foo', ' lol', ' bar']);
+            text.str('lol bar');
+            $mol_assert_equal(text.str(), 'lol bar');
+            $mol_assert_equal(list.items_vary(), ['lol', ' bar']);
+            text.str('foo bar');
+            $mol_assert_equal(text.str(), 'foo bar');
+            $mol_assert_equal(list.items_vary(), ['foo', ' bar']);
+            text.str('foo  bar');
+            $mol_assert_equal(text.str(), 'foo  bar');
+            $mol_assert_equal(list.items_vary(), ['foo', ' ', ' bar']);
+            text.str('foo  BarBar');
+            $mol_assert_equal(text.str(), 'foo  BarBar');
+            $mol_assert_equal(list.items_vary(), ['foo', ' ', ' Bar', 'Bar']);
+        },
+        async 'str: Offset <=> Point'($) {
+            const land = $hyoo_crus_land.make({ $ });
+            const text = land.Data($hyoo_crus_text);
+            text.str('fooBar');
+            const [first, second] = text.units();
+            $mol_assert_equal(text.point_by_offset(0), [first.self(), 0]);
+            $mol_assert_equal(text.offset_by_point([first.self(), 0]), [first.self(), 0]);
+            $mol_assert_equal(text.point_by_offset(3), [first.self(), 3]);
+            $mol_assert_equal(text.offset_by_point([first.self(), 3]), [first.self(), 3]);
+            $mol_assert_equal(text.offset_by_point([first.self(), 5]), [first.self(), 5]);
+            $mol_assert_equal(text.point_by_offset(5), [second.self(), 2]);
+            $mol_assert_equal(text.offset_by_point([second.self(), 2]), [second.self(), 5]);
+            $mol_assert_equal(text.point_by_offset(6), [second.self(), 3]);
+            $mol_assert_equal(text.offset_by_point([second.self(), 3]), [second.self(), 6]);
+            $mol_assert_equal(text.point_by_offset(7), ['', 1]);
+            $mol_assert_equal(text.offset_by_point(['', 1]), ['', 7]);
+        },
+        async 'text: Offset <=> Point'($) {
+            const land = $hyoo_crus_land.make({ $ });
+            const text = land.Data($hyoo_crus_text);
+            text.text('foo bar\n666 777');
+            const [first, second] = text.nodes($hyoo_crus_text);
+            $mol_assert_equal(text.point_by_offset(0), [first.units()[0].self(), 0]);
+            $mol_assert_equal(text.offset_by_point([first.units()[0].self(), 0]), [first.units()[0].self(), 0]);
+            $mol_assert_equal(text.point_by_offset(8), [first.units()[2].self(), 1]);
+            $mol_assert_equal(text.offset_by_point([first.units()[2].self(), 1]), [first.units()[2].self(), 8]);
+        },
+        async 'Merge different sequences'($) {
+            const land1 = $hyoo_crus_land.make({ $ });
+            const land2 = $hyoo_crus_land.make({ $ });
+            const text1 = land1.Node($hyoo_crus_text).Item('');
+            const text2 = land2.Node($hyoo_crus_text).Item('');
+            text1.str('foo bar.');
+            land2.faces.sync(land1.faces);
+            text2.str('xxx yyy.');
+            const delta1 = land1.delta_unit();
+            const delta2 = land2.delta_unit();
+            land1.apply_unit_trust(delta2);
+            land2.apply_unit_trust(delta1);
+            $mol_assert_equal(text1.str(), text2.str(), 'xxx yyy.foo bar.');
+        },
+        async 'Merge same insertions with different changes to same place'($) {
+            const base = $hyoo_crus_land.make({ $ });
+            base.Data($hyoo_crus_text).str('( )');
+            const left = $hyoo_crus_land.make({ $ });
+            left.apply_unit_trust(base.delta_unit());
+            left.Data($hyoo_crus_text).str('( [ f ] )');
+            left.Data($hyoo_crus_text).str('( [ foo ] )');
+            const right = $hyoo_crus_land.make({ $ });
+            right.apply_unit_trust(base.delta_unit());
+            right.faces.sync(left.faces);
+            right.Data($hyoo_crus_text).str('( [ f ] )');
+            right.Data($hyoo_crus_text).str('( [ fu ] )');
+            const left_delta = left.delta_unit(base.faces);
+            const right_delta = right.delta_unit(base.faces);
+            left.apply_unit_trust(right_delta);
+            right.apply_unit_trust(left_delta);
+            $mol_assert_equal(left.Data($hyoo_crus_text).str(), right.Data($hyoo_crus_text).str(), '( [ fu ] [ foo ] )');
         },
     });
 })($ || ($ = {}));

@@ -829,39 +829,6 @@ $mol_textarea_edit $mol_string
 		^
 		scrollTop 0
 
-$mol_labeler $mol_list
-	rows /
-		<= Label $mol_view
-			minimal_height 32
-			sub <= label /$mol_view_content
-				<= title
-		<= Content $mol_view
-			minimal_height 24
-			sub <= content /
-
-$mol_form_field $mol_labeler
-	bids /string
-	label /
-		<= name \
-		<= Bid $mol_view
-			sub / <= bid \
-	content / <= control null
-
-$mol_row $mol_view
-
-$mol_form $mol_list
-	submit_allowed true
-	submit_blocked false
-	event *
-		^
-		keydown?event <=> keydown?event null
-	submit?event null
-	rows /
-		<= Body $mol_list
-			sub <= body <= form_fields /$mol_form_field
-		<= Foot $mol_row
-			sub <= foot <= buttons /$mol_view
-
 $mol_icon_help $mol_icon path \M10,19H13V22H10V19M12,2C17.35,2.22 19.68,7.62 16.5,11.67C15.67,12.67 14.33,13.33 13.67,14.17C13,15 13,16 13,17H10C10,15.33 10,13.92 10.67,12.92C11.33,11.92 12.67,11.33 13.5,10.67C15.92,8.43 15.32,5.26 12,5A3,3 0 0,0 9,8H6A6,6 0 0,1 12,2Z
 
 $mol_icon_help_circle $mol_icon path \M15.07,11.25L14.17,12.17C13.45,12.89 13,13.5 13,15H11V14.5C11,13.39 11.45,12.39 12.17,11.67L13.41,10.41C13.78,10.05 14,9.55 14,9C14,7.89 13.1,7 12,7A2,2 0 0,0 10,9H8A4,4 0 0,1 12,5A4,4 0 0,1 16,9C16,9.88 15.64,10.67 15.07,11.25M13,19H11V17H13M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z
@@ -915,21 +882,13 @@ $hyoo_survey_meet_form $mol_page
 		- <= Share $mol_button_share
 			capture <= Title
 	body /
-		<= Bid $mol_text text \--//Конструктивная обратная связь делает мир лучше!//--
-		<= Form $mol_form
-			form_fields /
-				<= Pleasant_field $mol_form_field
-					name \💗 Что понравилось?
-					control <= Pleasant $mol_textarea
-						value? <=> pleasant? \
-				<= Improvement_field $mol_form_field
-					name \📌 Что можно улучшить?
-					control <= Improvement $mol_textarea
-						value? <=> improvement? \
-				<= Request_field $mol_form_field
-					name \🙏 Идеи? Предложения?
-					control <= Request $mol_textarea
-						value? <=> request? \
+		<= Bid $mol_text text \
+			\//Конструктивная обратная связь делает мир лучше!// Расскажи:
+			\💗 Что **понравилось**?
+			\📌 Что можно было бы сделать **лучше**?
+			\🙏 Ещё идеи и **предложения** на будущее?
+		<= Opinion_my $mol_textarea
+			value? <=> opinion_my? \
 		<= Opinions $mol_section
 			title \Отзывы
 			level 2

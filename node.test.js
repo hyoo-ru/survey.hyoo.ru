@@ -6937,6 +6937,36 @@ var $;
 "use strict";
 
 ;
+"use strict";
+var $;
+(function ($) {
+    function parse(theme) {
+        if (theme === 'true')
+            return true;
+        if (theme === 'false')
+            return false;
+        return null;
+    }
+    function $mol_lights(next) {
+        const arg = parse(this.$mol_state_arg.value('mol_lights'));
+        const base = false;
+        if (next === undefined) {
+            return arg ?? this.$mol_state_local.value('$mol_lights') ?? base;
+        }
+        else {
+            if (arg === null) {
+                this.$mol_state_local.value('$mol_lights', next === base ? null : next);
+            }
+            else {
+                this.$mol_state_arg.value('mol_lights', String(next));
+            }
+            return next;
+        }
+    }
+    $.$mol_lights = $mol_lights;
+})($ || ($ = {}));
+
+;
 	($.$mol_check) = class $mol_check extends ($.$mol_button_minor) {
 		checked(next){
 			if(next !== undefined) return next;
@@ -7026,6 +7056,73 @@ var $;
             }
         }
         $$.$mol_check = $mol_check;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
+	($.$mol_check_icon) = class $mol_check_icon extends ($.$mol_check) {};
+
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_style_attach("mol/check/icon/icon.view.css", "[mol_check_icon]:where([mol_check_checked]) {\n\tcolor: var(--mol_theme_current);\n}\n");
+})($ || ($ = {}));
+
+;
+"use strict";
+
+;
+	($.$mol_icon_brightness_6) = class $mol_icon_brightness_6 extends ($.$mol_icon) {
+		path(){
+			return "M12,18V6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,15.31L23.31,12L20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31Z";
+		}
+	};
+
+
+;
+"use strict";
+
+;
+	($.$mol_lights_toggle) = class $mol_lights_toggle extends ($.$mol_check_icon) {
+		Lights_icon(){
+			const obj = new this.$.$mol_icon_brightness_6();
+			return obj;
+		}
+		lights(next){
+			if(next !== undefined) return next;
+			return false;
+		}
+		Icon(){
+			return (this?.Lights_icon());
+		}
+		hint(){
+			return (this.$.$mol_locale.text("$mol_lights_toggle_hint"));
+		}
+		checked(next){
+			return (this?.lights(next));
+		}
+	};
+	($mol_mem(($.$mol_lights_toggle.prototype), "Lights_icon"));
+	($mol_mem(($.$mol_lights_toggle.prototype), "lights"));
+
+
+;
+"use strict";
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_lights_toggle extends $.$mol_lights_toggle {
+            lights(next) {
+                return this.$.$mol_lights(next);
+            }
+        }
+        $$.$mol_lights_toggle = $mol_lights_toggle;
     })($$ = $.$$ || ($.$$ = {}));
 })($ || ($ = {}));
 
@@ -12426,6 +12523,35 @@ var $;
 "use strict";
 
 ;
+	($.$mol_theme_auto) = class $mol_theme_auto extends ($.$mol_plugin) {
+		theme(){
+			return "";
+		}
+		attr(){
+			return {"mol_theme": (this?.theme())};
+		}
+	};
+
+
+;
+"use strict";
+
+;
+"use strict";
+var $;
+(function ($) {
+    var $$;
+    (function ($$) {
+        class $mol_theme_auto extends $.$mol_theme_auto {
+            theme() {
+                return this.$.$mol_lights() ? '$mol_theme_light' : '$mol_theme_dark';
+            }
+        }
+        $$.$mol_theme_auto = $mol_theme_auto;
+    })($$ = $.$$ || ($.$$ = {}));
+})($ || ($ = {}));
+
+;
 "use strict";
 var $;
 (function ($) {
@@ -12747,20 +12873,6 @@ var $;
 		}
 	};
 
-
-;
-"use strict";
-
-;
-	($.$mol_check_icon) = class $mol_check_icon extends ($.$mol_check) {};
-
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_style_attach("mol/check/icon/icon.view.css", "[mol_check_icon]:where([mol_check_checked]) {\n\tcolor: var(--mol_theme_current);\n}\n");
-})($ || ($ = {}));
 
 ;
 "use strict";
@@ -15852,9 +15964,17 @@ var $;
 			(obj.uri) = () => ("https://github.com/hyoo-ru/survey.hyoo.ru");
 			return obj;
 		}
+		Lights(){
+			const obj = new this.$.$mol_lights_toggle();
+			return obj;
+		}
 		Crus_status(){
 			const obj = new this.$.$hyoo_crus_status();
 			(obj.realm) = () => ((this?.realm()));
+			return obj;
+		}
+		Theme(){
+			const obj = new this.$.$mol_theme_auto();
 			return obj;
 		}
 		meet(id){
@@ -15877,9 +15997,6 @@ var $;
 			(obj.text) = () => ("= Как этим пользоваться\n➕ Создаёшь встречу слева в меню\n🔗 Делишься ссылкой на неё\n👁‍🗨 Видишь приход обратной связи\n\n= Как оно работает\n🔐 Отзывы доступны только автору\n💨 Всё сохраняется мгновенно\n💟 Никакой рекламы или слежки\n\n= Как нам помочь\n\\\\Оставьте отзыв\\#!meet=HzmGerrV_wKbYhRnp\\\\\n\\\\Поддержите рублём\\https://boosty.to/hyoo\\\\\n\\\\Вливайтесь в сообщество\\https://t.me/h_y_o_o/417\\\\");
 			return obj;
 		}
-		theme(){
-			return "$mol_theme_dark";
-		}
 		param(){
 			return "meet";
 		}
@@ -15894,7 +16011,14 @@ var $;
 			return [(this?.Meet_add())];
 		}
 		menu_foot(){
-			return [(this?.Sources()), (this?.Crus_status())];
+			return [
+				(this?.Sources()), 
+				(this?.Lights()), 
+				(this?.Crus_status())
+			];
+		}
+		plugins(){
+			return [(this?.Theme())];
 		}
 		Spread(id){
 			return (this?.Meet(id));
@@ -15910,7 +16034,9 @@ var $;
 	($mol_mem(($.$hyoo_survey_app.prototype), "Meet_add_icon"));
 	($mol_mem(($.$hyoo_survey_app.prototype), "Meet_add"));
 	($mol_mem(($.$hyoo_survey_app.prototype), "Sources"));
+	($mol_mem(($.$hyoo_survey_app.prototype), "Lights"));
 	($mol_mem(($.$hyoo_survey_app.prototype), "Crus_status"));
+	($mol_mem(($.$hyoo_survey_app.prototype), "Theme"));
 	($mol_mem_key(($.$hyoo_survey_app.prototype), "meet"));
 	($mol_mem_key(($.$hyoo_survey_app.prototype), "meet_visible"));
 	($mol_mem_key(($.$hyoo_survey_app.prototype), "Meet"));

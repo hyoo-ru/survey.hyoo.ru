@@ -348,6 +348,15 @@ $mol_check $mol_button_minor
 				sub /
 					<= title \
 
+$mol_check_icon $mol_check
+
+$mol_icon_brightness_6 $mol_icon path \M12,18V6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,15.31L23.31,12L20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31Z
+
+$mol_lights_toggle $mol_check_icon
+	Icon <= Lights_icon $mol_icon_brightness_6
+	hint @ \Toggle lights
+	checked? <=> lights? false
+
 $mol_pick $mol_pop
 	event *
 		^
@@ -425,9 +434,10 @@ $hyoo_crus_status $mol_select
 				<= Fail $mol_icon_sync_off
 			hint <= message <= hint \Sync status
 
-$mol_icon_eye $mol_icon path \M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z
+$mol_theme_auto $mol_plugin
+	attr * mol_theme <= theme \
 
-$mol_check_icon $mol_check
+$mol_icon_eye $mol_icon path \M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z
 
 $mol_stack $mol_view
 
@@ -903,7 +913,6 @@ $hyoo_survey_meet_form $mol_page
 
 $hyoo_survey_app $mol_book2_catalog
 	- \Конструктивный отзыв делает мир лучше!
-	theme \$mol_theme_dark
 	param \meet
 	realm $hyoo_crus_realm
 	menu_title \✨ Встречи
@@ -916,9 +925,12 @@ $hyoo_survey_app $mol_book2_catalog
 	menu_foot /
 		<= Sources $mol_link_source
 			uri \https://github.com/hyoo-ru/survey.hyoo.ru
+		<= Lights $mol_lights_toggle
 		<= Crus_status $hyoo_crus_status
 			realm <= realm
-	Spread*0 <= Meet* $hyoo_survey_meet_form
+	plugins /
+		<= Theme $mol_theme_auto
+	Spread* <= Meet* $hyoo_survey_meet_form
 		meet <= meet* $hyoo_survey_meet
 		visible? <=> meet_visible*? false
 		Close <= Spread_close

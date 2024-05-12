@@ -10,7 +10,7 @@ namespace $.$$ {
 
 		@ $mol_mem
 		profile() {
-			return this.realm().home().hall_by( $hyoo_survey_person, $hyoo_crus_rank_public )
+			return this.realm().home().hall_by( $hyoo_survey_person, {} )
 		}
 
 		meet_add() {

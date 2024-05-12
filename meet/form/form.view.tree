@@ -1,7 +1,11 @@
 $hyoo_survey_meet_form $mol_page
 	meet $hyoo_survey_meet
+		Title? => meet_title? val? => title?
+		opinion_my => meet_opinion_my
+			Descr? => meet_opinion_my_descr?
+				text? => opinion_my?
 	Title $mol_string_button
-		value? <=> title? \
+		value? <=> title?
 		hint \Как всё прошло?
 	tools /
 		<= Visible $mol_check_icon
@@ -17,10 +21,9 @@ $hyoo_survey_meet_form $mol_page
 			\📌 Что можно было бы сделать **лучше**?
 			\🙏 Ещё идеи и **предложения** на будущее?
 		<= Opinion_my $mol_textarea
-			value? <=> opinion_my? \
+			value? <=> opinion_my?
 		<= Opinions $mol_section
 			title \Отзывы
-			level 2
 			tools /
 				<= Opinions_hint $mol_hint
 					dictionary * visible \Видны только вам

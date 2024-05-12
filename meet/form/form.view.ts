@@ -5,16 +5,8 @@ namespace $.$$ {
 			return this.meet().Title( next )?.val( next ) ?? ''
 		}
 		
-		pleasant( next?: string ) {
-			return this.meet().opinion_my()?.Pleasant( next )?.val( next ) ?? ''
-		}
-		
-		improvement( next?: string ) {
-			return this.meet().opinion_my()?.Improvement( next )?.val( next ) ?? ''
-		}
-		
-		request( next?: string ) {
-			return this.meet().opinion_my()?.Request( next )?.val( next ) ?? ''
+		opinion_my( next?: string ) {
+			return this.meet().opinion_my()?.Descr( next )?.text( next ) ?? ''
 		}
 		
 		@ $mol_mem
@@ -26,18 +18,18 @@ namespace $.$$ {
 		body() {
 			return [
 				this.Bid(),
-				this.Form(),
+				this.Opinion_my(),
 				... this.is_my() ? [ this.Opinions() ] : [],
 			]
 		}
 
 		@ $mol_mem
 		opinions() {
-			return this.meet().Opinions()?.keys().map( key => this.Opinion( key ) ) ?? []
+			return this.meet().Opinions()?.remote()?.keys().map( key => this.Opinion( key ) ) ?? []
 		}
 
 		opinion( key: string ) {
-			return this.meet().Opinions()?.key( key )?.remote()?.brief() ?? ''
+			return this.meet().Opinions()?.remote()?.key( key )?.remote()?.Descr()?.text() ?? ''
 		}
 		
 	}

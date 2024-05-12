@@ -14,6 +14,10 @@ namespace $.$$ {
 			},
 		},
 		
+		Opinion_my: {
+			margin: $mol_gap.block, 
+		},
+		
 		Opinion: {
 			background: {
 				color: $mol_theme.card,

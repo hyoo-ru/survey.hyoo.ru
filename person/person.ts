@@ -5,10 +5,10 @@ namespace $ {
 		
 		@ $mol_action
 		meet_make() {
-			const meet = this.Meets(true)?.remote_make( $hyoo_crus_rank_orgy )!
-			meet.Owner( true )!.val( this.land().auth().lord() )
+			const meet = this.Meets(null)?.remote_make( $hyoo_crus_rank_public )!
+			meet.Owner(null)!.val( this.land().auth().lord() )
 			return meet
 		}
-
+		
 	}
 }

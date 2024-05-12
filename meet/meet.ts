@@ -2,20 +2,21 @@ namespace $ {
 	
 	export class $hyoo_survey_meet extends $hyoo_crus_entity.with({
 		Owner: $hyoo_crus_atom_ref_to( ()=> $hyoo_survey_person ),
-		Opinions: $hyoo_crus_dict_to( $hyoo_crus_atom_ref_to( ()=> $hyoo_survey_meet_opinion ) ),
+		Opinions: $hyoo_crus_atom_ref_to( ()=> $hyoo_survey_meet_opinions ),
 	}) {
 
 		@ $mol_mem
 		opinion_my() {
 			
-			const auth_my = this.land().auth()
-			const auth_owner = this.Owner()?.remote()?.land().key()
-			if( !auth_owner ) return null
+			const my_auth = this.land().auth()
+			const owner_key = this.Owner()?.remote()?.land().key()
+			if( !owner_key ) return null
 			
-			const opinion = this.Opinions( true )?.key( auth_my.peer(), true )?.remote_ensure({
-				[ auth_owner.toString() ]: auth_my.lord() === auth_owner.lord()
-					? $hyoo_crus_rank.law
-					: $hyoo_crus_rank.get,
+			const opinions = this.Opinions(null)?.remote_ensure( $hyoo_crus_rank_lobby )
+			
+			const opinion = opinions?.key( my_auth.peer(), null )?.remote_ensure({
+				[ owner_key.toString() ]: $hyoo_crus_rank.get,
+				[ my_auth.public().toString() ]: $hyoo_crus_rank.law,
 			}) ?? null
 			
 			return opinion
@@ -23,21 +24,12 @@ namespace $ {
 
 	}
 	
-	export class $hyoo_survey_meet_opinion extends $hyoo_crus_entity.with({
-		Pleasant: $hyoo_crus_atom_str,
-		Improvement: $hyoo_crus_atom_str,
-		Continue: $hyoo_crus_atom_bool,
-		Request: $hyoo_crus_atom_str,
-	}) {
-		
-		@ $mol_mem
-		brief() {
-			const pleasant = this.Pleasant()?.val() ?? ''
-			const improvement = this.Improvement()?.val() ?? ''
-			const request = this.Request()?.val() ?? ''
-			return `💗 ${pleasant}\n📌 ${improvement}\n🙏 ${request}`
-		}
-		
-	}
+	export class $hyoo_survey_meet_opinions extends $hyoo_crus_dict_to(
+		$hyoo_crus_atom_ref_to( ()=> $hyoo_survey_meet_opinion )
+	) {}
+	
+	export class $hyoo_survey_meet_opinion extends $hyoo_crus_dict.with({
+		Descr: $hyoo_crus_text,
+	}) {}
 
 }

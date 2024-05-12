@@ -11,21 +11,13 @@ $hyoo_survey_meet_form $mol_page
 		- <= Share $mol_button_share
 			capture <= Title
 	body /
-		<= Bid $mol_text text \--//Конструктивная обратная связь делает мир лучше!//--
-		<= Form $mol_form
-			form_fields /
-				<= Pleasant_field $mol_form_field
-					name \💗 Что понравилось?
-					control <= Pleasant $mol_textarea
-						value? <=> pleasant? \
-				<= Improvement_field $mol_form_field
-					name \📌 Что можно улучшить?
-					control <= Improvement $mol_textarea
-						value? <=> improvement? \
-				<= Request_field $mol_form_field
-					name \🙏 Идеи? Предложения?
-					control <= Request $mol_textarea
-						value? <=> request? \
+		<= Bid $mol_text text \
+			\//Конструктивная обратная связь делает мир лучше!// Расскажи:
+			\💗 Что **понравилось**?
+			\📌 Что можно было бы сделать **лучше**?
+			\🙏 Ещё идеи и **предложения** на будущее?
+		<= Opinion_my $mol_textarea
+			value? <=> opinion_my? \
 		<= Opinions $mol_section
 			title \Отзывы
 			level 2

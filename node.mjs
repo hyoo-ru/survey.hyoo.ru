@@ -16133,9 +16133,6 @@ var $;
     var $$;
     (function ($$) {
         $mol_style_define($hyoo_survey_app, {
-            justify: {
-                content: 'space-between',
-            },
             Menu: {
                 flex: {
                     basis: `20rem`,

@@ -2,7 +2,7 @@ $hyoo_survey_meet_form $mol_page
 	meet $hyoo_survey_meet
 	Title $mol_string_button
 		value? <=> title? \
-		hint \Как всё прошло?
+		hint \Название встречи
 		enabled <= is_my false
 	tools /
 		<= Visible $mol_check_icon

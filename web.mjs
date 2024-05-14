@@ -15888,7 +15888,7 @@ var $;
 		Title(){
 			const obj = new this.$.$mol_string_button();
 			(obj.value) = (next) => ((this?.title(next)));
-			(obj.hint) = () => ("Как всё прошло?");
+			(obj.hint) = () => ("Название встречи");
 			(obj.enabled) = () => ((this?.is_my()));
 			return obj;
 		}

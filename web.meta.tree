@@ -76,3 +76,4 @@
 	include \/mol/view/tree/test
 \/hyoo/survey/app
 	include \/mol/offline/install
+	deploy \/hyoo/survey/logo/logo.svg

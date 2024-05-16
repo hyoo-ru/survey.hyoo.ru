@@ -15974,7 +15974,7 @@ var $;
 		Meet_add(){
 			const obj = new this.$.$mol_button_minor();
 			(obj.click) = (next) => ((this?.meet_add(next)));
-			(obj.hint) = () => ("Add new Meet");
+			(obj.hint) = () => ((this.$.$mol_locale.text("$hyoo_survey_app_Meet_add_hint")));
 			(obj.sub) = () => ([(this?.Meet_add_icon())]);
 			return obj;
 		}
@@ -16024,7 +16024,7 @@ var $;
 			return obj;
 		}
 		menu_title(){
-			return "✨ Meets";
+			return (this.$.$mol_locale.text("$hyoo_survey_app_menu_title"));
 		}
 		menu_tools(){
 			return [(this?.Meet_add())];

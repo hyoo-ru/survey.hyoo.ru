@@ -15839,7 +15839,7 @@ var $;
 			const obj = new this.$.$mol_check_icon();
 			(obj.Icon) = () => ((this?.Visible_icon()));
 			(obj.checked) = (next) => ((this?.visible(next)));
-			(obj.hint) = () => ("Видимость в меню");
+			(obj.hint) = () => ((this.$.$mol_locale.text("$hyoo_survey_meet_form_Visible_hint")));
 			return obj;
 		}
 		Close(){
@@ -15851,14 +15851,14 @@ var $;
 		}
 		Descr(){
 			const obj = new this.$.$mol_textarea();
-			(obj.hint) = () => ("Описание");
+			(obj.hint) = () => ((this.$.$mol_locale.text("$hyoo_survey_meet_form_Descr_hint")));
 			(obj.value) = (next) => ((this?.descr(next)));
 			(obj.enabled) = () => ((this?.is_my()));
 			return obj;
 		}
 		Bid(){
 			const obj = new this.$.$mol_text();
-			(obj.text) = () => ("//Конструктивная обратная связь делает мир лучше!// Расскажи:\n💗 Что **понравилось**?\n📌 Что можно было бы сделать **лучше**?\n🙏 Ещё идеи и **предложения** на будущее?");
+			(obj.text) = () => ((this.$.$mol_locale.text("$hyoo_survey_meet_form_Bid_text")));
 			return obj;
 		}
 		opinion_my(next){
@@ -15872,7 +15872,7 @@ var $;
 		}
 		Opinions_hint(){
 			const obj = new this.$.$mol_hint();
-			(obj.dictionary) = () => ({"visible": "Видны только вам"});
+			(obj.dictionary) = () => ({"visible": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Opinions_hint_dictionary_visible"))});
 			return obj;
 		}
 		opinion(id){
@@ -15888,7 +15888,7 @@ var $;
 		}
 		Opinions(){
 			const obj = new this.$.$mol_section();
-			(obj.title) = () => ("Отзывы");
+			(obj.title) = () => ((this.$.$mol_locale.text("$hyoo_survey_meet_form_Opinions_title")));
 			(obj.tools) = () => ([(this?.Opinions_hint())]);
 			(obj.content) = () => ((this?.opinions()));
 			return obj;
@@ -15900,7 +15900,7 @@ var $;
 		Title(){
 			const obj = new this.$.$mol_string_button();
 			(obj.value) = (next) => ((this?.title(next)));
-			(obj.hint) = () => ("Название встречи");
+			(obj.hint) = () => ((this.$.$mol_locale.text("$hyoo_survey_meet_form_Title_hint")));
 			(obj.enabled) = () => ((this?.is_my()));
 			return obj;
 		}
@@ -16024,7 +16024,7 @@ var $;
 		Meet_add(){
 			const obj = new this.$.$mol_button_minor();
 			(obj.click) = (next) => ((this?.meet_add(next)));
-			(obj.hint) = () => ("Добавить свою встречу");
+			(obj.hint) = () => ("Add new Meet");
 			(obj.sub) = () => ([(this?.Meet_add_icon())]);
 			return obj;
 		}
@@ -16063,7 +16063,7 @@ var $;
 		}
 		About(){
 			const obj = new this.$.$mol_text();
-			(obj.text) = () => ("= Как этим пользоваться\n➕ Создаёшь встречу слева в меню\n🔗 Делишься ссылкой на неё\n👁‍🗨 Видишь приход обратной связи\n\n= Как оно работает\n🔐 Отзывы доступны только автору\n💨 Всё сохраняется мгновенно\n💟 Никакой рекламы или слежки\n\n= Как нам помочь\n\\\\Оставьте отзыв\\#!meet=dLY5MOæH_8Xum6æqw\\\\\n\\\\Поддержите рублём\\https://boosty.to/hyoo\\\\\n\\\\Вливайтесь в сообщество\\https://t.me/h_y_o_o/417\\\\");
+			(obj.text) = () => ((this.$.$mol_locale.text("$hyoo_survey_app_About_text")));
 			return obj;
 		}
 		param(){
@@ -16074,7 +16074,7 @@ var $;
 			return obj;
 		}
 		menu_title(){
-			return "✨ Встречи";
+			return "✨ Meets";
 		}
 		menu_tools(){
 			return [(this?.Meet_add())];
@@ -16094,7 +16094,7 @@ var $;
 		}
 		Placeholder(){
 			const obj = new this.$.$mol_page();
-			(obj.title) = () => ("🤗 Ламповые отзывы");
+			(obj.title) = () => ((this.$.$mol_locale.text("$hyoo_survey_app_Placeholder_title")));
 			(obj.body) = () => ([(this?.About())]);
 			return obj;
 		}

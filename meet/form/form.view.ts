@@ -5,6 +5,10 @@ namespace $.$$ {
 			return this.meet().Title( next )?.val( next ) ?? ''
 		}
 		
+		descr( next?: string ) {
+			return this.meet().Descr( next )?.text( next ) ?? ''
+		}
+		
 		opinion_my( next?: string ) {
 			return this.meet().opinion_my()?.Descr( next )?.text( next ) ?? ''
 		}
@@ -17,6 +21,7 @@ namespace $.$$ {
 		@ $mol_mem
 		body() {
 			return [
+				... ( this.is_my() || this.descr() ) ? [ this.Descr() ] : [],
 				this.Bid(),
 				this.Opinion_my(),
 				... this.is_my() ? [ this.Opinions() ] : [],

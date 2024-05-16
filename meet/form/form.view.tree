@@ -13,6 +13,10 @@ $hyoo_survey_meet_form $mol_page
 		- <= Share $mol_button_share
 			capture <= Title
 	body /
+		<= Descr $mol_textarea
+			hint \Описание
+			value? <=> descr? \
+			enabled <= is_my false
 		<= Bid $mol_text text \
 			\//Конструктивная обратная связь делает мир лучше!// Расскажи:
 			\💗 Что **понравилось**?

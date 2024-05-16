@@ -2,33 +2,33 @@ $hyoo_survey_meet_form $mol_page
 	meet $hyoo_survey_meet
 	Title $mol_string_button
 		value? <=> title? \
-		hint \Название встречи
+		hint @ \Meet title
 		enabled <= is_my false
 	tools /
 		<= Visible $mol_check_icon
 			Icon <= Visible_icon $mol_icon_eye
 			checked? <=> visible? false
-			hint \Видимость в меню
+			hint @ \Visibility in menu
 		<= Close null
 		- <= Share $mol_button_share
 			capture <= Title
 	body /
 		<= Descr $mol_textarea
-			hint \Описание
+			hint @ \Description
 			value? <=> descr? \
 			enabled <= is_my false
-		<= Bid $mol_text text \
-			\//Конструктивная обратная связь делает мир лучше!// Расскажи:
-			\💗 Что **понравилось**?
-			\📌 Что можно было бы сделать **лучше**?
-			\🙏 Ещё идеи и **предложения** на будущее?
+		<= Bid $mol_text text @ \
+			\//Constructive feedback makes the world a better!// Tell:
+			\💗 What did you **like**?
+			\📌 What could be done **better**?
+			\🙏 More ideas and **suggestions** for the future?
 		<= Opinion_my $mol_textarea
 			value? <=> opinion_my? \
 		<= Opinions $mol_section
-			title \Отзывы
+			title @ \Opinions
 			tools /
 				<= Opinions_hint $mol_hint
-					dictionary * visible \Видны только вам
+					dictionary * visible @ \Visible only to you
 			content <= opinions /
 				<= Opinion*0 $mol_text
 					text <= opinion* \

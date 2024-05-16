@@ -2,11 +2,11 @@ $hyoo_survey_app $mol_book2_catalog
 	- \Конструктивный отзыв делает мир лучше!
 	param \meet
 	realm $hyoo_crus_realm
-	menu_title \✨ Встречи
+	menu_title \✨ Meets
 	menu_tools /
 		<= Meet_add $mol_button_minor
 			click? <=> meet_add? null
-			hint \Добавить свою встречу
+			hint \Add new Meet
 			sub /
 				<= Meet_add_icon $mol_icon_plus
 	menu_foot /
@@ -22,21 +22,21 @@ $hyoo_survey_app $mol_book2_catalog
 		visible? <=> meet_visible*? false
 		Close <= Spread_close
 	Placeholder $mol_page
-		title \🤗 Ламповые отзывы
+		title @ \🤗 Graceful Feedback
 		body /
 			<= About $mol_text
-				text \
-					\= Как этим пользоваться
-					\➕ Создаёшь встречу слева в меню
-					\🔗 Делишься ссылкой на неё
-					\👁‍🗨 Видишь приход обратной связи
+				text @ \
+					\= How to Use
+					\➕ Make new Meet at left menu
+					\🔗 Share link to Meet
+					\👁‍🗨 See feedback incoming
 					\
-					\= Как оно работает
-					\🔐 Отзывы доступны только автору
-					\💨 Всё сохраняется мгновенно
-					\💟 Никакой рекламы или слежки
+					\= How it Works
+					\🔐 Only author see opinions
+					\💨 Instant saving
+					\💟 No ads ad spyes
 					\
-					\= Как нам помочь
-					\\\Оставьте отзыв\#!meet=dLY5MOæH_8Xum6æqw\\
-					\\\Поддержите рублём\https://boosty.to/hyoo\\
-					\\\Вливайтесь в сообщество\https://t.me/h_y_o_o/417\\
+					\= How to Support
+					\\\Give us feedback\#!meet=dLY5MOæH_8Xum6æqw\\
+					\\\Donate\https://boosty.to/hyoo\\
+					\\\Join to Community\https://t.me/h_y_o_o/417\\

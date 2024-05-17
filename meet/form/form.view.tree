@@ -27,7 +27,7 @@ $hyoo_survey_meet_form $mol_page
 		<= Form_hint $mol_hint
 			dictionary *
 				auto @ \Saved automatically
-				marked @ \MakedText may be used
+				marked @ \MakedText is supported
 		<= Opinions $mol_section
 			title @ \Opinions
 			tools /

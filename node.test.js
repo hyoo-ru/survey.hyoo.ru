@@ -15820,6 +15820,11 @@ var $;
 			(obj.value) = (next) => ((this?.opinion_my(next)));
 			return obj;
 		}
+		Form_hint(){
+			const obj = new this.$.$mol_hint();
+			(obj.dictionary) = () => ({"auto": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Form_hint_dictionary_auto")), "marked": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Form_hint_dictionary_marked"))});
+			return obj;
+		}
 		Opinions_hint(){
 			const obj = new this.$.$mol_hint();
 			(obj.dictionary) = () => ({"visible": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Opinions_hint_dictionary_visible"))});
@@ -15862,6 +15867,7 @@ var $;
 				(this?.Descr()), 
 				(this?.Bid()), 
 				(this?.Opinion_my()), 
+				(this?.Form_hint()), 
 				(this?.Opinions())
 			];
 		}
@@ -15875,6 +15881,7 @@ var $;
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Bid"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "opinion_my"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinion_my"));
+	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Form_hint"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinions_hint"));
 	($mol_mem_key(($.$hyoo_survey_meet_form.prototype), "Opinion"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinions"));
@@ -15909,6 +15916,7 @@ var $;
                     ...(this.is_my() || this.descr()) ? [this.Descr()] : [],
                     this.Bid(),
                     this.Opinion_my(),
+                    this.Form_hint(),
                     ...this.is_my() ? [this.Opinions()] : [],
                 ];
             }

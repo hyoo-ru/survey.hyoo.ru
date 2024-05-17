@@ -24,6 +24,7 @@ namespace $.$$ {
 				... ( this.is_my() || this.descr() ) ? [ this.Descr() ] : [],
 				this.Bid(),
 				this.Opinion_my(),
+				this.Form_hint(),
 				... this.is_my() ? [ this.Opinions() ] : [],
 			]
 		}

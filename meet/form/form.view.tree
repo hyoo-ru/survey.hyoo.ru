@@ -24,10 +24,15 @@ $hyoo_survey_meet_form $mol_page
 			\🙏 More ideas and **suggestions** for the future?
 		<= Opinion_my $mol_textarea
 			value? <=> opinion_my? \
-		<= Form_hint $mol_hint
-			dictionary *
-				auto @ \Saved automatically
-				marked @ \MakedText is supported
+		<= Hints $mol_bar sub /
+			<= Marked_link $mol_link_iconed
+				uri \https://marked.hyoo.ru/
+				title \
+			<= Form_hint $mol_hint
+				dictionary *
+					auto @ \Saved automatically
+					marked @ \MakedText is supported
+					reply @ \Leave your contacts if you are waiting for a response
 		<= Opinions $mol_section
 			title @ \Opinions
 			tools /

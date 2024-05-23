@@ -15652,6 +15652,20 @@ var $;
 })($ || ($ = {}));
 
 ;
+	($.$mol_bar) = class $mol_bar extends ($.$mol_view) {};
+
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_style_attach("mol/bar/bar.view.css", "[mol_bar] {\n\tdisplay: flex;\n\t/* box-shadow: inset 0 0 0 1px var(--mol_theme_line); */\n\tborder-radius: var(--mol_gap_round);\n}\n");
+})($ || ($ = {}));
+
+;
+"use strict";
+
+;
 	($.$mol_section) = class $mol_section extends ($.$mol_list) {
 		title_dom_name(){
 			return "h1";
@@ -15829,9 +15843,24 @@ var $;
 			(obj.value) = (next) => ((this?.opinion_my(next)));
 			return obj;
 		}
+		Marked_link(){
+			const obj = new this.$.$mol_link_iconed();
+			(obj.uri) = () => ("https://marked.hyoo.ru/");
+			(obj.title) = () => ("");
+			return obj;
+		}
 		Form_hint(){
 			const obj = new this.$.$mol_hint();
-			(obj.dictionary) = () => ({"auto": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Form_hint_dictionary_auto")), "marked": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Form_hint_dictionary_marked"))});
+			(obj.dictionary) = () => ({
+				"auto": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Form_hint_dictionary_auto")), 
+				"marked": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Form_hint_dictionary_marked")), 
+				"reply": (this.$.$mol_locale.text("$hyoo_survey_meet_form_Form_hint_dictionary_reply"))
+			});
+			return obj;
+		}
+		Hints(){
+			const obj = new this.$.$mol_bar();
+			(obj.sub) = () => ([(this?.Marked_link()), (this?.Form_hint())]);
 			return obj;
 		}
 		Opinions_hint(){
@@ -15876,7 +15905,7 @@ var $;
 				(this?.Descr()), 
 				(this?.Bid()), 
 				(this?.Opinion_my()), 
-				(this?.Form_hint()), 
+				(this?.Hints()), 
 				(this?.Opinions())
 			];
 		}
@@ -15890,7 +15919,9 @@ var $;
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Bid"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "opinion_my"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinion_my"));
+	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Marked_link"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Form_hint"));
+	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Hints"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinions_hint"));
 	($mol_mem_key(($.$hyoo_survey_meet_form.prototype), "Opinion"));
 	($mol_mem(($.$hyoo_survey_meet_form.prototype), "Opinions"));
@@ -15925,7 +15956,7 @@ var $;
                     ...(this.is_my() || this.descr()) ? [this.Descr()] : [],
                     this.Bid(),
                     this.Opinion_my(),
-                    this.Form_hint(),
+                    this.Hints(),
                     ...this.is_my() ? [this.Opinions()] : [],
                 ];
             }

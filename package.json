@@ -298,6 +298,7 @@
     "$mol_icon_help",
     "$mol_array_lottery",
     "$mol_array",
+    "$mol_bar",
     "$mol_section",
     "$mol_string_button",
     "$mol_offline_install",

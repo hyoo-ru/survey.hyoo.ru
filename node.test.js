@@ -10661,43 +10661,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_promise() {
-        let done;
-        let fail;
-        const promise = new Promise((d, f) => {
-            done = d;
-            fail = f;
-        });
-        return Object.assign(promise, {
-            done,
-            fail,
-        });
-    }
-    $.$mol_promise = $mol_promise;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_wait_timeout_async(timeout) {
-        const promise = $mol_promise();
-        const task = new this.$mol_after_timeout(timeout, () => promise.done());
-        return Object.assign(promise, {
-            destructor: () => task.destructor()
-        });
-    }
-    $.$mol_wait_timeout_async = $mol_wait_timeout_async;
-    function $mol_wait_timeout(timeout) {
-        return this.$mol_wire_sync(this).$mol_wait_timeout_async(timeout);
-    }
-    $.$mol_wait_timeout = $mol_wait_timeout;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
     function $mol_wire_race(...tasks) {
         const results = tasks.map(task => {
             try {
@@ -11192,8 +11155,7 @@ var $;
             this.sync();
             this.secret();
             const queue = [...this.gists.get(head)?.values() ?? []];
-            const res = [];
-            const slices = new WeakMap;
+            const slices = new Map;
             for (const gist of queue)
                 slices.set(gist, 0);
             merge: if ($hyoo_crus_area_of(head) === 'data') {
@@ -11218,47 +11180,56 @@ var $;
                         }
                     }
             }
-            if (queue.length < 2)
-                return queue.filter(unit => !unit.nil());
+            if (queue.length === 0)
+                return queue;
+            if (queue.length === 1)
+                return queue[0].nil() ? [] : queue;
             const compare = (left, right) => {
                 return (slices.get(left) - slices.get(right)) || $hyoo_crus_gist.compare(left, right);
             };
             queue.sort(compare);
-            const locate = (self) => {
-                for (let i = res.length - 1; i >= 0; --i) {
-                    if (res[i].self() === self)
-                        return i;
-                }
-                return -1;
+            let entry = {
+                gist: null,
+                next: '',
+                prev: '',
             };
+            const graph = new Map([['', entry]]);
             while (queue.length) {
-                res.push(queue.pop());
+                const last = queue.pop();
+                graph.get(entry.prev).next = last.self();
+                graph.set(last.self(), { gist: last, next: '', prev: entry.prev });
+                entry.prev = last.self();
                 for (let cursor = queue.length - 1; cursor >= 0; --cursor) {
                     const kid = queue[cursor];
-                    let index = 0;
-                    if (kid.lead()) {
-                        index = locate(kid.lead()) + 1;
-                        if (!index)
-                            continue;
-                    }
-                    while (res[index] && (compare(res[index], kid) < 0))
-                        ++index;
-                    const exists = locate(kid.self());
-                    if (index === exists) {
-                        if (cursor === queue.length - 1)
-                            queue.pop();
+                    let lead = graph.get(kid.lead());
+                    if (!lead)
                         continue;
+                    while (lead.next && (compare(graph.get(lead.next).gist, kid) < 0))
+                        lead = graph.get(lead.next);
+                    const exists = graph.get(kid.self());
+                    if (exists) {
+                        if ((lead.gist?.self() ?? '') === exists.prev) {
+                            exists.gist = kid;
+                            if (cursor === queue.length - 1)
+                                queue.pop();
+                            continue;
+                        }
+                        graph.get(exists.prev).next = exists.next;
+                        graph.get(exists.next).prev = exists.prev;
                     }
-                    if (exists >= 0) {
-                        res.splice(exists, 1);
-                        if (exists < index)
-                            --index;
-                    }
-                    res.splice(index, 0, kid);
+                    const follower = graph.get(lead.next);
+                    follower.prev = kid.self();
+                    graph.set(kid.self(), { gist: kid, next: lead.next, prev: lead.gist?.self() ?? '' });
+                    lead.next = kid.self();
                     if (cursor === queue.length - 1)
                         queue.pop();
                     cursor = queue.length;
                 }
+            }
+            const res = [];
+            while (entry.next) {
+                entry = graph.get(entry.next);
+                res.push(entry.gist);
             }
             return res;
         }
@@ -11368,15 +11339,24 @@ var $;
         }
         sync() {
             this.loading();
-            try {
-                this.saving();
-                this.bus();
-            }
-            catch (error) {
-                $mol_fail_log(error);
-            }
-            this.realm()?.yard().sync_land(this.ref());
+            this.sync_mine();
+            this.sync_yard();
+            this.bus();
             return this;
+        }
+        sync_mine() {
+            const atom = new $mol_wire_atom(`${this}.sync2<>`, () => {
+                this.save();
+            });
+            atom.fresh();
+            return atom;
+        }
+        sync_yard() {
+            const atom = new $mol_wire_atom(`${this}.sync2<>`, () => {
+                this.realm()?.yard().sync_land(this.ref());
+            });
+            atom.fresh();
+            return atom;
         }
         bus() {
             return new this.$.$mol_bus(`$hyoo_crus_land:${this.ref().description}`, $mol_wire_async(bins => {
@@ -11407,7 +11387,6 @@ var $;
                 });
         }
         saving() {
-            this.$.$mol_wait_timeout(250);
             this.save();
         }
         save() {
@@ -11648,6 +11627,12 @@ var $;
     __decorate([
         $mol_mem
     ], $hyoo_crus_land.prototype, "sync", null);
+    __decorate([
+        $mol_mem
+    ], $hyoo_crus_land.prototype, "sync_mine", null);
+    __decorate([
+        $mol_mem
+    ], $hyoo_crus_land.prototype, "sync_yard", null);
     __decorate([
         $mol_mem
     ], $hyoo_crus_land.prototype, "bus", null);
@@ -14542,6 +14527,43 @@ var $;
 	($mol_mem(($.$mol_embed_native.prototype), "uri_change"));
 	($mol_mem(($.$mol_embed_native.prototype), "uri"));
 
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_promise() {
+        let done;
+        let fail;
+        const promise = new Promise((d, f) => {
+            done = d;
+            fail = f;
+        });
+        return Object.assign(promise, {
+            done,
+            fail,
+        });
+    }
+    $.$mol_promise = $mol_promise;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_wait_timeout_async(timeout) {
+        const promise = $mol_promise();
+        const task = new this.$mol_after_timeout(timeout, () => promise.done());
+        return Object.assign(promise, {
+            destructor: () => task.destructor()
+        });
+    }
+    $.$mol_wait_timeout_async = $mol_wait_timeout_async;
+    function $mol_wait_timeout(timeout) {
+        return this.$mol_wire_sync(this).$mol_wait_timeout_async(timeout);
+    }
+    $.$mol_wait_timeout = $mol_wait_timeout;
+})($ || ($ = {}));
 
 ;
 "use strict";

@@ -10581,71 +10581,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crus_mine extends $mol_object {
-        static hash(blob) {
-            return $mol_crypto_hash(blob);
-        }
-        static rock(hash, next) {
-            $mol_wire_solid();
-            return next ?? null;
-        }
-        static save(blob) {
-            const hash = this.hash(blob);
-            this.rock(hash, blob);
-            return hash;
-        }
-    }
-    __decorate([
-        $mol_mem_key
-    ], $hyoo_crus_mine, "hash", null);
-    __decorate([
-        $mol_mem_key
-    ], $hyoo_crus_mine, "rock", null);
-    __decorate([
-        $mol_action
-    ], $hyoo_crus_mine, "save", null);
-    $.$hyoo_crus_mine = $hyoo_crus_mine;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    class $hyoo_crus_mine_node extends $hyoo_crus_mine {
-        static root() {
-            return $mol_file.relative('.crus');
-        }
-        static rock_file(hash) {
-            const id = $mol_base64_ae_encode(hash);
-            return this.root().resolve(`rock/${id.slice(0, 2)}/${id}.blob`);
-        }
-        static rock(hash, next) {
-            $mol_wire_solid();
-            const buf = this.rock_file(hash).buffer(next);
-            if (!next)
-                return buf;
-            if ($mol_compare_deep(hash, this.hash(buf)))
-                return buf;
-            return null;
-        }
-    }
-    __decorate([
-        $mol_mem
-    ], $hyoo_crus_mine_node, "root", null);
-    __decorate([
-        $mol_mem_key
-    ], $hyoo_crus_mine_node, "rock_file", null);
-    __decorate([
-        $mol_mem_key
-    ], $hyoo_crus_mine_node, "rock", null);
-    $.$hyoo_crus_mine_node = $hyoo_crus_mine_node;
-    $.$hyoo_crus_mine = $hyoo_crus_mine_node;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
     class $mol_bus extends $mol_object {
         name;
         handle;
@@ -11346,7 +11281,7 @@ var $;
             this.post(seat ? units[seat - 1].self() : '', gist.head(), gist.self(), null, 'term');
         }
         broadcast() {
-            this.realm()?.yard().neonatals.add(this.ref());
+            this.realm()?.yard().units_neonatals.add(this.ref());
         }
         sync() {
             this.loading();
@@ -11363,10 +11298,9 @@ var $;
         }
         bus() {
             return new this.$.$mol_bus(`$hyoo_crus_land:${this.ref().description}`, $mol_wire_async(bins => {
-                const yard = this.realm().yard();
                 this.apply_unit_trust(bins.map(bin => {
                     const unit = new $hyoo_crus_unit(bin).narrow();
-                    yard.persisted.add(unit);
+                    this.$.$hyoo_crus_mine.units_persisted.add(unit);
                     return unit;
                 }));
             }));
@@ -11376,7 +11310,7 @@ var $;
             const realm = this.realm();
             if (!realm)
                 return;
-            const units = realm.yard().load(this) ?? [];
+            const units = realm.$.$hyoo_crus_mine.units_load(this) ?? [];
             $mol_wire_sync(this.$).$mol_log3_rise({
                 place: this,
                 message: 'Load Unit',
@@ -11393,8 +11327,8 @@ var $;
             this.save();
         }
         save() {
-            const yard = this.realm()?.yard();
-            if (!yard)
+            const mine = this.$.$hyoo_crus_mine;
+            if (!mine)
                 return;
             const encoding = [];
             const signing = [];
@@ -11402,13 +11336,13 @@ var $;
             for (const pass of this.passes.values()) {
                 if (!pass.signed())
                     signing.push(pass);
-                if (!yard.persisted.has(pass))
+                if (!mine.units_persisted.has(pass))
                     persisting.push(pass);
             }
             for (const gift of this.gifts.values()) {
                 if (!gift.signed())
                     signing.push(gift);
-                if (!yard.persisted.has(gift))
+                if (!mine.units_persisted.has(gift))
                     persisting.push(gift);
             }
             for (const kids of this.gists.values()) {
@@ -11417,14 +11351,14 @@ var $;
                         encoding.push(gist);
                         signing.push(gist);
                     }
-                    if (!yard.persisted.has(gist))
+                    if (!mine.units_persisted.has(gist))
                         persisting.push(gist);
                 }
             }
             $mol_wire_race(...encoding.map(unit => () => this.gist_encode(unit)));
             $mol_wire_race(...signing.map(unit => () => this.unit_sign(unit)));
             if (persisting.length)
-                $mol_wire_sync(yard).save(this, persisting);
+                $mol_wire_sync(mine).units_save(this, persisting);
             this.bus().send(persisting.map(unit => unit.buffer));
         }
         unit_sign(unit) {
@@ -11448,7 +11382,7 @@ var $;
             if (secret)
                 bin = new Uint8Array($mol_wire_sync(secret).encrypt(bin, gist.salt()));
             if (bin.byteLength > 32)
-                gist.hash(this.$.$hyoo_crus_mine.save(bin), gist.tip(), gist.tag());
+                gist.hash(this.$.$hyoo_crus_mine.rock_save(bin), gist.tip(), gist.tag());
             else
                 gist.data(bin, gist.tip(), gist.tag());
             return gist;
@@ -11982,12 +11916,7 @@ var $;
         realm() {
             return null;
         }
-        persisted = new WeakSet();
-        neonatals = new $mol_wire_set();
-        load(land) {
-            return [];
-        }
-        async save(land, units) { }
+        units_neonatals = new $mol_wire_set();
         static masters = [];
         master_cursor(next = 0) {
             return next;
@@ -12061,14 +11990,14 @@ var $;
         slaves = new $mol_wire_set();
         sync() {
             for (const port of this.ports()) {
-                for (const land of this.neonatals) {
+                for (const land of this.units_neonatals) {
                     this.sync_port_land([port, land]);
                 }
                 for (const land of this.port_lands(port)) {
                     this.sync_port_land([port, land]);
                 }
             }
-            this.neonatals.clear();
+            this.units_neonatals.clear();
         }
         ports() {
             try {
@@ -12205,25 +12134,74 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crus_yard_node extends $.$hyoo_crus_yard {
-        root() {
+    class $hyoo_crus_mine extends $mol_object {
+        static hash(blob) {
+            return $mol_crypto_hash(blob);
+        }
+        static rock(hash, next) {
+            $mol_wire_solid();
+            return next ?? null;
+        }
+        static rock_save(blob) {
+            const hash = this.hash(blob);
+            this.rock(hash, blob);
+            return hash;
+        }
+        static units_persisted = new WeakSet();
+        static units_load(land) {
+            return [];
+        }
+        static async units_save(land, units) {
+        }
+    }
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crus_mine, "hash", null);
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crus_mine, "rock", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crus_mine, "rock_save", null);
+    $.$hyoo_crus_mine = $hyoo_crus_mine;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    class $hyoo_crus_mine_fs extends $hyoo_crus_mine {
+        static root() {
             return $mol_file.relative('.crus');
         }
-        land_file(land) {
+        static rock_file(hash) {
+            const id = $mol_base64_ae_encode(hash);
+            return this.root().resolve(`rock/${id.slice(0, 2)}/${id}.blob`);
+        }
+        static rock(hash, next) {
+            $mol_wire_solid();
+            const buf = this.rock_file(hash).buffer(next);
+            if (!next)
+                return buf;
+            if ($mol_compare_deep(hash, this.hash(buf)))
+                return buf;
+            return null;
+        }
+        static units_file(land) {
             const id = land.ref().description;
             const dir = this.root().resolve(`unit/${id.slice(0, 2)}`);
             dir.exists(true);
             return dir.resolve(`${id}.crus`);
         }
-        land_offsets(land) {
+        static units_offsets(land) {
             $mol_wire_solid();
             return new Map();
         }
-        file_sizes = new Map();
-        async save(land, units) {
-            const descr = this.land_file(land).open('create', 'read_write');
+        static units_sizes = new Map();
+        static async units_save(land, units) {
+            const descr = this.units_file(land).open('create', 'read_write');
             try {
-                const offsets = this.land_offsets(land);
+                const offsets = this.units_offsets(land);
                 const append = [];
                 for (const unit of units) {
                     const off = offsets.get(unit.key());
@@ -12236,11 +12214,11 @@ var $;
                 }
                 if (!append.length)
                     return;
-                let size = this.file_sizes.get(land) ?? 0;
+                let size = this.units_sizes.get(land) ?? 0;
                 let offset = size;
                 size += append.length * $hyoo_crus_unit.size;
                 $node.fs.ftruncateSync(descr, size);
-                this.file_sizes.set(land, size);
+                this.units_sizes.set(land, size);
                 for (const unit of append) {
                     $node.fs.writeSync(descr, unit, 0, unit.byteLength, offset);
                     offsets.set(unit.key(), offset);
@@ -12251,17 +12229,17 @@ var $;
                 $node.fs.closeSync(descr);
             }
         }
-        load(land) {
-            const descr = this.land_file(land).open('create', 'read_write');
+        static units_load(land) {
+            const descr = this.units_file(land).open('create', 'read_write');
             try {
                 const buf = $node.fs.readFileSync(descr);
                 if (!buf.length)
                     return [];
-                this.file_sizes.set(land, buf.length);
+                this.units_sizes.set(land, buf.length);
                 const pack = $hyoo_crus_pack.from(buf);
                 const { lands, rocks } = pack.parts(land.ref());
                 const units = lands[land.ref()]?.units ?? [];
-                const offsets = this.land_offsets(land);
+                const offsets = this.units_offsets(land);
                 for (let i = 0; i < units.length; ++i) {
                     offsets.set(units[i].key(), i * $hyoo_crus_unit.size);
                 }
@@ -12274,18 +12252,30 @@ var $;
     }
     __decorate([
         $mol_mem
-    ], $hyoo_crus_yard_node.prototype, "root", null);
+    ], $hyoo_crus_mine_fs, "root", null);
     __decorate([
         $mol_mem_key
-    ], $hyoo_crus_yard_node.prototype, "land_file", null);
+    ], $hyoo_crus_mine_fs, "rock_file", null);
     __decorate([
         $mol_mem_key
-    ], $hyoo_crus_yard_node.prototype, "land_offsets", null);
+    ], $hyoo_crus_mine_fs, "rock", null);
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crus_mine_fs, "units_file", null);
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crus_mine_fs, "units_offsets", null);
     __decorate([
         $mol_action
-    ], $hyoo_crus_yard_node.prototype, "load", null);
-    $.$hyoo_crus_yard_node = $hyoo_crus_yard_node;
-    $.$hyoo_crus_yard = $hyoo_crus_yard_node;
+    ], $hyoo_crus_mine_fs, "units_load", null);
+    $.$hyoo_crus_mine_fs = $hyoo_crus_mine_fs;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $.$hyoo_crus_mine = $hyoo_crus_mine_fs;
 })($ || ($ = {}));
 
 ;
@@ -12364,7 +12354,7 @@ var $;
             for (const [hash, rock] of rocks) {
                 if (!rock)
                     continue;
-                this.$.$hyoo_crus_mine.save(rock);
+                this.$.$hyoo_crus_mine.rock_save(rock);
             }
         }
     }

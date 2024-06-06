@@ -10551,6 +10551,21 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_array_groups(all, group) {
+        const res = {};
+        for (const item of all) {
+            const list = (res[group(item)] ||= []);
+            list.push(item);
+        }
+        return res;
+    }
+    $.$mol_array_groups = $mol_array_groups;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_wire_race(...tasks) {
         const results = tasks.map(task => {
             try {
@@ -11033,7 +11048,7 @@ var $;
                 },
             });
         }
-        fork(preset = $hyoo_crus_rank_public) {
+        fork(preset = { '': $hyoo_crus_rank.get }) {
             const realm = this.realm();
             if (!realm)
                 $mol_fail(new Error('Realm is required to fork'));
@@ -11235,7 +11250,7 @@ var $;
             return this;
         }
         sync_mine() {
-            return new $mol_wire_atom('', () => this.save()).fresh();
+            return new $mol_wire_atom('', () => this.saving()).fresh();
         }
         sync_yard() {
             return new $mol_wire_atom('', () => this.realm()?.yard().sync_land(this.ref())).fresh();
@@ -11254,13 +11269,14 @@ var $;
             const realm = this.realm();
             if (!realm)
                 return;
-            const units = realm.$.$hyoo_crus_mine.units_load(this) ?? [];
+            let units = realm.$.$hyoo_crus_mine.units(this) ?? [];
             $mol_wire_sync(this.$).$mol_log3_rise({
                 place: this,
                 message: 'Load Unit',
                 units: units.length,
             });
-            const errors = this.apply_unit_trust(units, !!'skip_check').filter(Boolean);
+            const { pass = [], gift = [], gist = [] } = $mol_array_groups(units, unit => unit.kind());
+            const errors = this.apply_unit_trust([...pass, ...gift, ...gist], !!'skip_check').filter(Boolean);
             if (errors.length)
                 this.$.$mol_log3_fail({
                     place: this,
@@ -11268,12 +11284,10 @@ var $;
                 });
         }
         saving() {
-            this.save();
-        }
-        save() {
             const mine = this.$.$hyoo_crus_mine;
             if (!mine)
                 return;
+            this.loading();
             const encoding = [];
             const signing = [];
             const persisting = [];
@@ -11301,9 +11315,15 @@ var $;
             }
             $mol_wire_race(...encoding.map(unit => () => this.gist_encode(unit)));
             $mol_wire_race(...signing.map(unit => () => this.unit_sign(unit)));
-            if (persisting.length)
-                $mol_wire_sync(mine).units_save(this, persisting);
-            this.bus().send(persisting.map(unit => unit.buffer));
+            if (persisting.length) {
+                mine.units(this, persisting);
+                this.bus().send(persisting.map(unit => unit.buffer));
+                $mol_wire_sync(this.$).$mol_log3_done({
+                    place: this,
+                    message: 'Saved Units',
+                    units: persisting.length,
+                });
+            }
         }
         unit_sign(unit) {
             if (unit.signed())
@@ -11523,9 +11543,6 @@ var $;
     __decorate([
         $mol_mem
     ], $hyoo_crus_land.prototype, "saving", null);
-    __decorate([
-        $mol_mem
-    ], $hyoo_crus_land.prototype, "save", null);
     __decorate([
         $mol_mem_key
     ], $hyoo_crus_land.prototype, "unit_sign", null);
@@ -11986,7 +12003,13 @@ var $;
             return hash;
         }
         static units_persisted = new WeakSet();
-        static units_load(land) {
+        static units(land, next) {
+            if (next)
+                return $mol_wire_sync(this).units_save(land, next), next;
+            else
+                return $mol_wire_sync(this).units_load(land);
+        }
+        static async units_load(land) {
             return [];
         }
         static async units_save(land, units) {
@@ -12256,44 +12279,29 @@ var $;
             return db.change('Rock').stores.Rock;
         }
         static async units_save(land, units) {
+            const land_ref = land.ref().description;
             const db = await this.db();
-            const change = db.change('Pass', 'Gift', 'Gist');
-            const { Pass, Gift, Gist } = change.stores;
+            const change = db.change('Land');
+            const { Land } = change.stores;
             for (const unit of units) {
-                unit.choose({
-                    pass: pass => Pass.put(pass.buffer, [land.ref().description, pass.peer() || 'AAAAAAAA']),
-                    gift: gift => Gift.put(gift.buffer, [land.ref().description, gift.dest().description || 'AAAAAAAAAAAAAAAA']),
-                    gist: gist => Gist.put(gist.buffer, [land.ref().description, gist.head() || 'AAAAAAAA', gist.self() || 'AAAAAAAA']),
-                });
+                Land.put(unit.buffer, [land_ref, unit.key()]);
                 this.units_persisted.add(unit);
             }
             await change.commit();
         }
-        static units_load(land) {
+        static async units_load(land) {
+            const db = await this.db();
+            const { Land } = db.read('Land');
             const land_ref = land.ref().description;
-            const key = $mol_wire_sync(IDBKeyRange).bound([land_ref], [land_ref + '\uFFFF']);
-            const [pass, gift, gist] = $mol_wire_sync(this).units_query(key);
-            const units = [
-                ...pass.map(bin => new $hyoo_crus_pass(bin)),
-                ...gift.map(bin => new $hyoo_crus_gift(bin)),
-                ...gist.map(bin => new $hyoo_crus_gist(bin)),
-            ];
+            const land_key = IDBKeyRange.bound([land_ref], [land_ref + '\uFFFF']);
+            const res = await Land.select(land_key);
+            const units = res.map(bin => new $hyoo_crus_unit(bin).narrow());
             for (const unit of units)
                 this.units_persisted.add(unit);
             return units;
         }
-        static async units_query(key) {
-            const db = await this.db();
-            const { Pass, Gift, Gist } = db.read('Pass', 'Gift', 'Gist');
-            return Promise.all([Pass.select(key), Gift.select(key), Gist.select(key)]);
-        }
         static async db() {
-            return await this.$.$mol_db('$hyoo_crus', mig => {
-                mig.store_make('Rock'),
-                    mig.store_make('Pass');
-                mig.store_make('Gift');
-                mig.store_make('Gist');
-            });
+            return await this.$.$mol_db('$hyoo_crus', mig => mig.store_make('Rock'), mig => mig.store_make('Land'));
         }
     }
     __decorate([
@@ -12302,9 +12310,6 @@ var $;
     __decorate([
         $mol_action
     ], $hyoo_crus_mine_idb, "rock_read", null);
-    __decorate([
-        $mol_action
-    ], $hyoo_crus_mine_idb, "units_load", null);
     __decorate([
         $mol_memo.method
     ], $hyoo_crus_mine_idb, "db", null);
@@ -12348,7 +12353,7 @@ var $;
         home() {
             return this.Land(this.$.$hyoo_crus_auth.current().lord()).home();
         }
-        king_grab(preset = $hyoo_crus_rank_public) {
+        king_grab(preset = { '': $hyoo_crus_rank.get }) {
             const king = this.$.$hyoo_crus_auth.grab();
             const colony = $mol_wire_sync($hyoo_crus_land).make({});
             colony.auth = $mol_const(king);
@@ -12362,7 +12367,7 @@ var $;
             this.Land(colony.ref()).apply_unit_trust(colony.delta_unit());
             return king;
         }
-        land_grab(preset = $hyoo_crus_rank_public) {
+        land_grab(preset = { '': $hyoo_crus_rank.get }) {
             return this.Land(this.king_grab(preset).lord());
         }
         Land(ref) {

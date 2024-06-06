@@ -10598,6 +10598,21 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $mol_array_groups(all, group) {
+        const res = {};
+        for (const item of all) {
+            const list = (res[group(item)] ||= []);
+            list.push(item);
+        }
+        return res;
+    }
+    $.$mol_array_groups = $mol_array_groups;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_wire_race(...tasks) {
         const results = tasks.map(task => {
             try {
@@ -11080,7 +11095,7 @@ var $;
                 },
             });
         }
-        fork(preset = $hyoo_crus_rank_public) {
+        fork(preset = { '': $hyoo_crus_rank.get }) {
             const realm = this.realm();
             if (!realm)
                 $mol_fail(new Error('Realm is required to fork'));
@@ -11282,7 +11297,7 @@ var $;
             return this;
         }
         sync_mine() {
-            return new $mol_wire_atom('', () => this.save()).fresh();
+            return new $mol_wire_atom('', () => this.saving()).fresh();
         }
         sync_yard() {
             return new $mol_wire_atom('', () => this.realm()?.yard().sync_land(this.ref())).fresh();
@@ -11301,13 +11316,14 @@ var $;
             const realm = this.realm();
             if (!realm)
                 return;
-            const units = realm.$.$hyoo_crus_mine.units_load(this) ?? [];
+            let units = realm.$.$hyoo_crus_mine.units(this) ?? [];
             $mol_wire_sync(this.$).$mol_log3_rise({
                 place: this,
                 message: 'Load Unit',
                 units: units.length,
             });
-            const errors = this.apply_unit_trust(units, !!'skip_check').filter(Boolean);
+            const { pass = [], gift = [], gist = [] } = $mol_array_groups(units, unit => unit.kind());
+            const errors = this.apply_unit_trust([...pass, ...gift, ...gist], !!'skip_check').filter(Boolean);
             if (errors.length)
                 this.$.$mol_log3_fail({
                     place: this,
@@ -11315,12 +11331,10 @@ var $;
                 });
         }
         saving() {
-            this.save();
-        }
-        save() {
             const mine = this.$.$hyoo_crus_mine;
             if (!mine)
                 return;
+            this.loading();
             const encoding = [];
             const signing = [];
             const persisting = [];
@@ -11348,9 +11362,15 @@ var $;
             }
             $mol_wire_race(...encoding.map(unit => () => this.gist_encode(unit)));
             $mol_wire_race(...signing.map(unit => () => this.unit_sign(unit)));
-            if (persisting.length)
-                $mol_wire_sync(mine).units_save(this, persisting);
-            this.bus().send(persisting.map(unit => unit.buffer));
+            if (persisting.length) {
+                mine.units(this, persisting);
+                this.bus().send(persisting.map(unit => unit.buffer));
+                $mol_wire_sync(this.$).$mol_log3_done({
+                    place: this,
+                    message: 'Saved Units',
+                    units: persisting.length,
+                });
+            }
         }
         unit_sign(unit) {
             if (unit.signed())
@@ -11570,9 +11590,6 @@ var $;
     __decorate([
         $mol_mem
     ], $hyoo_crus_land.prototype, "saving", null);
-    __decorate([
-        $mol_mem
-    ], $hyoo_crus_land.prototype, "save", null);
     __decorate([
         $mol_mem_key
     ], $hyoo_crus_land.prototype, "unit_sign", null);
@@ -12139,7 +12156,13 @@ var $;
             return hash;
         }
         static units_persisted = new WeakSet();
-        static units_load(land) {
+        static units(land, next) {
+            if (next)
+                return $mol_wire_sync(this).units_save(land, next), next;
+            else
+                return $mol_wire_sync(this).units_load(land);
+        }
+        static async units_load(land) {
             return [];
         }
         static async units_save(land, units) {
@@ -12161,9 +12184,130 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    class $hyoo_crus_mine_pg extends $hyoo_crus_mine {
+        static urn() {
+            return $mol_state_arg.value('db');
+        }
+        static url() {
+            return new URL(this.urn());
+        }
+        static rock(hash, next) {
+            $mol_wire_solid();
+            if (next)
+                return next;
+            return $mol_wire_sync(this).rock_load(hash);
+        }
+        static rock_save(blob) {
+            const hash = this.hash(blob);
+            this.rock(hash, blob);
+            $mol_wire_sync(this).db()?.query(`
+					INSERT INTO Rock( hash, rock )
+					VALUES( $1::bytea, $2::bytea )
+					ON CONFLICT( hash ) DO NOTHING
+				`, [hash, blob]);
+            return hash;
+        }
+        static async rock_load(hash) {
+            const db = await this.db();
+            if (!db)
+                return null;
+            const res = await db.query(`SELECT rock FROM Rock WHERE hash = $1::bytea`, [hash]);
+            return res.rows[0]?.rock ?? null;
+        }
+        static async units_save(land, units) {
+            const db = await this.db();
+            if (!db)
+                return;
+            const tasks = units.map(unit => {
+                const ref = land.ref().description;
+                const buf = Buffer.from(unit.buffer, unit.byteOffset, unit.byteLength);
+                return db.query(`
+						INSERT INTO Land( land, path, unit )
+						VALUES( $1::varchar(17), $2::varchar(17), $3::bytea )
+						ON CONFLICT( land, path ) DO UPDATE SET unit = $3::bytea;
+					`, [ref, unit.key(), buf]);
+            });
+            await Promise.all(tasks);
+        }
+        static async units_load(land) {
+            const db = await this.db();
+            if (!db)
+                return [];
+            const res = await db.query(`SELECT unit FROM Land WHERE land = $1::varchar(17)`, [land.ref().description]);
+            const units = res.rows.map(row => {
+                const bin = new $hyoo_crus_unit(row.unit.buffer, row.unit.byteOffset, row.unit.byteLength);
+                return bin.narrow();
+            });
+            return units;
+        }
+        static async db() {
+            const urn = this.urn();
+            if (!urn)
+                return null;
+            const db = new $node.pg.Pool({
+                connectionString: urn,
+                ssl: { rejectUnauthorized: false },
+            });
+            await db.connect();
+            await db.query(`
+				CREATE TABLE IF NOT EXISTS Rock (
+					hash bytea NOT NULL,
+					rock bytea NOT NULL,
+					primary key( hash )
+				);
+			`);
+            await db.query(`
+				CREATE TABLE IF NOT EXISTS Land (
+					land varchar(17) NOT NULL,
+					path varchar(17) NOT NULL,
+					unit bytea NOT NULL,
+					primary key( land, path )
+				);
+			`);
+            this.$.$mol_log3_rise({
+                place: this,
+                message: 'Data Base Ready',
+                type: this.url().protocol,
+                host: this.url().host,
+                name: this.url().pathname,
+            });
+            return db;
+        }
+    }
+    __decorate([
+        $mol_memo.method
+    ], $hyoo_crus_mine_pg, "urn", null);
+    __decorate([
+        $mol_memo.method
+    ], $hyoo_crus_mine_pg, "url", null);
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crus_mine_pg, "rock", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crus_mine_pg, "rock_save", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crus_mine_pg, "units_load", null);
+    __decorate([
+        $mol_memo.method
+    ], $hyoo_crus_mine_pg, "db", null);
+    $.$hyoo_crus_mine_pg = $hyoo_crus_mine_pg;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     class $hyoo_crus_mine_fs extends $hyoo_crus_mine {
         static root() {
-            return $mol_file.relative('.crus');
+            const root = $mol_file.relative('.crus');
+            this.$.$mol_log3_rise({
+                place: this,
+                message: 'File Storage Ready',
+                path: root.path()
+            });
+            return root;
         }
         static rock_file(hash) {
             const id = $mol_base64_ae_encode(hash);
@@ -12213,6 +12357,7 @@ var $;
                 for (const unit of append) {
                     $node.fs.writeSync(descr, unit, 0, unit.byteLength, offset);
                     offsets.set(unit.key(), offset);
+                    this.units_persisted.add(unit);
                     offset += unit.byteLength;
                 }
             }
@@ -12220,7 +12365,7 @@ var $;
                 $node.fs.closeSync(descr);
             }
         }
-        static units_load(land) {
+        static async units_load(land) {
             const descr = this.units_file(land).open('create', 'read_write');
             try {
                 const buf = $node.fs.readFileSync(descr);
@@ -12233,6 +12378,7 @@ var $;
                 const offsets = this.units_offsets(land);
                 for (let i = 0; i < units.length; ++i) {
                     offsets.set(units[i].key(), i * $hyoo_crus_unit.size);
+                    this.units_persisted.add(units[i]);
                 }
                 return units;
             }
@@ -12242,7 +12388,7 @@ var $;
         }
     }
     __decorate([
-        $mol_mem
+        $mol_memo.method
     ], $hyoo_crus_mine_fs, "root", null);
     __decorate([
         $mol_mem_key
@@ -12266,7 +12412,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $.$hyoo_crus_mine = $hyoo_crus_mine_fs;
+    $.$hyoo_crus_mine = $hyoo_crus_mine_pg.urn() ? $hyoo_crus_mine_pg : $hyoo_crus_mine_fs;
 })($ || ($ = {}));
 
 ;
@@ -12299,7 +12445,7 @@ var $;
         home() {
             return this.Land(this.$.$hyoo_crus_auth.current().lord()).home();
         }
-        king_grab(preset = $hyoo_crus_rank_public) {
+        king_grab(preset = { '': $hyoo_crus_rank.get }) {
             const king = this.$.$hyoo_crus_auth.grab();
             const colony = $mol_wire_sync($hyoo_crus_land).make({});
             colony.auth = $mol_const(king);
@@ -12313,7 +12459,7 @@ var $;
             this.Land(colony.ref()).apply_unit_trust(colony.delta_unit());
             return king;
         }
-        land_grab(preset = $hyoo_crus_rank_public) {
+        land_grab(preset = { '': $hyoo_crus_rank.get }) {
             return this.Land(this.king_grab(preset).lord());
         }
         Land(ref) {
@@ -20646,7 +20792,10 @@ var $;
             static rock(hash, next) {
                 return next ?? null;
             }
-            static units_load(land) {
+            static units(land, next) {
+                return next ?? [];
+            }
+            static async units_load(land) {
                 return [];
             }
             static async units_save(land, units) { }
@@ -20654,6 +20803,9 @@ var $;
         __decorate([
             $mol_mem_key
         ], $hyoo_crus_mine_mock, "rock", null);
+        __decorate([
+            $mol_mem_key
+        ], $hyoo_crus_mine_mock, "units", null);
         $.$hyoo_crus_mine = $hyoo_crus_mine_mock;
     });
 })($ || ($ = {}));
@@ -21156,14 +21308,14 @@ var $;
                 $mol_assert_equal(user.Articles()?.remote_list() ?? [], []);
                 user.Title(null).val('Jin');
                 $mol_assert_equal(user.Title().val() ?? '', 'Jin');
-                const account = user.Account(null).remote_ensure($hyoo_crus_rank_public);
+                const account = user.Account(null).remote_ensure({ '': $hyoo_crus_rank.get });
                 $mol_assert_equal(user.Account()?.remote() ?? null, account);
                 $mol_assert_equal(account.User()?.remote() ?? null, null);
                 account.User(null).remote(user);
                 $mol_assert_equal(account.User()?.remote(), user);
                 const articles = [
-                    user.Articles(null).remote_make($hyoo_crus_rank_public),
-                    user.Articles(null).remote_make($hyoo_crus_rank_public),
+                    user.Articles(null).remote_make({ '': $hyoo_crus_rank.get }),
+                    user.Articles(null).remote_make({ '': $hyoo_crus_rank.get }),
                 ];
                 $mol_assert_equal(user.Articles()?.remote_list(), articles);
                 articles[0].Title(null).key('en', 'auto').val('Hello!');
@@ -21340,7 +21492,7 @@ var $;
                 const realm = $hyoo_crus_realm.make({ $ });
                 const land = realm.home().land();
                 const reg = land.Node($hyoo_crus_atom_ref_to(() => $hyoo_crus_atom_vary)).Item('11111111');
-                const remote = reg.remote_ensure($hyoo_crus_rank_public);
+                const remote = reg.remote_ensure({ '': $hyoo_crus_rank.get });
                 $mol_assert_unique(reg.land(), remote.land());
                 $mol_assert_equal(reg.vary(), remote.ref());
                 $mol_assert_equal(reg.remote(), remote);
@@ -21380,7 +21532,7 @@ var $;
         'Per app profiles'($) {
             const realm = $hyoo_crus_realm.make({ $ });
             const base = realm.home();
-            const hall = base.hall_by($hyoo_crus_dict, $hyoo_crus_rank_public);
+            const hall = base.hall_by($hyoo_crus_dict, { '': $hyoo_crus_rank.get });
             $mol_assert_unique(base.land(), hall);
         },
     });

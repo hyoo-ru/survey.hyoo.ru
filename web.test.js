@@ -4720,7 +4720,10 @@ var $;
             static rock(hash, next) {
                 return next ?? null;
             }
-            static units_load(land) {
+            static units(land, next) {
+                return next ?? [];
+            }
+            static async units_load(land) {
                 return [];
             }
             static async units_save(land, units) { }
@@ -4728,6 +4731,9 @@ var $;
         __decorate([
             $mol_mem_key
         ], $hyoo_crus_mine_mock, "rock", null);
+        __decorate([
+            $mol_mem_key
+        ], $hyoo_crus_mine_mock, "units", null);
         $.$hyoo_crus_mine = $hyoo_crus_mine_mock;
     });
 })($ || ($ = {}));
@@ -5230,14 +5236,14 @@ var $;
                 $mol_assert_equal(user.Articles()?.remote_list() ?? [], []);
                 user.Title(null).val('Jin');
                 $mol_assert_equal(user.Title().val() ?? '', 'Jin');
-                const account = user.Account(null).remote_ensure($hyoo_crus_rank_public);
+                const account = user.Account(null).remote_ensure({ '': $hyoo_crus_rank.get });
                 $mol_assert_equal(user.Account()?.remote() ?? null, account);
                 $mol_assert_equal(account.User()?.remote() ?? null, null);
                 account.User(null).remote(user);
                 $mol_assert_equal(account.User()?.remote(), user);
                 const articles = [
-                    user.Articles(null).remote_make($hyoo_crus_rank_public),
-                    user.Articles(null).remote_make($hyoo_crus_rank_public),
+                    user.Articles(null).remote_make({ '': $hyoo_crus_rank.get }),
+                    user.Articles(null).remote_make({ '': $hyoo_crus_rank.get }),
                 ];
                 $mol_assert_equal(user.Articles()?.remote_list(), articles);
                 articles[0].Title(null).key('en', 'auto').val('Hello!');
@@ -5414,7 +5420,7 @@ var $;
                 const realm = $hyoo_crus_realm.make({ $ });
                 const land = realm.home().land();
                 const reg = land.Node($hyoo_crus_atom_ref_to(() => $hyoo_crus_atom_vary)).Item('11111111');
-                const remote = reg.remote_ensure($hyoo_crus_rank_public);
+                const remote = reg.remote_ensure({ '': $hyoo_crus_rank.get });
                 $mol_assert_unique(reg.land(), remote.land());
                 $mol_assert_equal(reg.vary(), remote.ref());
                 $mol_assert_equal(reg.remote(), remote);
@@ -5454,7 +5460,7 @@ var $;
         'Per app profiles'($) {
             const realm = $hyoo_crus_realm.make({ $ });
             const base = realm.home();
-            const hall = base.hall_by($hyoo_crus_dict, $hyoo_crus_rank_public);
+            const hall = base.hall_by($hyoo_crus_dict, { '': $hyoo_crus_rank.get });
             $mol_assert_unique(base.land(), hall);
         },
     });

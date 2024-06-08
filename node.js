@@ -12400,6 +12400,8 @@ var $;
 					`, [ref, unit.key(), buf]);
             });
             await Promise.all(tasks);
+            for (const unit of units)
+                this.units_persisted.add(unit);
         }
         static async units_load(land) {
             const db = await this.db();
@@ -12410,6 +12412,8 @@ var $;
                 const bin = new $hyoo_crus_unit(row.unit.buffer, row.unit.byteOffset, row.unit.byteLength);
                 return bin.narrow();
             });
+            for (const unit of units)
+                this.units_persisted.add(unit);
             return units;
         }
         static async db() {

@@ -8505,20 +8505,20 @@ var $;
         }
         id6(offset, next) {
             if (next === undefined) {
-                const str = $mol_base64_ae_encode(new Uint8Array(this.buffer, offset, 6));
+                const str = $mol_base64_ae_encode(new Uint8Array(this.buffer, this.byteOffset + offset, 6));
                 return str === 'AAAAAAAA' ? '' : str;
             }
             else {
-                this.asArray().set($mol_base64_ae_decode(next || 'AAAAAAAA'), offset);
+                this.asArray().set($mol_base64_ae_decode(next || 'AAAAAAAA'), this.byteOffset + offset);
                 return next;
             }
         }
         id12(offset, next) {
             if (next === undefined) {
-                return $hyoo_crus_ref_decode(new Uint8Array(this.buffer, offset, 12));
+                return $hyoo_crus_ref_decode(new Uint8Array(this.buffer, this.byteOffset + offset, 12));
             }
             else {
-                this.asArray().set($hyoo_crus_ref_encode(next), offset);
+                this.asArray().set($hyoo_crus_ref_encode(next), this.byteOffset + offset);
                 return next;
             }
         }
@@ -11458,12 +11458,6 @@ var $;
             const dict = new Map();
             for (const unit of units)
                 dict.set(unit.key(), unit);
-            $mol_wire_sync(this.$).$mol_log3_rise({
-                place: this,
-                message: 'Load Unit unordered',
-                units: units.map(unit => unit.dump()),
-                count: units.length,
-            });
             const graph = new $mol_graph();
             for (const unit of units) {
                 unit.choose({
@@ -11483,11 +11477,10 @@ var $;
             units = [...graph.sorted].map(key => dict.get(key)).filter(Boolean);
             $mol_wire_sync(this.$).$mol_log3_rise({
                 place: this,
-                message: 'Load Unit ordered',
-                units: units.map(unit => unit.dump()),
-                count: units.length,
+                message: 'Load Unit',
+                units: units.length,
             });
-            const errors = this.apply_unit_trust(units, !!'skip_check').filter(Boolean);
+            const errors = this.apply_unit(units, !!'skip_check').filter(Boolean);
             if (errors.length)
                 this.$.$mol_log3_fail({
                     place: this,

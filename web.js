@@ -8279,6 +8279,26 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $hyoo_crus_time_moment(time) {
+        const stamp = Math.floor(time / 65536) * 1000;
+        return new $mol_time_moment(stamp);
+    }
+    $.$hyoo_crus_time_moment = $hyoo_crus_time_moment;
+    function $hyoo_crus_time_counter(time) {
+        return time % 65536;
+    }
+    $.$hyoo_crus_time_counter = $hyoo_crus_time_counter;
+    function $hyoo_crus_time_dump(time) {
+        return $hyoo_crus_time_moment(time).toString('YYYY-MM-DD hh:mm:ss')
+            + ' @' + $hyoo_crus_time_counter(time);
+    }
+    $.$hyoo_crus_time_dump = $hyoo_crus_time_dump;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     class $hyoo_crus_face_map extends Map {
         last = 0;
         total = 0;
@@ -8304,9 +8324,7 @@ var $;
             return this.last = Math.max(this.last + 1, Math.floor(Date.now() * 65.536));
         }
         [$mol_dev_format_head]() {
-            const stamp = Math.floor(this.last / 65536) * 1000;
-            const time = new $mol_time_moment(stamp).toString('YYYY-MM-DD hh:mm:ss');
-            return $mol_dev_format_span({}, $mol_dev_format_native(this), $mol_dev_format_shade(' ', time), $mol_dev_format_shade(' @', this.last % 65536), $mol_dev_format_shade(' #', this.total));
+            return $mol_dev_format_span({}, $mol_dev_format_native(this), $mol_dev_format_shade(' ', $hyoo_crus_time_dump(this.last)), $mol_dev_format_shade(' #', this.total));
         }
     }
     __decorate([
@@ -8535,6 +8553,9 @@ var $;
             return this.sign().some(b => b);
         }
         _land = null;
+        dump() {
+            return {};
+        }
     }
     $.$hyoo_crus_unit = $hyoo_crus_unit;
 })($ || ($ = {}));
@@ -9269,8 +9290,21 @@ var $;
                 || (right.peer() > left.peer() ? 1 : right.peer() < left.peer() ? -1 : 0)
                 || (right.time() - left.time());
         }
+        dump() {
+            return {
+                kind: this.kind(),
+                peer: this.peer(),
+                lead: this.lead(),
+                head: this.head(),
+                self: this.self(),
+                tip: this.tip(),
+                tag: this.tag(),
+                size: this.size(),
+                time: $hyoo_crus_time_dump(this.time()),
+            };
+        }
         [$mol_dev_format_head]() {
-            return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' ', this.lead() || 'AAAAAAAA', $mol_dev_format_shade('\\'), $mol_dev_format_accent(this.head() || 'AAAAAAAA'), $mol_dev_format_shade('/'), this.self() || 'AAAAAAAA', ' ', $mol_dev_format_shade(new $mol_time_moment(this.time()).toString('YYYY-MM-DD hh:mm:ss.sss')), ' ', {
+            return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' ', this.lead() || 'AAAAAAAA', $mol_dev_format_shade('\\'), $mol_dev_format_accent(this.head() || 'AAAAAAAA'), $mol_dev_format_shade('/'), this.self() || 'AAAAAAAA', ' ', $mol_dev_format_shade($hyoo_crus_time_dump(this.time())), ' ', {
                 term: '💼',
                 solo: '1️⃣',
                 vals: '🎹',
@@ -9561,6 +9595,9 @@ var $;
         if (typeof json === 'string') {
             return $mol_tree2.data(json, [], span);
         }
+        if (typeof json.toJSON === 'function') {
+            return $mol_tree2_from_json(json.toJSON());
+        }
         if (Array.isArray(json)) {
             const sub = json.map(json => $mol_tree2_from_json(json, span));
             return new $mol_tree2('/', '', sub, span);
@@ -9571,9 +9608,6 @@ var $;
         }
         if (json instanceof Date) {
             return new $mol_tree2('', json.toISOString(), [], span);
-        }
-        if (typeof json.toJSON === 'function') {
-            return $mol_tree2_from_json(json.toJSON());
         }
         if (json.toString !== Object.prototype.toString) {
             return $mol_tree2.data(json.toString(), [], span);
@@ -10338,6 +10372,12 @@ var $;
                 prev.set(next);
             return prev;
         }
+        dump() {
+            return {
+                kind: this.kind(),
+                lord: this.lord().description,
+            };
+        }
         [$mol_dev_format_head]() {
             return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' 🔑 ', $mol_dev_format_span({}, this.lord().description));
         }
@@ -10381,8 +10421,17 @@ var $;
         static compare(left, right) {
             return (right.time() - left.time()) || (right.peer() > left.peer() ? 1 : right.peer() < left.peer() ? -1 : 0);
         }
+        dump() {
+            return {
+                kind: this.kind(),
+                peer: this.peer(),
+                dest: this.dest().description,
+                rank: $hyoo_crus_rank[this.rank()],
+                time: $hyoo_crus_time_dump(this.time()),
+            };
+        }
         [$mol_dev_format_head]() {
-            return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' 🏅 ', $mol_dev_format_span({}, this.dest().description), this.bill().some(v => v) ? ' 🔐' : ' 📢', $hyoo_crus_rank[this.rank()], ' ', $mol_dev_format_shade(new $mol_time_moment(this.time()).toString('YYYY-MM-DD hh:mm:ss.sss')));
+            return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' 🏅 ', $mol_dev_format_span({}, this.dest().description || '_'), this.bill().some(v => v) ? ' 🔐' : ' 📢', $hyoo_crus_rank[this.rank()], ' ', $mol_dev_format_shade($hyoo_crus_time_dump(this.time())));
         }
     }
     $.$hyoo_crus_gift = $hyoo_crus_gift;
@@ -11406,22 +11455,24 @@ var $;
             if (!realm)
                 return;
             let units = realm.$.$hyoo_crus_mine.units(this) ?? [];
-            $mol_wire_sync(this.$).$mol_log3_rise({
-                place: this,
-                message: 'Load Unit',
-                units: units.length,
-            });
             const dict = new Map();
             for (const unit of units)
                 dict.set(unit.key(), unit);
+            $mol_wire_sync(this.$).$mol_log3_rise({
+                place: this,
+                message: 'Load Unit unordered',
+                units: units.map(unit => unit.dump()),
+                count: units.length,
+            });
             const graph = new $mol_graph();
             for (const unit of units) {
                 unit.choose({
                     pass: pass => {
-                        graph.nodes.add(pass.key());
+                        graph.link(pass.key(), '');
                     },
                     gift: gift => {
                         graph.link($hyoo_crus_ref_peer(gift.dest()), gift.key());
+                        graph.link(gift.key(), gift.peer());
                     },
                     gist: gist => {
                         graph.link(gist.key(), gist.peer());
@@ -11430,6 +11481,12 @@ var $;
             }
             graph.acyclic(() => 1);
             units = [...graph.sorted].map(key => dict.get(key)).filter(Boolean);
+            $mol_wire_sync(this.$).$mol_log3_rise({
+                place: this,
+                message: 'Load Unit ordered',
+                units: units.map(unit => unit.dump()),
+                count: units.length,
+            });
             const errors = this.apply_unit_trust(units, !!'skip_check').filter(Boolean);
             if (errors.length)
                 this.$.$mol_log3_fail({

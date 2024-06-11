@@ -16340,7 +16340,7 @@ var $;
                 return this.meet().responder_refs().map(person => this.Opinion(person)) ?? [];
             }
             opinion(responder) {
-                return this.meet().opinion(responder)?.Descr()?.text() ?? '';
+                return this.meet().opinion(responder)?.Descr()?.text() ?? '...';
             }
         }
         __decorate([

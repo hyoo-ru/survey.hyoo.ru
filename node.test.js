@@ -11472,7 +11472,7 @@ var $;
             this.post(seat ? units[seat - 1].self() : '', gist.head(), gist.self(), null, 'term');
         }
         broadcast() {
-            this.realm()?.yard().units_neonatals.add(this.ref());
+            this.realm()?.yard().lands_neonatals.add(this.ref());
         }
         sync() {
             this.loading();
@@ -12128,7 +12128,7 @@ var $;
         realm() {
             return null;
         }
-        units_neonatals = new $mol_wire_set();
+        lands_neonatals = new $mol_wire_set();
         static masters = [];
         master_cursor(next = 0) {
             return next;
@@ -12201,15 +12201,25 @@ var $;
         }
         slaves = new $mol_wire_set();
         sync() {
+            this.sync_neonatals();
+            this.sync_port();
+        }
+        sync_neonatals() {
             for (const port of this.ports()) {
-                for (const land of this.units_neonatals) {
-                    this.sync_port_land([port, land]);
-                }
-                for (const land of this.port_lands(port)) {
+                for (const land of this.lands_neonatals) {
                     this.sync_port_land([port, land]);
                 }
             }
-            this.units_neonatals.clear();
+            this.lands_neonatals.clear();
+        }
+        sync_port() {
+            for (const port of this.ports())
+                this.sync_port_lands(port);
+        }
+        sync_port_lands(port) {
+            for (const land of this.port_lands(port)) {
+                this.sync_port_land([port, land]);
+            }
         }
         ports() {
             try {
@@ -12324,6 +12334,15 @@ var $;
     __decorate([
         $mol_mem
     ], $hyoo_crus_yard.prototype, "sync", null);
+    __decorate([
+        $mol_mem
+    ], $hyoo_crus_yard.prototype, "sync_neonatals", null);
+    __decorate([
+        $mol_mem
+    ], $hyoo_crus_yard.prototype, "sync_port", null);
+    __decorate([
+        $mol_mem_key
+    ], $hyoo_crus_yard.prototype, "sync_port_lands", null);
     __decorate([
         $mol_mem
     ], $hyoo_crus_yard.prototype, "ports", null);
@@ -12663,7 +12682,7 @@ var $;
         }
         king_grab(preset = { '': $hyoo_crus_rank.get }) {
             const king = this.$.$hyoo_crus_auth.grab();
-            const colony = $mol_wire_sync($hyoo_crus_land).make({});
+            const colony = $mol_wire_sync($hyoo_crus_land).make({ $: this.$ });
             colony.auth = $mol_const(king);
             if ((preset[''] ?? $hyoo_crus_rank.nil) === $hyoo_crus_rank.nil) {
                 colony.encrypted(true);
@@ -12930,31 +12949,28 @@ var $;
             ],
             'link': /\b(https?:\/\/[^\s,.;:!?")]+(?:[,.;:!?")][^\s,.;:!?")]+)+)/,
             'Word': [
-                [
-                    forbid_after(line_end),
-                    unicode_only('White_Space'),
-                ],
                 repeat_greedy(char_only([
                     unicode_only('General_Category', 'Uppercase_Letter'),
                     unicode_only('Diacritic'),
                     unicode_only('General_Category', 'Number'),
+                    0xA0,
                 ]), 1),
                 repeat_greedy(char_only([
                     unicode_only('General_Category', 'Lowercase_Letter'),
                     unicode_only('Diacritic'),
                     unicode_only('General_Category', 'Number'),
+                    0xA0,
                 ])),
+                [char_only(' ')],
             ],
             'word': [
-                [
-                    forbid_after(line_end),
-                    unicode_only('White_Space'),
-                ],
                 repeat_greedy(char_only([
                     unicode_only('General_Category', 'Lowercase_Letter'),
                     unicode_only('Diacritic'),
                     unicode_only('General_Category', 'Number'),
+                    0xA0,
                 ]), 1),
+                [char_only(' ')],
             ],
             'spaces': [
                 forbid_after(line_end),
@@ -12980,6 +12996,7 @@ var $;
                     unicode_only('General_Category', 'Number'),
                     unicode_only('White_Space'),
                 ]), 1),
+                [char_only(' ')],
             ],
         },
     });
@@ -21865,7 +21882,7 @@ var $;
             $mol_assert_equal('👩🏿‍🤝‍🧑🏿👩🏿‍🤝‍🧑🏿'.match($hyoo_crus_text_tokens), ['👩🏿‍🤝‍🧑🏿', '👩🏿‍🤝‍🧑🏿']);
         },
         'word with spaces'() {
-            $mol_assert_equal('foo1  bar2'.match($hyoo_crus_text_tokens), ['foo1', ' ', ' bar2']);
+            $mol_assert_equal('foo1  bar2'.match($hyoo_crus_text_tokens), ['foo1 ', ' ', 'bar2']);
         },
         'word with diactric'() {
             $mol_assert_equal('Е́е́'.match($hyoo_crus_text_tokens), ['Е́е́']);
@@ -21895,22 +21912,22 @@ var $;
             $mol_assert_equal(list.items_vary(), ['foo']);
             text.str('foo bar');
             $mol_assert_equal(text.str(), 'foo bar');
-            $mol_assert_equal(list.items_vary(), ['foo', ' bar']);
+            $mol_assert_equal(list.items_vary(), ['foo ', 'bar']);
             text.str('foo lol bar');
             $mol_assert_equal(text.str(), 'foo lol bar');
-            $mol_assert_equal(list.items_vary(), ['foo', ' lol', ' bar']);
+            $mol_assert_equal(list.items_vary(), ['foo ', 'lol ', 'bar']);
             text.str('lol bar');
             $mol_assert_equal(text.str(), 'lol bar');
-            $mol_assert_equal(list.items_vary(), ['lol', ' bar']);
+            $mol_assert_equal(list.items_vary(), ['lol ', 'bar']);
             text.str('foo bar');
             $mol_assert_equal(text.str(), 'foo bar');
-            $mol_assert_equal(list.items_vary(), ['foo', ' bar']);
+            $mol_assert_equal(list.items_vary(), ['foo ', 'bar']);
             text.str('foo  bar');
             $mol_assert_equal(text.str(), 'foo  bar');
-            $mol_assert_equal(list.items_vary(), ['foo', ' ', ' bar']);
+            $mol_assert_equal(list.items_vary(), ['foo ', ' ', 'bar']);
             text.str('foo  BarBar');
             $mol_assert_equal(text.str(), 'foo  BarBar');
-            $mol_assert_equal(list.items_vary(), ['foo', ' ', ' Bar', 'Bar']);
+            $mol_assert_equal(list.items_vary(), ['foo ', ' ', 'Bar', 'Bar']);
         },
         async 'str: Offset <=> Point'($) {
             const land = $hyoo_crus_land.make({ $ });

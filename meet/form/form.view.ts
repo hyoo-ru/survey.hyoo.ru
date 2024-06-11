@@ -35,7 +35,7 @@ namespace $.$$ {
 		}
 
 		opinion( responder: $hyoo_crus_ref ) {
-			return this.meet().opinion( responder )?.Descr()?.text() ?? ''
+			return this.meet().opinion( responder )?.Descr()?.text() ?? '...'
 		}
 		
 	}

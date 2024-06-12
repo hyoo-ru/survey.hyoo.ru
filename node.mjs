@@ -16398,6 +16398,16 @@ var $;
                     grow: 0,
                 },
             },
+            Body_content: {
+                align: {
+                    self: 'stretch',
+                },
+            },
+            Descr: {
+                flex: {
+                    grow: 0,
+                },
+            },
             Opinion_my: {
                 margin: $mol_gap.block,
             },

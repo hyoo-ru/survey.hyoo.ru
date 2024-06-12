@@ -7,8 +7,20 @@ namespace $.$$ {
 		},
 
 		margin: [ 0, 'auto' ],
-
+		
 		Tools: {
+			flex: {
+				grow: 0,
+			},
+		},
+		
+		Body_content: {
+			align: {
+				self: 'stretch',
+			},
+		},
+
+		Descr: {
 			flex: {
 				grow: 0,
 			},

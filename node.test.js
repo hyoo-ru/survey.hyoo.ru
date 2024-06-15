@@ -4396,6 +4396,8 @@ var $;
             return this.absolute($node.path.resolve(this.base, path).replace(/\\/g, '/'));
         }
         watcher() {
+            if (/\/\./.test(this.path()))
+                return { destructor() { } };
             const watcher = $node.chokidar.watch(this.path(), {
                 persistent: true,
                 ignored: /(^\.|___$)/,
@@ -12551,7 +12553,7 @@ var $;
         static rock(hash, next) {
             $mol_wire_solid();
             const buf = this.rock_file(hash).buffer(next);
-            if (!next)
+            if (next)
                 return buf;
             if ($mol_compare_deep(hash, this.hash(buf)))
                 return buf;

@@ -171,6 +171,7 @@
     "$mol_icon_script",
     "$mol_lights_toggle",
     "$mol_lights",
+    "$mol_media",
     "$mol_check_icon",
     "$mol_check",
     "$mol_maybe",

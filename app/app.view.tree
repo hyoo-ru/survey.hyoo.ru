@@ -13,7 +13,6 @@ $hyoo_survey_app $mol_book2_catalog
 			uri \https://github.com/hyoo-ru/survey.hyoo.ru
 		<= Lights $mol_lights_toggle
 		<= Crus_status $hyoo_crus_status
-			realm <= realm
 	plugins /
 		<= Theme $mol_theme_auto
 	Spread* <= Meet* $hyoo_survey_meet_form

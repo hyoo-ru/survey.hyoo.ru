@@ -1,7 +1,6 @@
 $hyoo_survey_app $mol_book2_catalog
 	- \Конструктивный отзыв делает мир лучше!
 	param \meet
-	realm $hyoo_crus_realm
 	menu_title @ \✨ Meets
 	menu_tools /
 		<= Meet_add $mol_button_minor

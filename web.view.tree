@@ -419,7 +419,6 @@ $mol_icon_sync_off $mol_icon path \M20,4H14V10L16.24,7.76C17.32,8.85 18,10.34 18
 $hyoo_crus_status $mol_select
 	minimal_width 40
 	minimal_height 40
-	realm $hyoo_crus_realm
 	Filter null
 	option_content* /
 		<= Option_logo* $mol_avatar

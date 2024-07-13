@@ -7560,6 +7560,66 @@ var $;
 "use strict";
 
 ;
+	($.$hyoo_crus_status) = class $hyoo_crus_status extends ($.$mol_select) {
+		master_id(id){
+			return "";
+		}
+		Option_logo(id){
+			const obj = new this.$.$mol_avatar();
+			(obj.id) = () => ((this?.master_id(id)));
+			return obj;
+		}
+		master_link(){
+			return "";
+		}
+		Well(){
+			const obj = new this.$.$mol_avatar();
+			(obj.id) = () => ((this?.master_link()));
+			return obj;
+		}
+		Fail(){
+			const obj = new this.$.$mol_icon_sync_off();
+			return obj;
+		}
+		link_content(){
+			return [(this?.Well()), (this?.Fail())];
+		}
+		hint(){
+			return "Sync status";
+		}
+		message(){
+			return (this?.hint());
+		}
+		Link(){
+			const obj = new this.$.$mol_link();
+			(obj.uri) = () => ((this?.master_link()));
+			(obj.sub) = () => ((this?.link_content()));
+			(obj.hint) = () => ((this?.message()));
+			return obj;
+		}
+		minimal_width(){
+			return 40;
+		}
+		minimal_height(){
+			return 40;
+		}
+		Filter(){
+			return null;
+		}
+		option_content(id){
+			return [(this?.Option_logo(id)), (this?.option_label(id))];
+		}
+		trigger_content(){
+			return [(this?.Link())];
+		}
+	};
+	($mol_mem_key(($.$hyoo_crus_status.prototype), "Option_logo"));
+	($mol_mem(($.$hyoo_crus_status.prototype), "Well"));
+	($mol_mem(($.$hyoo_crus_status.prototype), "Fail"));
+	($mol_mem(($.$hyoo_crus_status.prototype), "Link"));
+
+
+;
 "use strict";
 var $;
 (function ($) {
@@ -12693,7 +12753,7 @@ var $;
 (function ($) {
     class $hyoo_crus_realm extends $mol_object {
         static lands_touched = new $mol_wire_set();
-        lands_touched = $hyoo_crus_realm.lands_touched;
+        lands_touched = this.constructor.lands_touched;
         static yard() {
             return new this.$.$hyoo_crus_yard;
         }
@@ -12792,71 +12852,6 @@ var $;
     ], $hyoo_crus_realm, "apply_parts", null);
     $.$hyoo_crus_realm = $hyoo_crus_realm;
 })($ || ($ = {}));
-
-;
-	($.$hyoo_crus_status) = class $hyoo_crus_status extends ($.$mol_select) {
-		master_id(id){
-			return "";
-		}
-		Option_logo(id){
-			const obj = new this.$.$mol_avatar();
-			(obj.id) = () => ((this?.master_id(id)));
-			return obj;
-		}
-		master_link(){
-			return "";
-		}
-		Well(){
-			const obj = new this.$.$mol_avatar();
-			(obj.id) = () => ((this?.master_link()));
-			return obj;
-		}
-		Fail(){
-			const obj = new this.$.$mol_icon_sync_off();
-			return obj;
-		}
-		link_content(){
-			return [(this?.Well()), (this?.Fail())];
-		}
-		hint(){
-			return "Sync status";
-		}
-		message(){
-			return (this?.hint());
-		}
-		Link(){
-			const obj = new this.$.$mol_link();
-			(obj.uri) = () => ((this?.master_link()));
-			(obj.sub) = () => ((this?.link_content()));
-			(obj.hint) = () => ((this?.message()));
-			return obj;
-		}
-		minimal_width(){
-			return 40;
-		}
-		minimal_height(){
-			return 40;
-		}
-		realm(){
-			const obj = new this.$.$hyoo_crus_realm();
-			return obj;
-		}
-		Filter(){
-			return null;
-		}
-		option_content(id){
-			return [(this?.Option_logo(id)), (this?.option_label(id))];
-		}
-		trigger_content(){
-			return [(this?.Link())];
-		}
-	};
-	($mol_mem_key(($.$hyoo_crus_status.prototype), "Option_logo"));
-	($mol_mem(($.$hyoo_crus_status.prototype), "Well"));
-	($mol_mem(($.$hyoo_crus_status.prototype), "Fail"));
-	($mol_mem(($.$hyoo_crus_status.prototype), "Link"));
-	($mol_mem(($.$hyoo_crus_status.prototype), "realm"));
-
 
 ;
 "use strict";
@@ -21901,6 +21896,7 @@ var $;
     $mol_test_mocks.push($ => {
         class $hyoo_crus_realm_mock extends $.$hyoo_crus_realm {
             static $ = $;
+            static lands_touched = new $mol_wire_set();
         }
         $.$hyoo_crus_realm = $hyoo_crus_realm_mock;
     });

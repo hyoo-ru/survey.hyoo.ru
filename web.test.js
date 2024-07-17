@@ -4277,11 +4277,11 @@ var $;
             land1.give(auth2, $hyoo_crus_rank.add);
             land2.apply_unit_trust(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 2);
-            const gist1 = land2.post('', '', '', 'foo');
-            $mol_assert_equal(gist1.self(), auth2.peer());
+            const sand1 = land2.post('', '', '', 'foo');
+            $mol_assert_equal(sand1.self(), auth2.peer());
             $mol_assert_equal(land2.delta_unit().length, 4);
-            const gist2 = land2.post('', '', '', 'bar');
-            $mol_assert_equal(gist2.self(), auth2.peer());
+            const sand2 = land2.post('', '', '', 'bar');
+            $mol_assert_equal(sand2.self(), auth2.peer());
             $mol_assert_equal(land2.delta_unit().length, 4);
         },
         async 'Land encryption'($) {
@@ -4289,12 +4289,12 @@ var $;
             $mol_assert_equal(await land.encrypted(), false);
             await land.encrypted(true);
             $mol_assert_equal(await land.encrypted(), true);
-            const gist = await land.post('', '', '', new Uint8Array([1, 2, 3]));
-            $mol_assert_equal((await land.gist_encode(gist)).data().length, 16);
-            $mol_assert_equal(await land.gist_decode(gist), new Uint8Array([1, 2, 3]));
-            $mol_assert_equal((await land.gists_ordered('')).length, 1);
-            await land.post('', '', gist.self(), null);
-            $mol_assert_equal((await land.gists_ordered('')).length, 0);
+            const sand = await land.post('', '', '', new Uint8Array([1, 2, 3]));
+            $mol_assert_equal((await land.sand_encode(sand)).data().length, 16);
+            $mol_assert_equal(await land.sand_decode(sand), new Uint8Array([1, 2, 3]));
+            $mol_assert_equal((await land.sand_ordered('')).length, 1);
+            await land.post('', '', sand.self(), null);
+            $mol_assert_equal((await land.sand_ordered('')).length, 1);
         },
         'Land fork & merge'($) {
             const home = $.$hyoo_crus_realm.home().land();
@@ -4517,7 +4517,7 @@ var $;
     $mol_test({
         'unit type'() {
             const unit = new $hyoo_crus_unit;
-            $mol_assert_equal(unit.kind(), 'gist');
+            $mol_assert_fail(() => unit.kind(), 'Empty unit');
         },
         'auth unit type'() {
             const auth = new $hyoo_crus_pass;
@@ -4533,9 +4533,10 @@ var $;
             $mol_assert_equal(gift.rank(), $hyoo_crus_rank.law);
         },
         'data unit type'() {
-            const unit = new $hyoo_crus_gist;
+            const unit = new $hyoo_crus_sand;
+            unit.hint('nil', 'term');
             unit.data(new Uint8Array([0xFF, 0xFF]));
-            $mol_assert_equal(unit.kind(), 'gist');
+            $mol_assert_equal(unit.kind(), 'sand');
             $mol_assert_equal(unit.size(), 2);
             $mol_assert_equal(unit.data(), new Uint8Array([0xFF, 0xFF]));
         },
@@ -4555,7 +4556,7 @@ var $;
             $mol_assert_equal(unit.dest(), $hyoo_crus_ref('ÆPv6æfj3_9vX08ÆLx'));
         },
         'data unit fields'() {
-            const unit = new $hyoo_crus_gist;
+            const unit = new $hyoo_crus_sand;
             $mol_assert_equal(unit.time(), 0);
             $mol_assert_equal(unit.head(), '');
             $mol_assert_equal(unit.self(), '');
@@ -4570,7 +4571,7 @@ var $;
             $mol_assert_equal(unit.lead(), 'v6æfj39v');
         },
         async 'sign / verify'($) {
-            const source = new $hyoo_crus_gist;
+            const source = new $hyoo_crus_sand;
             source.data(new Uint8Array([0xF1, 0xF2]));
             const key = await $.$mol_crypto_auditor_pair();
             source.sign(new Uint8Array(await key.private.sign(source.sens())));
@@ -4940,7 +4941,7 @@ var $;
             const base = $hyoo_crus_land.make({ $ });
             base.Data($hyoo_crus_list_vary).items_vary([1, 2, 3, 4]);
             const left = fork(base);
-            left.gist_move(left.Data($hyoo_crus_list_vary).units()[1], '11111111', 0);
+            left.sand_move(left.Data($hyoo_crus_list_vary).units()[1], '11111111', 0);
             const right = fork(base);
             right.faces.sync(left.faces);
             right.Data($hyoo_crus_list_vary).items_vary([1, 2, 7, 3, 4]);
@@ -4955,7 +4956,7 @@ var $;
             left.Data($hyoo_crus_list_vary).items_vary([1, 2, 7, 3, 4]);
             const right = fork(base);
             right.faces.sync(left.faces);
-            right.gist_move(right.Data($hyoo_crus_list_vary).units()[1], '11111111', 0);
+            right.sand_move(right.Data($hyoo_crus_list_vary).units()[1], '11111111', 0);
             sync(left, right);
             $mol_assert_equal(left.Data($hyoo_crus_list_vary).items_vary(), right.Data($hyoo_crus_list_vary).items_vary(), [1, 7, 3, 4]);
             $mol_assert_equal(left.Node($hyoo_crus_list_vary).Item('11111111').items_vary(), right.Node($hyoo_crus_list_vary).Item('11111111').items_vary(), [2]);

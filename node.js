@@ -12167,7 +12167,12 @@ var $;
                 connectionString: urn,
                 ssl: { rejectUnauthorized: false },
             });
-            await db.connect();
+            db.on('error', error => {
+                this.$.$mol_log3_fail({
+                    place: this,
+                    message: error?.message,
+                });
+            });
             await db.query(`
 				CREATE TABLE IF NOT EXISTS Land (
 					land varchar(17) NOT NULL,

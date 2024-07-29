@@ -12301,6 +12301,7 @@ var $;
                             }
                             continue;
                         }
+                        case $hyoo_crus_part.root:
                         case $hyoo_crus_part.buck: {
                             offset += 128;
                             continue;

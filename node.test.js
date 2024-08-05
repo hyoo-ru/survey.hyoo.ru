@@ -7782,12 +7782,16 @@ var $;
     $.$hyoo_crus_ref = $mol_data_tagged({ $hyoo_crus_ref: (val) => {
             if (typeof val === 'string')
                 val = Symbol.for(val.replace(/_+$/, ''));
-            if (/^(([a-zæA-ZÆ0-9]{8})?_){0,2}([a-zæA-ZÆ0-9]{8})?$/.test(val.description))
+            if (/^(([a-zæA-ZÆ0-9]{8})?_){0,3}([a-zæA-ZÆ0-9]{8})?$/.test(val.description))
                 return val;
             $mol_fail(new Error(`Wrong ref (${val.description})`));
         } }).$hyoo_crus_ref;
+    function $hyoo_crus_ref_lord(ref) {
+        return $.$hyoo_crus_ref(ref.description.split('_').slice(0, 2).join('_'));
+    }
+    $.$hyoo_crus_ref_lord = $hyoo_crus_ref_lord;
     function $hyoo_crus_ref_land(ref) {
-        return $.$hyoo_crus_ref(ref.description.slice(0, 17));
+        return $.$hyoo_crus_ref(ref.description.split('_').slice(0, 3).join('_').replace(/_$/, ''));
     }
     $.$hyoo_crus_ref_land = $hyoo_crus_ref_land;
     function $hyoo_crus_ref_peer(ref) {
@@ -7795,12 +7799,12 @@ var $;
     }
     $.$hyoo_crus_ref_peer = $hyoo_crus_ref_peer;
     function $hyoo_crus_ref_head(ref) {
-        return ref.description.split('_')[2] ?? '';
+        return ref.description.split('_')[3] ?? '';
     }
     $.$hyoo_crus_ref_head = $hyoo_crus_ref_head;
     function $hyoo_crus_ref_encode(ref) {
         return $mol_base64_ae_decode((ref.description || '_')
-            .split(/_/g)
+            .split('_')
             .map(numb => numb || 'AAAAAAAA')
             .join(''));
     }
@@ -7812,17 +7816,23 @@ var $;
     }
     $.$hyoo_crus_ref_decode = $hyoo_crus_ref_decode;
     function $hyoo_crus_ref_relate(base, ref) {
-        if (!ref.description.padEnd(18, '_').startsWith(base.description.slice(0, 18).padEnd(18, '_')))
+        base = $hyoo_crus_ref_land(base);
+        if ($hyoo_crus_ref_land(ref) !== base)
             return ref;
-        return $.$hyoo_crus_ref(('__' + (ref.description.split('_')[2] ?? '')).replace(/_+$/, ''));
+        const head = $hyoo_crus_ref_head(ref);
+        return $.$hyoo_crus_ref(head ? '___' + head : '');
     }
     $.$hyoo_crus_ref_relate = $hyoo_crus_ref_relate;
     function $hyoo_crus_ref_resolve(base, ref) {
         if (!ref.description)
             return $hyoo_crus_ref_land(base);
-        if (!ref.description.startsWith('__'))
+        if (!ref.description.startsWith('___'))
             return ref;
-        return $.$hyoo_crus_ref(base.description.slice(0, 18).padEnd(18, '_') + ref.description.slice(2));
+        const parts = base.description.split('_').slice(0, 3);
+        while (parts.length < 3)
+            parts.push('');
+        parts.push(ref.description.slice(3));
+        return $.$hyoo_crus_ref(parts.join('_'));
     }
     $.$hyoo_crus_ref_resolve = $hyoo_crus_ref_resolve;
 })($ || ($ = {}));
@@ -9317,7 +9327,7 @@ var $;
             return this.land()?.ref() ?? this.$.$hyoo_crus_auth.current().lord();
         }
         ref() {
-            return $hyoo_crus_ref(this.land_ref().description + '_' + this.head());
+            return $hyoo_crus_ref_resolve(this.land_ref(), $hyoo_crus_ref('___' + this.head()));
         }
         toJSON() {
             return this.ref().description;
@@ -9403,6 +9413,149 @@ var $;
         $mol_mem_key
     ], $hyoo_crus_fund.prototype, "Item", null);
     $.$hyoo_crus_fund = $hyoo_crus_fund;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_graph {
+        nodes = new Set();
+        edges_out = new Map();
+        edges_in = new Map();
+        link(from, to, edge) {
+            this.link_out(from, to, edge);
+            this.link_in(to, from, edge);
+        }
+        unlink(from, to) {
+            this.edges_in.get(to)?.delete(from);
+            this.edges_out.get(from)?.delete(to);
+        }
+        link_out(from, to, edge) {
+            let pair = this.edges_out.get(from);
+            if (!pair) {
+                pair = new Map();
+                this.edges_out.set(from, pair);
+                this.nodes.add(from);
+            }
+            pair.set(to, edge);
+            this.nodes.add(to);
+        }
+        link_in(to, from, edge) {
+            let pair = this.edges_in.get(to);
+            if (!pair) {
+                pair = new Map();
+                this.edges_in.set(to, pair);
+                this.nodes.add(to);
+            }
+            pair.set(from, edge);
+            this.nodes.add(to);
+        }
+        edge(from, to) {
+            return this.edge_out(from, to) ?? this.edge_in(to, from);
+        }
+        edge_out(from, to) {
+            return this.edges_out.get(from)?.get(to) ?? null;
+        }
+        edge_in(to, from) {
+            return this.edges_in.get(to)?.get(from) ?? null;
+        }
+        acyclic(get_weight) {
+            const checked = [];
+            for (const start of this.nodes) {
+                const path = [];
+                const visit = (from) => {
+                    if (checked.includes(from))
+                        return Number.MAX_SAFE_INTEGER;
+                    const index = path.lastIndexOf(from);
+                    if (index > -1) {
+                        const cycle = path.slice(index);
+                        return cycle.reduce((weight, node, index) => Math.min(weight, get_weight(this.edge_out(node, cycle[(index + 1) % cycle.length]))), Number.MAX_SAFE_INTEGER);
+                    }
+                    path.push(from);
+                    dive: try {
+                        const deps = this.edges_out.get(from);
+                        if (!deps)
+                            break dive;
+                        for (const [to, edge] of deps) {
+                            if (to === from) {
+                                this.unlink(from, to);
+                                continue;
+                            }
+                            const weight_out = get_weight(edge);
+                            const min = visit(to);
+                            if (weight_out > min)
+                                return min;
+                            if (weight_out === min) {
+                                this.unlink(from, to);
+                                if (path.length > 1) {
+                                    const enter = path[path.length - 2];
+                                    this.link(enter, to, edge);
+                                }
+                            }
+                        }
+                    }
+                    finally {
+                        path.pop();
+                    }
+                    checked.push(from);
+                    return Number.MAX_SAFE_INTEGER;
+                };
+                visit(start);
+            }
+        }
+        get sorted() {
+            const sorted = new Set();
+            const visit = (node) => {
+                if (sorted.has(node))
+                    return;
+                const deps = this.edges_out.get(node);
+                if (deps) {
+                    for (const [dep] of deps)
+                        visit(dep);
+                }
+                sorted.add(node);
+            };
+            for (const node of this.nodes) {
+                visit(node);
+            }
+            return sorted;
+        }
+        get roots() {
+            const roots = [];
+            for (const node of this.nodes) {
+                if (this.edges_in.get(node)?.size)
+                    continue;
+                roots.push(node);
+            }
+            return roots;
+        }
+        nodes_depth(select) {
+            const stat = new Map();
+            const visit = (node, depth = 0) => {
+                if (stat.has(node))
+                    stat.set(node, select(depth, stat.get(node)));
+                else
+                    stat.set(node, depth);
+                for (const kid of this.edges_out.get(node)?.keys() ?? [])
+                    visit(kid, depth + 1);
+            };
+            for (const root of this.roots)
+                visit(root);
+            return stat;
+        }
+        depth_nodes(select) {
+            const groups = [];
+            for (const [node, depth] of this.nodes_depth(select).entries()) {
+                if (groups[depth])
+                    groups[depth].push(node);
+                else
+                    groups[depth] = [node];
+            }
+            return groups;
+        }
+    }
+    $.$mol_graph = $mol_graph;
 })($ || ($ = {}));
 
 ;
@@ -10275,149 +10428,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_graph {
-        nodes = new Set();
-        edges_out = new Map();
-        edges_in = new Map();
-        link(from, to, edge) {
-            this.link_out(from, to, edge);
-            this.link_in(to, from, edge);
-        }
-        unlink(from, to) {
-            this.edges_in.get(to)?.delete(from);
-            this.edges_out.get(from)?.delete(to);
-        }
-        link_out(from, to, edge) {
-            let pair = this.edges_out.get(from);
-            if (!pair) {
-                pair = new Map();
-                this.edges_out.set(from, pair);
-                this.nodes.add(from);
-            }
-            pair.set(to, edge);
-            this.nodes.add(to);
-        }
-        link_in(to, from, edge) {
-            let pair = this.edges_in.get(to);
-            if (!pair) {
-                pair = new Map();
-                this.edges_in.set(to, pair);
-                this.nodes.add(to);
-            }
-            pair.set(from, edge);
-            this.nodes.add(to);
-        }
-        edge(from, to) {
-            return this.edge_out(from, to) ?? this.edge_in(to, from);
-        }
-        edge_out(from, to) {
-            return this.edges_out.get(from)?.get(to) ?? null;
-        }
-        edge_in(to, from) {
-            return this.edges_in.get(to)?.get(from) ?? null;
-        }
-        acyclic(get_weight) {
-            const checked = [];
-            for (const start of this.nodes) {
-                const path = [];
-                const visit = (from) => {
-                    if (checked.includes(from))
-                        return Number.MAX_SAFE_INTEGER;
-                    const index = path.lastIndexOf(from);
-                    if (index > -1) {
-                        const cycle = path.slice(index);
-                        return cycle.reduce((weight, node, index) => Math.min(weight, get_weight(this.edge_out(node, cycle[(index + 1) % cycle.length]))), Number.MAX_SAFE_INTEGER);
-                    }
-                    path.push(from);
-                    dive: try {
-                        const deps = this.edges_out.get(from);
-                        if (!deps)
-                            break dive;
-                        for (const [to, edge] of deps) {
-                            if (to === from) {
-                                this.unlink(from, to);
-                                continue;
-                            }
-                            const weight_out = get_weight(edge);
-                            const min = visit(to);
-                            if (weight_out > min)
-                                return min;
-                            if (weight_out === min) {
-                                this.unlink(from, to);
-                                if (path.length > 1) {
-                                    const enter = path[path.length - 2];
-                                    this.link(enter, to, edge);
-                                }
-                            }
-                        }
-                    }
-                    finally {
-                        path.pop();
-                    }
-                    checked.push(from);
-                    return Number.MAX_SAFE_INTEGER;
-                };
-                visit(start);
-            }
-        }
-        get sorted() {
-            const sorted = new Set();
-            const visit = (node) => {
-                if (sorted.has(node))
-                    return;
-                const deps = this.edges_out.get(node);
-                if (deps) {
-                    for (const [dep] of deps)
-                        visit(dep);
-                }
-                sorted.add(node);
-            };
-            for (const node of this.nodes) {
-                visit(node);
-            }
-            return sorted;
-        }
-        get roots() {
-            const roots = [];
-            for (const node of this.nodes) {
-                if (this.edges_in.get(node)?.size)
-                    continue;
-                roots.push(node);
-            }
-            return roots;
-        }
-        nodes_depth(select) {
-            const stat = new Map();
-            const visit = (node, depth = 0) => {
-                if (stat.has(node))
-                    stat.set(node, select(depth, stat.get(node)));
-                else
-                    stat.set(node, depth);
-                for (const kid of this.edges_out.get(node)?.keys() ?? [])
-                    visit(kid, depth + 1);
-            };
-            for (const root of this.roots)
-                visit(root);
-            return stat;
-        }
-        depth_nodes(select) {
-            const groups = [];
-            for (const [node, depth] of this.nodes_depth(select).entries()) {
-                if (groups[depth])
-                    groups[depth].push(node);
-                else
-                    groups[depth] = [node];
-            }
-            return groups;
-        }
-    }
-    $.$mol_graph = $mol_graph;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
     function $mol_wire_race(...tasks) {
         const results = tasks.map(task => {
             try {
@@ -10476,6 +10486,19 @@ var $;
         home() {
             return this.Data($hyoo_crus_home);
         }
+        area_make(idea = Math.floor(Math.random() * 2 ** 48)) {
+            const id = $mol_base64_ae_encode(new Uint8Array(new BigUint64Array([BigInt(idea)]).buffer, 0, 6));
+            const ref = $hyoo_crus_ref($hyoo_crus_ref_lord(this.ref()).description + '_' + id);
+            const area = this.$.$hyoo_crus_glob.Land(ref);
+            const errors = area.apply_unit(this.unit_sort([...this.pass.values(), ...this.gift.values()]));
+            for (const error of errors)
+                this.$.$mol_log3_warn({
+                    place: `${this}.area_make()`,
+                    message: error,
+                    hint: 'Send it to developer',
+                });
+            return area;
+        }
         Data(Node) {
             return this.Node(Node).Item('');
         }
@@ -10508,7 +10531,7 @@ var $;
             return $hyoo_crus_auth.from(pass.auth());
         }
         lord_rank(lord, next) {
-            if (lord === this.ref())
+            if (lord === $hyoo_crus_ref_lord(this.ref()))
                 return $hyoo_crus_rank.law;
             const prev = this.gift.get(lord)?.rank()
                 ?? this.gift.get($hyoo_crus_ref(''))?.rank()
@@ -10528,6 +10551,31 @@ var $;
             if (!auth)
                 return $hyoo_crus_rank.get;
             return this.lord_rank(auth.lord());
+        }
+        unit_sort(units) {
+            const dict = new Map();
+            for (const unit of units)
+                dict.set(unit.key(), unit);
+            const lord = $hyoo_crus_ref_lord(this.ref());
+            const graph = new $mol_graph();
+            for (const unit of units) {
+                unit.choose({
+                    pass: pass => {
+                        if (pass.lord() === lord)
+                            return;
+                        graph.link(pass.key(), '');
+                    },
+                    gift: gift => {
+                        graph.link($hyoo_crus_ref_peer(gift.dest()), gift.key());
+                        graph.link(gift.key(), gift.peer());
+                    },
+                    sand: sand => {
+                        graph.link(sand.key(), sand.peer());
+                    },
+                });
+            }
+            graph.acyclic(() => 1);
+            return [...graph.sorted].map(key => dict.get(key)).filter(Boolean);
         }
         delta_unit(face = new $hyoo_crus_face_map) {
             this.loading();
@@ -10733,7 +10781,7 @@ var $;
             });
         }
         fork(preset = { '': $hyoo_crus_rank.get }) {
-            const land = this.$.$hyoo_crus_realm.land_grab(preset);
+            const land = this.$.$hyoo_crus_glob.land_grab(preset);
             land.Tines().items_vary([this.ref()]);
             return land;
         }
@@ -10751,11 +10799,11 @@ var $;
                 if (!tines.length)
                     break merge;
                 const exists = new Set([...this.sand.get(head)?.keys() ?? []]);
-                const realm = this.$.$hyoo_crus_realm;
+                const glob = this.$.$hyoo_crus_glob;
                 let slice = 0;
                 for (const ref of tines) {
                     ++slice;
-                    const land = realm.Land(ref);
+                    const land = glob.Land(ref);
                     for (const sand of land.sand_ordered(head)) {
                         if (exists.has(sand.self()))
                             continue;
@@ -10921,7 +10969,7 @@ var $;
             this.post(seat ? units[seat - 1].self() : '', sand.head(), sand.self(), null, 'term');
         }
         broadcast() {
-            this.$.$hyoo_crus_realm.yard().lands_neonatals.add(this.ref());
+            this.$.$hyoo_crus_glob.yard().lands_neonatals.add(this.ref());
         }
         sync() {
             this.loading();
@@ -10931,13 +10979,13 @@ var $;
             return this;
         }
         destructor() {
-            this.$.$hyoo_crus_realm.yard().forget_land(this);
+            this.$.$hyoo_crus_glob.yard().forget_land(this);
         }
         sync_mine() {
             return new $mol_wire_atom('', () => this.saving()).fresh();
         }
         sync_yard() {
-            return new $mol_wire_atom('', () => this.$.$hyoo_crus_realm.yard().sync_land(this.ref())).fresh();
+            return new $mol_wire_atom('', () => this.$.$hyoo_crus_glob.yard().sync_land(this.ref())).fresh();
         }
         bus() {
             return new this.$.$mol_bus(`$hyoo_crus_land:${this.ref().description}`, $mol_wire_async(bins => {
@@ -10950,27 +10998,7 @@ var $;
         }
         loading() {
             $mol_wire_solid();
-            let units = this.$.$hyoo_crus_mine.units(this.ref()) ?? [];
-            const dict = new Map();
-            for (const unit of units)
-                dict.set(unit.key(), unit);
-            const graph = new $mol_graph();
-            for (const unit of units) {
-                unit.choose({
-                    pass: pass => {
-                        graph.link(pass.key(), '');
-                    },
-                    gift: gift => {
-                        graph.link($hyoo_crus_ref_peer(gift.dest()), gift.key());
-                        graph.link(gift.key(), gift.peer());
-                    },
-                    sand: sand => {
-                        graph.link(sand.key(), sand.peer());
-                    },
-                });
-            }
-            graph.acyclic(() => 1);
-            units = [...graph.sorted].map(key => dict.get(key)).filter(Boolean);
+            let units = this.unit_sort(this.$.$hyoo_crus_mine.units(this.ref()) ?? []);
             $mol_wire_sync(this.$).$mol_log3_rise({
                 place: this,
                 message: 'Load Unit',
@@ -11060,7 +11088,7 @@ var $;
         sand_decode_raw(sand) {
             if (this.sand.get(sand.head())?.get(sand.self()) !== sand) {
                 for (const id of this.Tines().items_vary() ?? []) {
-                    const vary = this.$.$hyoo_crus_realm.Land($hyoo_crus_vary_cast_ref(id)).sand_decode_raw(sand);
+                    const vary = this.$.$hyoo_crus_glob.Land($hyoo_crus_vary_cast_ref(id)).sand_decode_raw(sand);
                     if (vary !== undefined)
                         return vary;
                 }
@@ -11174,6 +11202,9 @@ var $;
     __decorate([
         $mol_action
     ], $hyoo_crus_land.prototype, "self_make", null);
+    __decorate([
+        $mol_action
+    ], $hyoo_crus_land.prototype, "area_make", null);
     __decorate([
         $mol_mem_key
     ], $hyoo_crus_land.prototype, "Data", null);
@@ -11771,15 +11802,15 @@ var $;
                 return '$hyoo_crus_list_to<' + Value() + '>';
             }
             remote_list(next) {
-                const realm = this.$.$hyoo_crus_realm;
+                const glob = this.$.$hyoo_crus_glob;
                 const Node = Value();
                 return this.items_vary(next?.map(item => item.ref()))
                     .map($hyoo_crus_vary_cast_ref)
                     .filter($mol_guard_defined)
-                    .map(ref => realm.Node(ref, Node));
+                    .map(ref => glob.Node(ref, Node));
             }
             remote_make(preset) {
-                const land = this.$.$hyoo_crus_realm.land_grab(preset);
+                const land = this.$.$hyoo_crus_glob.land_grab(preset);
                 this.splice([land.ref()]);
                 return land.Node(Value()).Item('');
             }
@@ -11993,45 +12024,60 @@ var $;
             static toString() {
                 return '$hyoo_crus_atom_ref_to<' + Value() + '>';
             }
-            yoke(preset) {
-                const realm = this.$.$hyoo_crus_realm;
-                const Ref = this.cast($hyoo_crus_atom_ref);
-                const ref = Ref.val();
-                if (ref)
-                    return realm.Land(ref);
-                if (preset === undefined)
-                    return null;
-                const land = realm.land_grab(preset);
-                Ref.val(land.ref());
-                return land;
-            }
             remote(next) {
                 let ref = next?.ref() ?? next;
                 ref = $hyoo_crus_vary_cast_ref(this.vary(ref));
                 if (!ref)
                     return null;
-                return this.$.$hyoo_crus_realm.Node(ref, Value());
+                return this.$.$hyoo_crus_glob.Node(ref, Value());
             }
-            remote_ensure(preset) {
-                this.yoke(preset);
+            ensure(config) {
+                if (!this.val()) {
+                    if (config === null)
+                        this.ensure_here();
+                    else if (config instanceof $hyoo_crus_land)
+                        this.ensure_area(config);
+                    else if (config)
+                        this.ensure_lord(config);
+                    else
+                        return null;
+                }
                 return this.remote();
             }
+            ensure_here() {
+                const idea = $mol_hash_string(this.ref().description);
+                const head = this.land().self_make(idea);
+                const node = this.land().Node(Value()).Item(head);
+                this.remote(node);
+            }
+            ensure_area(land) {
+                const idea = $mol_hash_string(this.ref().description);
+                const area = land.area_make(idea);
+                this.val(area.ref());
+            }
+            ensure_lord(preset) {
+                const land = this.$.$hyoo_crus_glob.land_grab(preset);
+                this.val(land.ref());
+            }
+            remote_ensure(preset) {
+                return this.ensure(preset);
+            }
             local_ensure() {
-                if (this.remote())
-                    return this.remote();
-                const node = this.land().Node(Value()).Item(this.land().self_make());
-                return this.remote(node);
+                return this.ensure(null);
             }
         }
         __decorate([
             $mol_mem
-        ], Ref.prototype, "yoke", null);
-        __decorate([
-            $mol_mem
         ], Ref.prototype, "remote", null);
         __decorate([
-            $mol_mem
-        ], Ref.prototype, "local_ensure", null);
+            $mol_action
+        ], Ref.prototype, "ensure_here", null);
+        __decorate([
+            $mol_action
+        ], Ref.prototype, "ensure_area", null);
+        __decorate([
+            $mol_action
+        ], Ref.prototype, "ensure_lord", null);
         return Ref;
     }
     $.$hyoo_crus_atom_ref_to = $hyoo_crus_atom_ref_to;
@@ -12047,7 +12093,7 @@ var $;
         Hall: $hyoo_crus_atom_ref_to(() => $hyoo_crus_dict),
     }) {
         hall_by(Node, preset) {
-            return this.Hall(null)?.remote_ensure(preset)?.cast(Node) ?? null;
+            return this.Hall(null)?.ensure(preset)?.cast(Node) ?? null;
         }
     }
     $.$hyoo_crus_home = $hyoo_crus_home;
@@ -12366,8 +12412,8 @@ var $;
                             const faces = new $hyoo_crus_face_map;
                             faces.total = this.uint32(offset) >> 8;
                             offset += 4;
-                            land = $hyoo_crus_ref_decode(new Uint8Array(buf.buffer, buf.byteOffset + offset, 12));
-                            offset += 12;
+                            land = $hyoo_crus_ref_decode(new Uint8Array(buf.buffer, buf.byteOffset + offset, 18));
+                            offset += 20;
                             lands[land] = { faces, units: [] };
                             continue;
                         }
@@ -12439,7 +12485,7 @@ var $;
         static make({ lands, rocks }) {
             let size = 0;
             for (const land of Reflect.ownKeys(lands)) {
-                size += 16;
+                size += 24;
                 size += Math.ceil(lands[land].faces.size * 12 / 8 + .5) * 8;
                 size += lands[land].units.length * $hyoo_crus_unit.size;
             }
@@ -12455,7 +12501,7 @@ var $;
                 const faces = lands[land].faces;
                 pack.uint32(offset, $hyoo_crus_part.land | (faces.total << 8));
                 buff.set($hyoo_crus_ref_encode(land), offset + 4);
-                offset += 16;
+                offset += 24;
                 pack.uint32(offset, $hyoo_crus_part.face | (faces.size << 8));
                 offset += 4;
                 for (const [peer, time] of faces) {
@@ -12489,7 +12535,7 @@ var $;
 var $;
 (function ($) {
     class $hyoo_crus_yard extends $mol_object {
-        realm() {
+        glob() {
             return null;
         }
         lands_neonatals = new $mol_wire_set();
@@ -12629,7 +12675,7 @@ var $;
                 }
             }
             this.face_port_sync(port, parts.lands);
-            this.$.$hyoo_crus_realm.apply_parts(parts.lands, parts.rocks);
+            this.$.$hyoo_crus_glob.apply_parts(parts.lands, parts.rocks);
         }
         face_port_sync(port, income) {
             const actives = this.port_lands_active(port);
@@ -12677,7 +12723,7 @@ var $;
                 const faces = this.face_port_land([port, land]);
                 if (!faces)
                     return;
-                const Land = this.$.$hyoo_crus_realm.Land(land);
+                const Land = this.$.$hyoo_crus_glob.Land(land);
                 Land.saving();
                 const parts = Land.delta_parts(faces);
                 if (!parts)
@@ -12697,7 +12743,7 @@ var $;
             }
         }
         init_port_land([port, land]) {
-            const Land = this.$.$hyoo_crus_realm.Land(land);
+            const Land = this.$.$hyoo_crus_glob.Land(land);
             Land.loading();
             this.$.$mol_log3_rise({
                 place: this,
@@ -12715,7 +12761,7 @@ var $;
     }
     __decorate([
         $mol_mem
-    ], $hyoo_crus_yard.prototype, "realm", null);
+    ], $hyoo_crus_yard.prototype, "glob", null);
     __decorate([
         $mol_mem
     ], $hyoo_crus_yard.prototype, "master_cursor", null);
@@ -12783,20 +12829,20 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $hyoo_crus_realm extends $mol_object {
+    class $hyoo_crus_glob extends $mol_object {
         static lands_touched = new $mol_wire_set();
         lands_touched = this.constructor.lands_touched;
         static yard() {
             return new this.$.$hyoo_crus_yard;
         }
         yard() {
-            return this.$.$hyoo_crus_realm.yard();
+            return this.$.$hyoo_crus_glob.yard();
         }
         static home() {
             return this.Land(this.$.$hyoo_crus_auth.current().lord()).home();
         }
         home() {
-            return this.$.$hyoo_crus_realm.home();
+            return this.$.$hyoo_crus_glob.home();
         }
         static king_grab(preset = { '': $hyoo_crus_rank.get }) {
             const king = this.$.$hyoo_crus_auth.grab();
@@ -12813,13 +12859,13 @@ var $;
             return king;
         }
         king_grab(preset = { '': $hyoo_crus_rank.get }) {
-            return this.$.$hyoo_crus_realm.king_grab(preset);
+            return this.$.$hyoo_crus_glob.king_grab(preset);
         }
         static land_grab(preset = { '': $hyoo_crus_rank.get }) {
             return this.Land(this.king_grab(preset).lord());
         }
         land_grab(preset = { '': $hyoo_crus_rank.get }) {
-            return this.$.$hyoo_crus_realm.land_grab(preset);
+            return this.$.$hyoo_crus_glob.land_grab(preset);
         }
         static Land(ref) {
             this.lands_touched.add(ref);
@@ -12828,21 +12874,21 @@ var $;
             });
         }
         Land(ref) {
-            return this.$.$hyoo_crus_realm.Land(ref);
+            return this.$.$hyoo_crus_glob.Land(ref);
         }
         static Node(ref, Node) {
             const land = this.Land($hyoo_crus_ref_land(ref));
             return land.Node(Node).Item($hyoo_crus_ref_head(ref));
         }
         Node(ref, Node) {
-            return this.$.$hyoo_crus_realm.Node(ref, Node);
+            return this.$.$hyoo_crus_glob.Node(ref, Node);
         }
         static apply_pack(pack) {
             const { lands, rocks } = pack.parts();
             return this.apply_parts(lands, rocks);
         }
         apply_pack(pack) {
-            return this.$.$hyoo_crus_realm.apply_pack(pack);
+            return this.$.$hyoo_crus_glob.apply_pack(pack);
         }
         static apply_parts(lands, rocks) {
             for (const land of Reflect.ownKeys(lands)) {
@@ -12861,28 +12907,28 @@ var $;
             }
         }
         apply_parts(lands, rocks) {
-            return this.$.$hyoo_crus_realm.apply_parts(lands, rocks);
+            return this.$.$hyoo_crus_glob.apply_parts(lands, rocks);
         }
     }
     __decorate([
         $mol_mem
-    ], $hyoo_crus_realm, "yard", null);
+    ], $hyoo_crus_glob, "yard", null);
     __decorate([
         $mol_action
-    ], $hyoo_crus_realm, "king_grab", null);
+    ], $hyoo_crus_glob, "king_grab", null);
     __decorate([
         $mol_action
-    ], $hyoo_crus_realm, "land_grab", null);
+    ], $hyoo_crus_glob, "land_grab", null);
     __decorate([
         $mol_mem_key
-    ], $hyoo_crus_realm, "Land", null);
+    ], $hyoo_crus_glob, "Land", null);
     __decorate([
         $mol_action
-    ], $hyoo_crus_realm, "apply_pack", null);
+    ], $hyoo_crus_glob, "apply_pack", null);
     __decorate([
         $mol_action
-    ], $hyoo_crus_realm, "apply_parts", null);
-    $.$hyoo_crus_realm = $hyoo_crus_realm;
+    ], $hyoo_crus_glob, "apply_parts", null);
+    $.$hyoo_crus_glob = $hyoo_crus_glob;
 })($ || ($ = {}));
 
 ;
@@ -12894,7 +12940,7 @@ var $;
         class $hyoo_crus_status extends $.$hyoo_crus_status {
             message() {
                 try {
-                    this.$.$hyoo_crus_realm.yard().master();
+                    this.$.$hyoo_crus_glob.yard().master();
                     return this.hint();
                 }
                 catch (error) {
@@ -12906,7 +12952,7 @@ var $;
             }
             link_content() {
                 try {
-                    this.$.$hyoo_crus_realm.yard().master();
+                    this.$.$hyoo_crus_glob.yard().master();
                     return [this.Well()];
                 }
                 catch (error) {
@@ -12920,7 +12966,7 @@ var $;
                 return this.$.$hyoo_crus_yard.masters;
             }
             master_link() {
-                return this.$.$hyoo_crus_realm.yard().master_current();
+                return this.$.$hyoo_crus_glob.yard().master_current();
             }
             master_id(uri) {
                 return uri.replace(/^\w+:\/\//, '').replace(/\/$/, '');
@@ -12929,7 +12975,7 @@ var $;
                 return uri.replace(/^\w+:\/\//, '').replace(/\/$/, '');
             }
             value(next) {
-                return this.$.$hyoo_crus_yard.masters[this.$.$hyoo_crus_realm.yard().master_cursor(next == undefined ? undefined : this.$.$hyoo_crus_yard.masters.indexOf(next))];
+                return this.$.$hyoo_crus_yard.masters[this.$.$hyoo_crus_glob.yard().master_cursor(next == undefined ? undefined : this.$.$hyoo_crus_yard.masters.indexOf(next))];
             }
         }
         __decorate([
@@ -13193,7 +13239,7 @@ var $;
             return ['', offset];
         }
         selection(lord, next) {
-            const base = this.$.$hyoo_crus_realm.Land(lord).Data($hyoo_crus_home);
+            const base = this.$.$hyoo_crus_glob.Land(lord).Data($hyoo_crus_home);
             if (next) {
                 base.Selection(null)?.val(next.map(offset => this.point_by_offset(offset).join(':')).join('|'));
                 return next;
@@ -13261,8 +13307,8 @@ var $;
             const owner_key = this.Owner()?.remote()?.land().key();
             if (!owner_key)
                 return null;
-            const opinions = this.Opinions(null)?.remote_ensure({ '': $hyoo_crus_rank.add });
-            const opinion = opinions?.key(my_auth.peer(), null)?.remote_ensure({
+            const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank.add });
+            const opinion = opinions?.key(my_auth.peer(), null)?.ensure({
                 [owner_key.toString()]: $hyoo_crus_rank.get,
                 [my_auth.public().toString()]: $hyoo_crus_rank.law,
             }) ?? null;
@@ -16731,7 +16777,7 @@ var $;
                 return $hyoo_crus_ref(id);
             }
             profile() {
-                return this.$.$hyoo_crus_realm.home().hall_by($hyoo_survey_person, {});
+                return this.$.$hyoo_crus_glob.home().hall_by($hyoo_survey_person, {});
             }
             meet_add() {
                 const meet = this.profile().meet_make();
@@ -16741,7 +16787,7 @@ var $;
                 return this.profile()?.Meets()?.remote_list().map(meet => meet.ref().description) ?? [];
             }
             meet(id) {
-                return this.$.$hyoo_crus_realm.Node($hyoo_crus_ref(id), $hyoo_survey_meet);
+                return this.$.$hyoo_crus_glob.Node($hyoo_crus_ref(id), $hyoo_survey_meet);
             }
             meet_visible(id, next) {
                 return this.profile()?.Meets(next)?.has($hyoo_crus_ref(id), next) ?? false;
@@ -20163,39 +20209,45 @@ var $;
             "Ref validation"($) {
                 $mol_assert_fail(() => $hyoo_crus_ref('qwertyui_asdfghjk123'), 'Wrong ref (qwertyui_asdfghjk123)');
             },
-            "Pick ref home only"($) {
-                $mol_assert_equal($hyoo_crus_ref_land($hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref_land($hyoo_crus_ref('qwertyui_asdfghjk')), $hyoo_crus_ref('qwertyui_asdfghjk'));
+            "Pick ref lord only"($) {
+                $mol_assert_equal($hyoo_crus_ref_lord($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0')), $hyoo_crus_ref_lord($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed')), $hyoo_crus_ref_lord($hyoo_crus_ref('qwertyui_asdfghjk')), $hyoo_crus_ref('qwertyui_asdfghjk'));
+            },
+            "Pick ref land only"($) {
+                $mol_assert_equal($hyoo_crus_ref_land($hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref_land($hyoo_crus_ref('qwertyui_asdfghjk')), $hyoo_crus_ref('qwertyui_asdfghjk'));
+                $mol_assert_equal($hyoo_crus_ref_land($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0')), $hyoo_crus_ref_land($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed')), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'));
             },
             "Pick ref head only"($) {
-                $mol_assert_equal($hyoo_crus_ref_head($hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), 'zxcvbnm0');
-                $mol_assert_equal($hyoo_crus_ref_head($hyoo_crus_ref('qwertyui_asdfghjk')), '');
+                $mol_assert_equal($hyoo_crus_ref_head($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0')), $hyoo_crus_ref_head($hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), 'zxcvbnm0');
+                $mol_assert_equal($hyoo_crus_ref_head($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed')), $hyoo_crus_ref_head($hyoo_crus_ref('qwertyui_asdfghjk')), '');
             },
             "Ref encoding"($) {
-                const node = $hyoo_crus_ref_encode($hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0'));
-                const root = $hyoo_crus_ref_encode($hyoo_crus_ref('qwertyui_asdfghjk'));
-                const rel_node = $hyoo_crus_ref_encode($hyoo_crus_ref('__zxcvbnm0'));
-                const rel_root = $hyoo_crus_ref_encode($hyoo_crus_ref('__'));
-                const all = $hyoo_crus_ref_encode($hyoo_crus_ref(''));
-                $mol_assert_equal(node.length, 18);
-                $mol_assert_equal(root.length, 12);
-                $mol_assert_equal(rel_node.length, 18);
-                $mol_assert_equal(rel_node.length, 18);
-                $mol_assert_equal(all.length, 12);
-                $mol_assert_equal($hyoo_crus_ref_decode(node), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0'));
-                $mol_assert_equal($hyoo_crus_ref_decode(root), $hyoo_crus_ref('qwertyui_asdfghjk'));
-                $mol_assert_equal($hyoo_crus_ref_decode(rel_node), $hyoo_crus_ref('__zxcvbnm0'));
+                const node = $hyoo_crus_ref_encode($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0'));
+                const land = $hyoo_crus_ref_encode($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'));
+                const lord = $hyoo_crus_ref_encode($hyoo_crus_ref('qwertyui_asdfghjk'));
+                const rel_node = $hyoo_crus_ref_encode($hyoo_crus_ref('___zxcvbnm0'));
+                const rel_root = $hyoo_crus_ref_encode($hyoo_crus_ref(''));
+                $mol_assert_equal(node.length, 24);
+                $mol_assert_equal(land.length, 18);
+                $mol_assert_equal(lord.length, 12);
+                $mol_assert_equal(rel_node.length, 24);
+                $mol_assert_equal(rel_root.length, 12);
+                $mol_assert_equal($hyoo_crus_ref_decode(node), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0'));
+                $mol_assert_equal($hyoo_crus_ref_decode(land), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'));
+                $mol_assert_equal($hyoo_crus_ref_decode(lord), $hyoo_crus_ref('qwertyui_asdfghjk'));
+                $mol_assert_equal($hyoo_crus_ref_decode(rel_node), $hyoo_crus_ref('___zxcvbnm0'));
                 $mol_assert_equal($hyoo_crus_ref_decode(rel_root), $hyoo_crus_ref(''));
-                $mol_assert_equal($hyoo_crus_ref_decode(all), $hyoo_crus_ref(''));
             },
             "Relate ref to base"($) {
-                $mol_assert_equal($hyoo_crus_ref_relate($hyoo_crus_ref('QWERTYUI_ASDFGHJK'), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref_relate($hyoo_crus_ref('QWERTYUI_ASDFGHJK_ZXCVBNM0'), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0'));
-                $mol_assert_equal($hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk_12345678'), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref('__zxcvbnm0'));
-                $mol_assert_equal($hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0'), $hyoo_crus_ref('qwertyui_asdfghjk')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('qwertyui_asdfghjk')), $hyoo_crus_ref(''));
+                $mol_assert_equal($hyoo_crus_ref_relate($hyoo_crus_ref('QWERTYUI_ASDFGHJK'), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref_relate($hyoo_crus_ref('QWERTYUI_ASDFGHJK__ZXCVBNM0'), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0'));
+                $mol_assert_equal($hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_12345678'), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk__12345678'), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref('___zxcvbnm0'));
+                $mol_assert_equal($hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0'), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0'), $hyoo_crus_ref('qwertyui_asdfghjk')), $hyoo_crus_ref_relate($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('qwertyui_asdfghjk')), $hyoo_crus_ref(''));
             },
             "Resolve ref from base"($) {
-                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('QWERTYUI_ASDFGHJK_ZXCVBNM0'), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref_resolve($hyoo_crus_ref('QWERTYUI_ASDFGHJK'), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0')), $hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0'));
-                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('__12345678')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0'), $hyoo_crus_ref('__12345678')), $hyoo_crus_ref('qwertyui_asdfghjk_12345678'));
-                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk_zxcvbnm0'), $hyoo_crus_ref('')), $hyoo_crus_ref('qwertyui_asdfghjk'));
+                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('QWERTYUI_ASDFGHJK__ZXCVBNM0'), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref_resolve($hyoo_crus_ref('QWERTYUI_ASDFGHJK'), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0')), $hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0'));
+                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('___12345678')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0'), $hyoo_crus_ref('___12345678')), $hyoo_crus_ref('qwertyui_asdfghjk__12345678'));
+                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'), $hyoo_crus_ref('___12345678')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0'), $hyoo_crus_ref('___12345678')), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_12345678'));
+                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk'), $hyoo_crus_ref('')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk__zxcvbnm0'), $hyoo_crus_ref('')), $hyoo_crus_ref('qwertyui_asdfghjk'));
+                $mol_assert_equal($hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'), $hyoo_crus_ref('')), $hyoo_crus_ref_resolve($hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed_zxcvbnm0'), $hyoo_crus_ref('')), $hyoo_crus_ref('qwertyui_asdfghjk_qazwsxed'));
             },
         });
     })($$ = $_1.$$ || ($_1.$$ = {}));
@@ -20489,6 +20541,87 @@ var $;
             $mol_assert_like(App.sum(), [333, 3333]);
             App.dict.delete(111);
             $mol_assert_like(App.sum(), [222, 2222]);
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'ordered links'() {
+            var graph = new $mol_graph();
+            graph.link('A', 'B', 'E');
+            $mol_assert_equal(graph.edge_out('A', 'B'), 'E');
+            $mol_assert_equal(graph.edge_in('B', 'A'), 'E');
+            $mol_assert_equal(graph.edge_out('B', 'A'), null);
+            $mol_assert_equal(graph.edge_in('A', 'B'), null);
+        },
+        'nodes without edges'() {
+            var graph = new $mol_graph();
+            graph.nodes.add('A');
+            graph.nodes.add('B');
+            graph.nodes.add('C');
+            graph.nodes.add('D');
+            graph.acyclic(edge => 0);
+            $mol_assert_equal([...graph.sorted].join(''), 'ABCD');
+        },
+        'partial ordering'() {
+            var graph = new $mol_graph();
+            graph.nodes.add('A');
+            graph.nodes.add('B');
+            graph.nodes.add('C');
+            graph.nodes.add('D');
+            graph.link('B', 'C', { priority: 0 });
+            graph.acyclic(edge => edge.priority);
+            $mol_assert_equal([...graph.sorted].join(''), 'ACBD');
+        },
+        'sorting must cut cycles at low priority edges A'() {
+            var graph = new $mol_graph();
+            graph.link('A', 'B', { priority: 0 });
+            graph.link('B', 'C', { priority: -2 });
+            graph.link('C', 'D', { priority: 0 });
+            graph.link('D', 'A', { priority: -1 });
+            graph.acyclic(edge => edge.priority);
+            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
+        },
+        'sorting must cut cycles at low priority edges B'() {
+            var graph = new $mol_graph();
+            graph.link('B', 'C', { priority: -2 });
+            graph.link('C', 'D', { priority: 0 });
+            graph.link('D', 'A', { priority: -1 });
+            graph.link('A', 'B', { priority: 0 });
+            graph.acyclic(edge => edge.priority);
+            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
+        },
+        'sorting must cut cycles at low priority edges C'() {
+            var graph = new $mol_graph();
+            graph.link('C', 'D', { priority: 0 });
+            graph.link('D', 'A', { priority: -1 });
+            graph.link('A', 'B', { priority: 0 });
+            graph.link('B', 'C', { priority: -2 });
+            graph.acyclic(edge => edge.priority);
+            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
+        },
+        'sorting must cut cycles at low priority edges D'() {
+            var graph = new $mol_graph();
+            graph.link('D', 'A', { priority: -1 });
+            graph.link('A', 'B', { priority: 0 });
+            graph.link('B', 'C', { priority: -2 });
+            graph.link('C', 'D', { priority: 0 });
+            graph.acyclic(edge => edge.priority);
+            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
+        },
+        'sorting must group cutted cycles'() {
+            var graph = new $mol_graph();
+            graph.link('A', 'B', 0);
+            graph.link('B', 'C', 0);
+            graph.link('C', 'D', -2);
+            graph.link('D', 'E', 0);
+            graph.link('E', 'C', 0);
+            graph.acyclic(edge => edge);
+            $mol_assert_equal([...graph.sorted].join(''), 'CEDBA');
         },
     });
 })($ || ($ = {}));
@@ -20838,87 +20971,6 @@ var $;
 ;
 "use strict";
 var $;
-(function ($) {
-    $mol_test({
-        'ordered links'() {
-            var graph = new $mol_graph();
-            graph.link('A', 'B', 'E');
-            $mol_assert_equal(graph.edge_out('A', 'B'), 'E');
-            $mol_assert_equal(graph.edge_in('B', 'A'), 'E');
-            $mol_assert_equal(graph.edge_out('B', 'A'), null);
-            $mol_assert_equal(graph.edge_in('A', 'B'), null);
-        },
-        'nodes without edges'() {
-            var graph = new $mol_graph();
-            graph.nodes.add('A');
-            graph.nodes.add('B');
-            graph.nodes.add('C');
-            graph.nodes.add('D');
-            graph.acyclic(edge => 0);
-            $mol_assert_equal([...graph.sorted].join(''), 'ABCD');
-        },
-        'partial ordering'() {
-            var graph = new $mol_graph();
-            graph.nodes.add('A');
-            graph.nodes.add('B');
-            graph.nodes.add('C');
-            graph.nodes.add('D');
-            graph.link('B', 'C', { priority: 0 });
-            graph.acyclic(edge => edge.priority);
-            $mol_assert_equal([...graph.sorted].join(''), 'ACBD');
-        },
-        'sorting must cut cycles at low priority edges A'() {
-            var graph = new $mol_graph();
-            graph.link('A', 'B', { priority: 0 });
-            graph.link('B', 'C', { priority: -2 });
-            graph.link('C', 'D', { priority: 0 });
-            graph.link('D', 'A', { priority: -1 });
-            graph.acyclic(edge => edge.priority);
-            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
-        },
-        'sorting must cut cycles at low priority edges B'() {
-            var graph = new $mol_graph();
-            graph.link('B', 'C', { priority: -2 });
-            graph.link('C', 'D', { priority: 0 });
-            graph.link('D', 'A', { priority: -1 });
-            graph.link('A', 'B', { priority: 0 });
-            graph.acyclic(edge => edge.priority);
-            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
-        },
-        'sorting must cut cycles at low priority edges C'() {
-            var graph = new $mol_graph();
-            graph.link('C', 'D', { priority: 0 });
-            graph.link('D', 'A', { priority: -1 });
-            graph.link('A', 'B', { priority: 0 });
-            graph.link('B', 'C', { priority: -2 });
-            graph.acyclic(edge => edge.priority);
-            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
-        },
-        'sorting must cut cycles at low priority edges D'() {
-            var graph = new $mol_graph();
-            graph.link('D', 'A', { priority: -1 });
-            graph.link('A', 'B', { priority: 0 });
-            graph.link('B', 'C', { priority: -2 });
-            graph.link('C', 'D', { priority: 0 });
-            graph.acyclic(edge => edge.priority);
-            $mol_assert_equal([...graph.sorted].join(''), 'BADC');
-        },
-        'sorting must group cutted cycles'() {
-            var graph = new $mol_graph();
-            graph.link('A', 'B', 0);
-            graph.link('B', 'C', 0);
-            graph.link('C', 'D', -2);
-            graph.link('D', 'E', 0);
-            graph.link('E', 'C', 0);
-            graph.acyclic(edge => edge);
-            $mol_assert_equal([...graph.sorted].join(''), 'CEDBA');
-        },
-    });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
 (function ($_1) {
     const auth1 = $hyoo_crus_auth.from('_4eLnQsSr5wj6XOzgS5bZa254pkEOf_hg1nReCSR4Zkd-E07aLSwj-II-rZt4ZubInw_f1rZiA0Qa92qR0Gq3I6xYWCkW9Aagc7-97L2P-gI84NaLwdabp_DrZEX3RJTY');
     const auth2 = $hyoo_crus_auth.from('_5THYp_Njx6-cAU53dRwdv3z8RBAVK7Z2L3OeZmTp8sCsMNXmdssFljy2fxIMDX_oxTFRrRCvAH7s92kUOVn5YYTPGuZ5fQFOAEeRNGGQ47JVCK3Cy_XDSUDvklZ-3Ix4');
@@ -21015,7 +21067,7 @@ var $;
             $mol_assert_equal((await land.sand_ordered('')).length, 1);
         },
         'Land fork & merge'($) {
-            const home = $.$hyoo_crus_realm.home().land();
+            const home = $.$hyoo_crus_glob.home().land();
             const left = home.fork();
             home.Data($hyoo_crus_list_vary).items_vary(['foo', 'xxx']);
             $mol_assert_equal(home.Data($hyoo_crus_list_vary).items_vary(), ['foo', 'xxx']);
@@ -21039,7 +21091,7 @@ var $;
             $mol_assert_equal(both.Data($hyoo_crus_list_vary).items_vary(), ['foo', 'zzz']);
         },
         'Inner refs is relative to land'($) {
-            const Alice = $.$hyoo_crus_realm.home().land();
+            const Alice = $.$hyoo_crus_glob.home().land();
             const Bella = Alice.fork();
             const alice_val = Alice.Node($hyoo_crus_atom_str).Item('qwertyui');
             const bella_val = Bella.Node($hyoo_crus_atom_str).Item('qwertyui');
@@ -21051,6 +21103,12 @@ var $;
             $mol_assert_equal(alice_ref.val(), alice_val.ref());
             $mol_assert_unique(alice_ref.val(), bella_ref.val());
             $mol_assert_equal(bella_ref.val(), bella_val.ref());
+        },
+        'Land Area inherits rights'($) {
+            const base = $.$hyoo_crus_glob.land_grab({ '': $hyoo_crus_rank.mod });
+            const area = base.area_make();
+            $mol_assert_equal(area.lord_rank(area.auth().lord()), $hyoo_crus_rank.law);
+            $mol_assert_equal(area.lord_rank($hyoo_crus_ref('')), $hyoo_crus_rank.mod);
         },
     });
 })($ || ($ = {}));
@@ -21721,14 +21779,14 @@ var $;
                     Author: $hyoo_crus_atom_ref_to(() => User),
                 }) {
                 }
-                const land = $.$hyoo_crus_realm.home().land();
+                const land = $.$hyoo_crus_glob.home().land();
                 const user = land.Node(User).Item('11111111');
                 $mol_assert_equal(user.Title()?.val() ?? null, null);
                 $mol_assert_equal(user.Account()?.remote() ?? null, null);
                 $mol_assert_equal(user.Articles()?.remote_list() ?? [], []);
                 user.Title(null).val('Jin');
                 $mol_assert_equal(user.Title().val() ?? '', 'Jin');
-                const account = user.Account(null).remote_ensure({ '': $hyoo_crus_rank.get });
+                const account = user.Account(null).ensure({ '': $hyoo_crus_rank.get });
                 $mol_assert_equal(user.Account()?.remote() ?? null, account);
                 $mol_assert_equal(account.User()?.remote() ?? null, null);
                 account.User(null).remote(user);
@@ -21884,7 +21942,7 @@ var $;
                 $mol_assert_equal(reg.val(), null);
             },
             "Narrow registers"($) {
-                const land = $.$hyoo_crus_realm.home().land();
+                const land = $.$hyoo_crus_glob.home().land();
                 const bin = land.Node($hyoo_crus_atom_bin).Item('11111111');
                 $mol_assert_equal(bin.val(), null);
                 bin.val(new Uint8Array([1, 2, 3]));
@@ -21908,15 +21966,15 @@ var $;
                 $mol_assert_equal(reg.val(), null);
             },
             "Hyper link to another land"($) {
-                const land = $.$hyoo_crus_realm.home().land();
+                const land = $.$hyoo_crus_glob.home().land();
                 const reg = land.Node($hyoo_crus_atom_ref_to(() => $hyoo_crus_atom_vary)).Item('11111111');
-                const remote = reg.remote_ensure({ '': $hyoo_crus_rank.get });
+                const remote = reg.ensure({ '': $hyoo_crus_rank.get });
                 $mol_assert_unique(reg.land(), remote.land());
                 $mol_assert_equal(reg.vary(), remote.ref());
                 $mol_assert_equal(reg.remote(), remote);
             },
             "Register with linked nodes"($) {
-                const land = $.$hyoo_crus_realm.home().land();
+                const land = $.$hyoo_crus_glob.home().land();
                 const str = land.Node($hyoo_crus_atom_str).Item('11111111');
                 const ref = land.Node($hyoo_crus_atom_ref_to(() => $hyoo_crus_atom_str)).Item('11111111');
                 $mol_assert_equal(ref.remote(), null);
@@ -21926,7 +21984,7 @@ var $;
             "Enumerated reg type"($) {
                 class FileType extends $hyoo_crus_atom_enum(['file', 'dir', 'link']) {
                 }
-                const land = $.$hyoo_crus_realm.home().land();
+                const land = $.$hyoo_crus_glob.home().land();
                 const type = land.Data(FileType);
                 $mol_assert_equal(type.val(), null);
                 type.val('file');
@@ -21946,7 +22004,7 @@ var $;
 (function ($_1) {
     $mol_test({
         'Per app profiles'($) {
-            const base = $.$hyoo_crus_realm.home();
+            const base = $.$hyoo_crus_glob.home();
             const hall = base.hall_by($hyoo_crus_dict, { '': $hyoo_crus_rank.get });
             $mol_assert_unique(base.land(), hall);
         },
@@ -22044,11 +22102,11 @@ var $;
 var $;
 (function ($_1) {
     $mol_test_mocks.push($ => {
-        class $hyoo_crus_realm_mock extends $.$hyoo_crus_realm {
+        class $hyoo_crus_glob_mock extends $.$hyoo_crus_glob {
             static $ = $;
             static lands_touched = new $mol_wire_set();
         }
-        $.$hyoo_crus_realm = $hyoo_crus_realm_mock;
+        $.$hyoo_crus_glob = $hyoo_crus_glob_mock;
     });
 })($ || ($ = {}));
 

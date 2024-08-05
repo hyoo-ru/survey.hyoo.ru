@@ -13,9 +13,9 @@ namespace $ {
 			const owner_key = this.Owner()?.remote()?.land().key()
 			if( !owner_key ) return null
 			
-			const opinions = this.Opinions(null)?.remote_ensure({ '': $hyoo_crus_rank.add })
+			const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank.add })
 			
-			const opinion = opinions?.key( my_auth.peer(), null )?.remote_ensure({
+			const opinion = opinions?.key( my_auth.peer(), null )?.ensure({
 				[ owner_key.toString() ]: $hyoo_crus_rank.get,
 				[ my_auth.public().toString() ]: $hyoo_crus_rank.law,
 			}) ?? null

@@ -10,7 +10,7 @@ namespace $.$$ {
 
 		@ $mol_mem
 		profile() {
-			return this.$.$hyoo_crus_realm.home().hall_by( $hyoo_survey_person, {} )
+			return this.$.$hyoo_crus_glob.home().hall_by( $hyoo_survey_person, {} )
 		}
 
 		meet_add() {
@@ -25,7 +25,7 @@ namespace $.$$ {
 
 		@ $mol_mem_key
 		meet( id: string ) {
-			return this.$.$hyoo_crus_realm.Node( $hyoo_crus_ref( id ), $hyoo_survey_meet )
+			return this.$.$hyoo_crus_glob.Node( $hyoo_crus_ref( id ), $hyoo_survey_meet )
 		}
 		
 		@ $mol_mem_key

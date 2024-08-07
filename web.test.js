@@ -4178,16 +4178,20 @@ var $;
 (function ($) {
     $mol_test({
         'empty hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([])), new Uint8Array([218, 57, 163, 238, 94, 107, 75, 13, 50, 85, 191, 239, 149, 96, 24, 144, 175, 216, 7, 9]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([])), new Uint8Array([218, 57, 163, 238, 94, 107, 75, 13, 50, 85, 191, 239, 149, 96, 24, 144, 175, 216, 7, 9]));
         },
         'three bytes hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([255, 254, 253])), new Uint8Array([240, 150, 38, 243, 255, 128, 96, 0, 72, 215, 207, 228, 19, 149, 113, 52, 2, 125, 27, 77]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([255, 254, 253])), new Uint8Array([240, 150, 38, 243, 255, 128, 96, 0, 72, 215, 207, 228, 19, 149, 113, 52, 2, 125, 27, 77]));
         },
         'six bytes hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([0, 255, 10, 250, 32, 128])), new Uint8Array([23, 25, 155, 181, 46, 200, 221, 83, 254, 0, 166, 68, 91, 255, 67, 140, 114, 88, 218, 155]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([0, 255, 10, 250, 32, 128])), new Uint8Array([23, 25, 155, 181, 46, 200, 221, 83, 254, 0, 166, 68, 91, 255, 67, 140, 114, 88, 218, 155]));
         },
         'seven bytes hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([1, 2, 3, 4, 5, 6, 7])), new Uint8Array([140, 31, 40, 252, 47, 72, 194, 113, 214, 196, 152, 240, 242, 73, 205, 222, 54, 92, 84, 197]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([1, 2, 3, 4, 5, 6, 7])), new Uint8Array([140, 31, 40, 252, 47, 72, 194, 113, 214, 196, 152, 240, 242, 73, 205, 222, 54, 92, 84, 197]));
+        },
+        async 'reference'() {
+            const data = new Uint8Array([255, 254, 253]);
+            $mol_assert_equal($mol_crypto_hash(data), new Uint8Array(await $mol_crypto_native.subtle.digest('SHA-1', data)));
         },
     });
 })($ || ($ = {}));
@@ -4239,7 +4243,7 @@ var $;
             $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.law);
             land1.give(auth1, $hyoo_crus_rank.mod);
             $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.mod);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.lord_rank(auth1.lord()), $hyoo_crus_rank.mod);
             $mol_assert_fail(() => land2.give(auth2, $hyoo_crus_rank.add), 'Need law rank to change rank');
         },
@@ -4253,12 +4257,12 @@ var $;
             land1.post('AA111111', '', 'AA222222', new Uint8Array([2]));
             $mol_assert_equal(land1.delta_unit().length, 3);
             $mol_assert_equal(land1.delta_unit(face).length, 1);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_fail(() => land2.post('AA222222', '', 'AA333333', new Uint8Array([3])), 'Need add rank to join');
             $mol_assert_equal(land2.delta_unit().length, 3);
             $mol_assert_equal(land2.delta_unit(face).length, 1);
             land1.give(auth1, $hyoo_crus_rank.add);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_fail(() => land2.post('AA222222', '', 'AA333333', new Uint8Array([3])), 'Need mod rank to post any data');
             $mol_assert_equal(land2.delta_unit().length, 4);
             $mol_assert_equal(land2.delta_unit(face).length, 2);
@@ -4266,14 +4270,14 @@ var $;
             $mol_assert_equal(land2.delta_unit().length, 6);
             $mol_assert_equal(land2.delta_unit(face).length, 4);
             land1.give(auth1, $hyoo_crus_rank.mod);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 6);
             $mol_assert_equal(land2.delta_unit(face).length, 4);
             land1.give(auth1, $hyoo_crus_rank.add);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 6);
             land1.give(auth1, $hyoo_crus_rank.get);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 4);
         },
         'Self restriction for Add Rank'($) {
@@ -4281,7 +4285,7 @@ var $;
             const land2 = $hyoo_crus_land.make({ $, ref: () => land1.ref(), auth: () => auth2 });
             $mol_assert_equal(land1.delta_unit(), []);
             land1.give(auth2, $hyoo_crus_rank.add);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 2);
             const sand1 = land2.post('', '', '', 'foo');
             $mol_assert_equal(sand1.self(), auth2.peer());
@@ -4818,7 +4822,7 @@ var $;
             list1.items_vary(['foo', 'xxx']);
             land2.faces.tick();
             list2.items_vary(['foo', 'yyy']);
-            land1.apply_unit_trust(land2.delta_unit());
+            land1.apply_unit(land2.delta_unit());
             $mol_assert_equal(list1.items_vary(), ['foo', 'yyy', 'foo', 'xxx']);
         },
         'Insert before removed before changed'($) {
@@ -5057,12 +5061,12 @@ var $;
                 dict1.dive(123, $hyoo_crus_atom_vary, null).vary(666);
                 land2.faces.tick();
                 dict2.dive(123, $hyoo_crus_atom_vary, null).vary(777);
-                land1.apply_unit_trust(land2.delta_unit());
+                land1.apply_unit(land2.delta_unit());
                 $mol_assert_equal(dict1.dive(123, $hyoo_crus_atom_vary).vary(), 777);
                 dict1.dive('xxx', $hyoo_crus_list_vary, null).items_vary(['foo']);
                 land2.faces.tick();
                 dict2.dive('xxx', $hyoo_crus_list_vary, null).items_vary(['bar']);
-                land1.apply_unit_trust(land2.delta_unit());
+                land1.apply_unit(land2.delta_unit());
                 $mol_assert_equal(dict1.dive('xxx', $hyoo_crus_list_vary).items_vary(), ['bar', 'foo']);
             },
             "Narrowed Dictionary with linked Dictionaries and others"($) {
@@ -5672,26 +5676,26 @@ var $;
             text2.str('xxx yyy.');
             const delta1 = land1.delta_unit();
             const delta2 = land2.delta_unit();
-            land1.apply_unit_trust(delta2);
-            land2.apply_unit_trust(delta1);
+            land1.apply_unit(delta2);
+            land2.apply_unit(delta1);
             $mol_assert_equal(text1.str(), text2.str(), 'xxx yyy.foo bar.');
         },
         async 'Merge same insertions with different changes to same place'($) {
             const base = $hyoo_crus_land.make({ $ });
             base.Data($hyoo_crus_text).str('( )');
             const left = $hyoo_crus_land.make({ $ });
-            left.apply_unit_trust(base.delta_unit());
+            left.apply_unit(base.delta_unit());
             left.Data($hyoo_crus_text).str('( [ f ] )');
             left.Data($hyoo_crus_text).str('( [ foo ] )');
             const right = $hyoo_crus_land.make({ $ });
-            right.apply_unit_trust(base.delta_unit());
+            right.apply_unit(base.delta_unit());
             right.faces.sync(left.faces);
             right.Data($hyoo_crus_text).str('( [ f ] )');
             right.Data($hyoo_crus_text).str('( [ fu ] )');
             const left_delta = left.delta_unit(base.faces);
             const right_delta = right.delta_unit(base.faces);
-            left.apply_unit_trust(right_delta);
-            right.apply_unit_trust(left_delta);
+            left.apply_unit(right_delta);
+            right.apply_unit(left_delta);
             $mol_assert_equal(left.Data($hyoo_crus_text).str(), right.Data($hyoo_crus_text).str(), '( [ fu ] [ foo ] )');
         },
     });

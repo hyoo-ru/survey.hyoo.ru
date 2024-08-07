@@ -9005,7 +9005,7 @@ var $;
 (function ($) {
     const algorithm = {
         name: 'ECDSA',
-        hash: 'SHA-256',
+        hash: 'SHA-1',
         namedCurve: "P-256",
     };
     class $mol_crypto_key extends $mol_buffer {
@@ -10349,34 +10349,61 @@ var $;
             let h2 = hash[2];
             let h3 = hash[3];
             let h4 = hash[4];
-            for (let j = 0; j < 80; ++j) {
-                let turn;
-                if (j < 16) {
-                    const k = i + j;
-                    if (k === klens) {
-                        sponge[j] = bits;
-                    }
-                    else {
-                        let word = k === words.length ? tail :
-                            k > words.length ? 0 :
-                                words[k];
-                        word = word << 24 | word << 8 & 0xFF0000 | word >>> 8 & 0xFF00 | word >>> 24 & 0xFF;
-                        if (k === kbits)
-                            word |= kword;
-                        sponge[j] = word;
-                    }
-                    turn = (h1 & h2 | ~h1 & h3) + 1518500249;
+            for (let j = 0; j < 16; ++j) {
+                const k = i + j;
+                if (k === klens) {
+                    sponge[j] = bits;
                 }
                 else {
-                    const shuffle = sponge[j - 3] ^ sponge[j - 8] ^ sponge[j - 14] ^ sponge[j - 16];
-                    sponge[j] = shuffle << 1 | shuffle >>> 31;
-                    turn =
-                        j < 20 ? (h1 & h2 | ~h1 & h3) + 1518500249 :
-                            j < 40 ? (h1 ^ h2 ^ h3) + 1859775393 :
-                                j < 60 ? (h1 & h2 | h1 & h3 | h2 & h3) - 1894007588 :
-                                    (h1 ^ h2 ^ h3) - 899497514;
+                    let word = k === words.length ? tail :
+                        k > words.length ? 0 :
+                            words[k];
+                    word = word << 24 | word << 8 & 0xFF0000 | word >>> 8 & 0xFF00 | word >>> 24 & 0xFF;
+                    if (k === kbits)
+                        word |= kword;
+                    sponge[j] = word;
                 }
-                const next = turn + h4 + (sponge[j] >>> 0) + ((h0 << 5) | (h0 >>> 27));
+                const next = ((h1 & h2 | ~h1 & h3) + 1518500249 + h4 + (sponge[j] >>> 0) + ((h0 << 5) | (h0 >>> 27))) | 0;
+                h4 = h3;
+                h3 = h2;
+                h2 = (h1 << 30) | (h1 >>> 2);
+                h1 = h0;
+                h0 = next;
+            }
+            for (let j = 16; j < 20; ++j) {
+                const shuffle = sponge[j - 3] ^ sponge[j - 8] ^ sponge[j - 14] ^ sponge[j - 16];
+                sponge[j] = shuffle << 1 | shuffle >>> 31;
+                const next = ((h1 & h2 | ~h1 & h3) + 1518500249 + h4 + (sponge[j] >>> 0) + ((h0 << 5) | (h0 >>> 27))) | 0;
+                h4 = h3;
+                h3 = h2;
+                h2 = (h1 << 30) | (h1 >>> 2);
+                h1 = h0;
+                h0 = next;
+            }
+            for (let j = 20; j < 40; ++j) {
+                const shuffle = sponge[j - 3] ^ sponge[j - 8] ^ sponge[j - 14] ^ sponge[j - 16];
+                sponge[j] = shuffle << 1 | shuffle >>> 31;
+                const next = ((h1 ^ h2 ^ h3) + 1859775393 + h4 + (sponge[j] >>> 0) + ((h0 << 5) | (h0 >>> 27))) | 0;
+                h4 = h3;
+                h3 = h2;
+                h2 = (h1 << 30) | (h1 >>> 2);
+                h1 = h0;
+                h0 = next;
+            }
+            for (let j = 40; j < 60; ++j) {
+                const shuffle = sponge[j - 3] ^ sponge[j - 8] ^ sponge[j - 14] ^ sponge[j - 16];
+                sponge[j] = shuffle << 1 | shuffle >>> 31;
+                const next = ((h1 & h2 | h1 & h3 | h2 & h3) - 1894007588 + h4 + (sponge[j] >>> 0) + ((h0 << 5) | (h0 >>> 27))) | 0;
+                h4 = h3;
+                h3 = h2;
+                h2 = (h1 << 30) | (h1 >>> 2);
+                h1 = h0;
+                h0 = next;
+            }
+            for (let j = 60; j < 80; ++j) {
+                const shuffle = sponge[j - 3] ^ sponge[j - 8] ^ sponge[j - 14] ^ sponge[j - 16];
+                sponge[j] = shuffle << 1 | shuffle >>> 31;
+                const next = ((h1 ^ h2 ^ h3) - 899497514 + h4 + (sponge[j] >>> 0) + ((h0 << 5) | (h0 >>> 27))) | 0;
                 h4 = h3;
                 h3 = h2;
                 h2 = (h1 << 30) | (h1 >>> 2);
@@ -10742,7 +10769,7 @@ var $;
             });
         }
         apply_land(land) {
-            return this.apply_unit_trust(land.delta_unit());
+            return this.apply_unit(land.delta_unit());
         }
         recheck() {
             for (const [peer, pass] of this.pass) {
@@ -10873,7 +10900,7 @@ var $;
             $hyoo_crus_unit_trusted.add(next);
             next.auth(auth.public().asArray());
             next._land = this;
-            const error = this.apply_unit_trust([next])[0];
+            const error = this.apply_unit([next])[0];
             if (error)
                 $mol_fail(new Error(error));
             this.broadcast();
@@ -10902,7 +10929,7 @@ var $;
                     }
                 }
             }
-            const error = this.apply_unit_trust([unit])[0];
+            const error = this.apply_unit([unit])[0];
             if (error)
                 $mol_fail(new Error(error));
             this.broadcast();
@@ -10933,7 +10960,7 @@ var $;
                     unit.data(bin, tip, tag);
             }
             unit.self(self || this.self_make(unit.idea()));
-            const error = this.apply_unit_trust([unit])[0];
+            const error = this.apply_unit([unit])[0];
             if (error)
                 $mol_fail(new Error(error));
             this.broadcast();
@@ -10989,8 +11016,9 @@ var $;
         }
         bus() {
             return new this.$.$mol_bus(`$hyoo_crus_land:${this.ref().description}`, $mol_wire_async(bins => {
-                this.apply_unit_trust(bins.map(bin => {
+                this.apply_unit(bins.map(bin => {
                     const unit = new $hyoo_crus_unit(bin).narrow();
+                    $hyoo_crus_unit_trusted.add(unit);
                     this.$.$hyoo_crus_mine.units_persisted.add(unit);
                     return unit;
                 }));
@@ -11142,6 +11170,7 @@ var $;
             const secret_land = $mol_wire_sync(secret).serial();
             const secret_mutual = auth.secret_mutual(auth.public().toString());
             const unit = new $hyoo_crus_gift;
+            $hyoo_crus_unit_trusted.add(unit);
             unit.rank($hyoo_crus_rank.law);
             unit.time(this.faces.tick());
             unit.peer(auth.peer());
@@ -11149,7 +11178,7 @@ var $;
             unit._land = this;
             const secret_closed = $mol_wire_sync(secret_mutual).encrypt(secret_land, unit.salt());
             unit.bill().set(new Uint8Array(secret_closed));
-            const error = this.apply_unit_trust([unit])[0];
+            const error = this.apply_unit([unit])[0];
             if (error)
                 $mol_fail(new Error(error));
             return next;
@@ -12713,7 +12742,15 @@ var $;
                 rocks: [],
             }).asArray();
             for (const port of this.ports()) {
+                if (!this.port_lands_passive(port).has(land.ref()))
+                    continue;
                 this.port_lands_passive(port).delete(land.ref());
+                this.$.$mol_log3_rise({
+                    place: this,
+                    message: 'Forget Land',
+                    port: $mol_key(port),
+                    land: land.ref(),
+                });
                 port.send_bin(pack);
             }
         }
@@ -12855,7 +12892,7 @@ var $;
             colony.give(self, $hyoo_crus_rank.law);
             for (const key in preset)
                 colony.give(key ? $hyoo_crus_auth.from(key) : null, preset[key]);
-            this.Land(colony.ref()).apply_unit_trust(colony.delta_unit());
+            this.Land(colony.ref()).apply_unit(colony.delta_unit());
             return king;
         }
         king_grab(preset = { '': $hyoo_crus_rank.get }) {
@@ -20942,16 +20979,20 @@ var $;
 (function ($) {
     $mol_test({
         'empty hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([])), new Uint8Array([218, 57, 163, 238, 94, 107, 75, 13, 50, 85, 191, 239, 149, 96, 24, 144, 175, 216, 7, 9]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([])), new Uint8Array([218, 57, 163, 238, 94, 107, 75, 13, 50, 85, 191, 239, 149, 96, 24, 144, 175, 216, 7, 9]));
         },
         'three bytes hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([255, 254, 253])), new Uint8Array([240, 150, 38, 243, 255, 128, 96, 0, 72, 215, 207, 228, 19, 149, 113, 52, 2, 125, 27, 77]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([255, 254, 253])), new Uint8Array([240, 150, 38, 243, 255, 128, 96, 0, 72, 215, 207, 228, 19, 149, 113, 52, 2, 125, 27, 77]));
         },
         'six bytes hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([0, 255, 10, 250, 32, 128])), new Uint8Array([23, 25, 155, 181, 46, 200, 221, 83, 254, 0, 166, 68, 91, 255, 67, 140, 114, 88, 218, 155]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([0, 255, 10, 250, 32, 128])), new Uint8Array([23, 25, 155, 181, 46, 200, 221, 83, 254, 0, 166, 68, 91, 255, 67, 140, 114, 88, 218, 155]));
         },
         'seven bytes hash'() {
-            $mol_assert_like($mol_crypto_hash(new Uint8Array([1, 2, 3, 4, 5, 6, 7])), new Uint8Array([140, 31, 40, 252, 47, 72, 194, 113, 214, 196, 152, 240, 242, 73, 205, 222, 54, 92, 84, 197]));
+            $mol_assert_equal($mol_crypto_hash(new Uint8Array([1, 2, 3, 4, 5, 6, 7])), new Uint8Array([140, 31, 40, 252, 47, 72, 194, 113, 214, 196, 152, 240, 242, 73, 205, 222, 54, 92, 84, 197]));
+        },
+        async 'reference'() {
+            const data = new Uint8Array([255, 254, 253]);
+            $mol_assert_equal($mol_crypto_hash(data), new Uint8Array(await $mol_crypto_native.subtle.digest('SHA-1', data)));
         },
     });
 })($ || ($ = {}));
@@ -21003,7 +21044,7 @@ var $;
             $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.law);
             land1.give(auth1, $hyoo_crus_rank.mod);
             $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.mod);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.lord_rank(auth1.lord()), $hyoo_crus_rank.mod);
             $mol_assert_fail(() => land2.give(auth2, $hyoo_crus_rank.add), 'Need law rank to change rank');
         },
@@ -21017,12 +21058,12 @@ var $;
             land1.post('AA111111', '', 'AA222222', new Uint8Array([2]));
             $mol_assert_equal(land1.delta_unit().length, 3);
             $mol_assert_equal(land1.delta_unit(face).length, 1);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_fail(() => land2.post('AA222222', '', 'AA333333', new Uint8Array([3])), 'Need add rank to join');
             $mol_assert_equal(land2.delta_unit().length, 3);
             $mol_assert_equal(land2.delta_unit(face).length, 1);
             land1.give(auth1, $hyoo_crus_rank.add);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_fail(() => land2.post('AA222222', '', 'AA333333', new Uint8Array([3])), 'Need mod rank to post any data');
             $mol_assert_equal(land2.delta_unit().length, 4);
             $mol_assert_equal(land2.delta_unit(face).length, 2);
@@ -21030,14 +21071,14 @@ var $;
             $mol_assert_equal(land2.delta_unit().length, 6);
             $mol_assert_equal(land2.delta_unit(face).length, 4);
             land1.give(auth1, $hyoo_crus_rank.mod);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 6);
             $mol_assert_equal(land2.delta_unit(face).length, 4);
             land1.give(auth1, $hyoo_crus_rank.add);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 6);
             land1.give(auth1, $hyoo_crus_rank.get);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 4);
         },
         'Self restriction for Add Rank'($) {
@@ -21045,7 +21086,7 @@ var $;
             const land2 = $hyoo_crus_land.make({ $, ref: () => land1.ref(), auth: () => auth2 });
             $mol_assert_equal(land1.delta_unit(), []);
             land1.give(auth2, $hyoo_crus_rank.add);
-            land2.apply_unit_trust(land1.delta_unit());
+            land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 2);
             const sand1 = land2.post('', '', '', 'foo');
             $mol_assert_equal(sand1.self(), auth2.peer());
@@ -21515,7 +21556,7 @@ var $;
             list1.items_vary(['foo', 'xxx']);
             land2.faces.tick();
             list2.items_vary(['foo', 'yyy']);
-            land1.apply_unit_trust(land2.delta_unit());
+            land1.apply_unit(land2.delta_unit());
             $mol_assert_equal(list1.items_vary(), ['foo', 'yyy', 'foo', 'xxx']);
         },
         'Insert before removed before changed'($) {
@@ -21754,12 +21795,12 @@ var $;
                 dict1.dive(123, $hyoo_crus_atom_vary, null).vary(666);
                 land2.faces.tick();
                 dict2.dive(123, $hyoo_crus_atom_vary, null).vary(777);
-                land1.apply_unit_trust(land2.delta_unit());
+                land1.apply_unit(land2.delta_unit());
                 $mol_assert_equal(dict1.dive(123, $hyoo_crus_atom_vary).vary(), 777);
                 dict1.dive('xxx', $hyoo_crus_list_vary, null).items_vary(['foo']);
                 land2.faces.tick();
                 dict2.dive('xxx', $hyoo_crus_list_vary, null).items_vary(['bar']);
-                land1.apply_unit_trust(land2.delta_unit());
+                land1.apply_unit(land2.delta_unit());
                 $mol_assert_equal(dict1.dive('xxx', $hyoo_crus_list_vary).items_vary(), ['bar', 'foo']);
             },
             "Narrowed Dictionary with linked Dictionaries and others"($) {
@@ -22218,26 +22259,26 @@ var $;
             text2.str('xxx yyy.');
             const delta1 = land1.delta_unit();
             const delta2 = land2.delta_unit();
-            land1.apply_unit_trust(delta2);
-            land2.apply_unit_trust(delta1);
+            land1.apply_unit(delta2);
+            land2.apply_unit(delta1);
             $mol_assert_equal(text1.str(), text2.str(), 'xxx yyy.foo bar.');
         },
         async 'Merge same insertions with different changes to same place'($) {
             const base = $hyoo_crus_land.make({ $ });
             base.Data($hyoo_crus_text).str('( )');
             const left = $hyoo_crus_land.make({ $ });
-            left.apply_unit_trust(base.delta_unit());
+            left.apply_unit(base.delta_unit());
             left.Data($hyoo_crus_text).str('( [ f ] )');
             left.Data($hyoo_crus_text).str('( [ foo ] )');
             const right = $hyoo_crus_land.make({ $ });
-            right.apply_unit_trust(base.delta_unit());
+            right.apply_unit(base.delta_unit());
             right.faces.sync(left.faces);
             right.Data($hyoo_crus_text).str('( [ f ] )');
             right.Data($hyoo_crus_text).str('( [ fu ] )');
             const left_delta = left.delta_unit(base.faces);
             const right_delta = right.delta_unit(base.faces);
-            left.apply_unit_trust(right_delta);
-            right.apply_unit_trust(left_delta);
+            left.apply_unit(right_delta);
+            right.apply_unit(left_delta);
             $mol_assert_equal(left.Data($hyoo_crus_text).str(), right.Data($hyoo_crus_text).str(), '( [ fu ] [ foo ] )');
         },
     });

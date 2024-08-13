@@ -10379,13 +10379,16 @@ var $;
             const id = $mol_base64_ae_encode(new Uint8Array(new BigUint64Array([BigInt(idea)]).buffer, 0, 6));
             const ref = $hyoo_crus_ref($hyoo_crus_ref_lord(this.ref()).description + '_' + id);
             const area = this.$.$hyoo_crus_glob.Land(ref);
-            const errors = area.apply_unit(this.unit_sort([...this.pass.values(), ...this.gift.values()]));
+            const errors = area.apply_unit(this.unit_sort([...this.pass.values(), ...this.gift.values()])).filter(Boolean);
             for (const error of errors)
                 this.$.$mol_log3_warn({
                     place: `${this}.area_make()`,
                     message: error,
                     hint: 'Send it to developer',
                 });
+            area.sync_mine();
+            area.sync_yard();
+            area.bus();
             return area;
         }
         Data(Node) {
@@ -10952,7 +10955,7 @@ var $;
             const sens = unit.sens().slice();
             for (let i = 0; i < mixin.length; ++i)
                 sens[i + 14] ^= mixin[i + 14];
-            const sign = new Uint8Array(key.sign(sens));
+            const sign = key.sign(sens);
             unit.sign(sign);
         }
         sand_encode(sand) {
@@ -10963,7 +10966,7 @@ var $;
             let bin = sand._open;
             const secret = sand._land.secret();
             if (secret)
-                bin = new Uint8Array($mol_wire_sync(secret).encrypt(bin, sand.salt()));
+                bin = $mol_wire_sync(secret).encrypt(bin, sand.salt());
             if (bin.byteLength > 32)
                 sand.hash(this.$.$hyoo_crus_mine.rock_save(bin), sand.tip(), sand.tag());
             else
@@ -10993,7 +10996,7 @@ var $;
             let bin = sand.size() > 32 ? this.$.$hyoo_crus_mine.rock(sand.hash()) : sand.data();
             if (secret && bin && sand.tip() !== 'nil') {
                 try {
-                    bin = new Uint8Array($mol_wire_sync(secret).decrypt(bin, sand.salt()));
+                    bin = $mol_wire_sync(secret).decrypt(bin, sand.salt());
                 }
                 catch (error) {
                     if ($mol_fail_catch(error)) {
@@ -11040,7 +11043,7 @@ var $;
             unit.dest(auth.lord());
             unit._land = this;
             const secret_closed = $mol_wire_sync(secret_mutual).encrypt(secret_land, unit.salt());
-            unit.bill().set(new Uint8Array(secret_closed));
+            unit.bill().set(secret_closed);
             const error = this.apply_unit([unit])[0];
             if (error)
                 $mol_fail(new Error(error));
@@ -11707,12 +11710,26 @@ var $;
             remote_add(item) {
                 this.add(item.ref());
             }
+            make(config) {
+                if (config === null) {
+                    const self = this.land().self_make();
+                    const node = this.land().Node(Value()).Item(self);
+                    this.splice([node.ref()]);
+                    return node;
+                }
+                else if (config instanceof $hyoo_crus_land) {
+                    const land = config.area_make();
+                    this.splice([land.ref()]);
+                    return land.Node(Value()).Item('');
+                }
+                else if (config) {
+                    const land = this.$.$hyoo_crus_glob.land_grab(config);
+                    this.splice([land.ref()]);
+                    return land.Node(Value()).Item('');
+                }
+            }
             remote_make(config) {
-                const land = (config instanceof $hyoo_crus_land)
-                    ? config.area_make()
-                    : this.$.$hyoo_crus_glob.land_grab(config);
-                this.splice([land.ref()]);
-                return land.Node(Value()).Item('');
+                return this.make(config);
             }
             local_make(idea) {
                 const self = this.land().self_make(idea);
@@ -11727,9 +11744,6 @@ var $;
         __decorate([
             $mol_action
         ], $hyoo_crus_list_ref_to.prototype, "remote_add", null);
-        __decorate([
-            $mol_action
-        ], $hyoo_crus_list_ref_to.prototype, "remote_make", null);
         __decorate([
             $mol_action
         ], $hyoo_crus_list_ref_to.prototype, "local_make", null);
@@ -12452,7 +12466,7 @@ var $;
                 else {
                     if (!land)
                         $mol_fail(new Error('Land is undefined'));
-                    const unit = new $hyoo_crus_sand(buf.slice(offset, offset += $hyoo_crus_unit.size).buffer);
+                    const unit = $hyoo_crus_sand.from(buf.slice(offset, offset += $hyoo_crus_unit.size));
                     lands[land].units ||= [];
                     lands[land].units.push(unit);
                     continue;

@@ -4578,7 +4578,7 @@ var $;
     class $mol_state_local_node extends $mol_state_local {
         static dir() {
             const base = process.env.XDG_DATA_HOME || ($node.os.homedir() + '/.local/share');
-            return $mol_file.absolute(base).resolve('./hyoo_state_local');
+            return $mol_file.absolute(base).resolve('./mol_state_local');
         }
         static value(key, next) {
             const file = this.dir().resolve(encodeURIComponent(key) + '.json');
@@ -11059,7 +11059,6 @@ var $;
             }));
         }
         loading() {
-            $mol_wire_solid();
             let units = this.unit_sort(this.$.$hyoo_crus_mine.units(this.ref()) ?? []);
             $mol_wire_sync(this.$).$mol_log3_rise({
                 place: this,
@@ -11189,7 +11188,6 @@ var $;
             return !this.sand.size;
         }
         encrypted(next) {
-            $mol_wire_solid();
             const gift = this.gift.get(this.ref());
             const prev = gift?.bill().some(b => b) ?? false;
             if (next === undefined)

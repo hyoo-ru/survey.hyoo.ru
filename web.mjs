@@ -10900,7 +10900,6 @@ var $;
             }));
         }
         loading() {
-            $mol_wire_solid();
             let units = this.unit_sort(this.$.$hyoo_crus_mine.units(this.ref()) ?? []);
             $mol_wire_sync(this.$).$mol_log3_rise({
                 place: this,
@@ -11030,7 +11029,6 @@ var $;
             return !this.sand.size;
         }
         encrypted(next) {
-            $mol_wire_solid();
             const gift = this.gift.get(this.ref());
             const prev = gift?.bill().some(b => b) ?? false;
             if (next === undefined)
@@ -12849,6 +12847,7 @@ var $;
 (function ($) {
     $.$hyoo_crus_yard.masters = [
         'https://crus.hyoo.ru/',
+        'https://crus-ytvw.onrender.com/',
     ];
 })($ || ($ = {}));
 

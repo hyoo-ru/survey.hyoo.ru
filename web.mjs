@@ -999,9 +999,10 @@ var $;
                 return right_cache;
         }
         else {
-            left_cache = new WeakMap([[right, true]]);
+            left_cache = new WeakMap();
             $.$mol_compare_deep_cache.set(left, left_cache);
         }
+        left_cache.set(right, true);
         let result;
         try {
             if (!left_proto)
@@ -12915,7 +12916,6 @@ var $;
 (function ($) {
     $.$hyoo_crus_yard.masters = [
         'https://crus.hyoo.ru/',
-        'https://crus-ytvw.onrender.com/',
     ];
 })($ || ($ = {}));
 

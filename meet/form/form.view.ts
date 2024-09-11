@@ -34,7 +34,7 @@ namespace $.$$ {
 			return this.meet().responder_refs().map( person => this.Opinion( person ) ) ?? []
 		}
 
-		opinion( responder: $hyoo_crus_ref ) {
+		opinion( responder: string ) {
 			return this.meet().opinion( responder )?.Descr()?.text() ?? '...'
 		}
 		

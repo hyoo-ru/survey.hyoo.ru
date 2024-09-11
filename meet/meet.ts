@@ -13,34 +13,30 @@ namespace $ {
 			const owner_key = this.Owner()?.remote()?.land().key()
 			if( !owner_key ) return null
 			
-			const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank.add })
+			const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank.mod })
 			
-			const opinion = opinions?.key( my_auth.peer(), null )?.ensure({
+			const opinion = opinions?.ensure_of( my_auth.peer(), {
 				[ owner_key.toString() ]: $hyoo_crus_rank.get,
 				[ my_auth.public().toString() ]: $hyoo_crus_rank.law,
-			}) ?? null
+			} ) ?? null
 			
 			return opinion
 		}
 		
 		@ $mol_mem
 		responder_refs() {
-			return this.Opinions()?.remote()?.keys()
-				.map( $hyoo_crus_vary_cast_ref )
-				.filter( $mol_guard_defined ) ?? []
+			return this.Opinions()?.remote()?.author_peers() ?? []
 		}
 		
 		@ $mol_mem_key
-		opinion( responder: $hyoo_crus_ref ) {
+		opinion( responder: string ) {
 			const options = this.Opinions()?.remote()
-			return options?.key( responder.description! )?.remote() ?? null
+			return options?.remote_of( responder ) ?? null
 		}
 
 	}
 	
-	export class $hyoo_survey_meet_opinions extends $hyoo_crus_dict_to(
-		$hyoo_crus_atom_ref_to( ()=> $hyoo_survey_meet_opinion )
-	) {}
+	export class $hyoo_survey_meet_opinions extends $hyoo_crus_atom_ref_to( ()=> $hyoo_survey_meet_opinion ) {}
 	
 	export class $hyoo_survey_meet_opinion extends $hyoo_crus_dict.with({
 		Descr: $hyoo_crus_text,

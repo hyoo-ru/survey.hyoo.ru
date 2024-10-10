@@ -6484,6 +6484,17 @@ var $;
 "use strict";
 
 ;
+	($.$mol_icon_script_text) = class $mol_icon_script_text extends ($.$mol_icon) {
+		path(){
+			return "M17.8,20C17.4,21.2 16.3,22 15,22H5C3.3,22 2,20.7 2,19V18H5L14.2,18C14.6,19.2 15.7,20 17,20H17.8M19,2C20.7,2 22,3.3 22,5V6H20V5C20,4.4 19.6,4 19,4C18.4,4 18,4.4 18,5V18H17C16.4,18 16,17.6 16,17V16H5V5C5,3.3 6.3,2 8,2H19M8,6V8H15V6H8M8,10V12H14V10H8Z";
+		}
+	};
+
+
+;
+"use strict";
+
+;
 	($.$mol_link_source) = class $mol_link_source extends ($.$mol_link) {
 		Icon(){
 			const obj = new this.$.$mol_icon_script_text();
@@ -13032,9 +13043,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($) {
     var $$;
@@ -13099,6 +13107,9 @@ var $;
 (function ($) {
     $mol_style_attach("hyoo/crus/status/status.view.css", "[hyoo_crus_status_option_row] {\n\tpadding: var(--mol_gap_text);\n}\n\n[hyoo_crus_status_well] {\n\tcolor: var(--mol_theme_current);\n}\n\n[hyoo_crus_status_fail] {\n\tcolor: var(--mol_theme_focus);\n}\n\n[hyoo_crus_status][mol_view_error=\"Promise\"] {\n\tanimation: hyoo_crus_status_wait 1s linear infinite;\n}\n\n@keyframes hyoo_crus_status_wait {\n\tfrom {\n\t\topacity: 1;\n\t}\n\tto {\n\t\topacity: .5;\n\t}\n}\n");
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 	($.$mol_theme_auto) = class $mol_theme_auto extends ($.$mol_plugin) {

@@ -8257,15 +8257,32 @@ var $;
         return new $mol_time_moment(stamp);
     }
     $.$hyoo_crus_time_moment = $hyoo_crus_time_moment;
-    function $hyoo_crus_time_counter(time) {
+    function $hyoo_crus_time_tick(time) {
         return time % 65536;
     }
-    $.$hyoo_crus_time_counter = $hyoo_crus_time_counter;
+    $.$hyoo_crus_time_tick = $hyoo_crus_time_tick;
     function $hyoo_crus_time_dump(time) {
         return $hyoo_crus_time_moment(time).toString('YYYY-MM-DD hh:mm:ss')
-            + ' @' + $hyoo_crus_time_counter(time);
+            + ' @' + $hyoo_crus_time_tick(time);
     }
     $.$hyoo_crus_time_dump = $hyoo_crus_time_dump;
+    function $hyoo_crus_time_now() {
+        return now || Math.floor(Date.now() / 1000) * 65536;
+    }
+    $.$hyoo_crus_time_now = $hyoo_crus_time_now;
+    let now = 0;
+    function $hyoo_crus_time_freeze(task) {
+        if (now)
+            return task();
+        now = $hyoo_crus_time_now();
+        try {
+            return task();
+        }
+        finally {
+            now = 0;
+        }
+    }
+    $.$hyoo_crus_time_freeze = $hyoo_crus_time_freeze;
 })($ || ($ = {}));
 
 ;
@@ -8294,7 +8311,7 @@ var $;
                 this.set(peer, time);
         }
         tick() {
-            return this.last_time = Math.max(this.last_time + 1, Math.floor(Date.now() * 65.536));
+            return this.last_time = Math.max(this.last_time + 1, $hyoo_crus_time_now());
         }
         last_moment() {
             return $hyoo_crus_time_moment(this.last_time);

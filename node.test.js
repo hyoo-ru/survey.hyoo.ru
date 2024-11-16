@@ -11434,10 +11434,16 @@ var $;
             return sand;
         }
         sand_decode(sand) {
-            let vary = this.sand_decode_raw(sand);
-            if (typeof vary === 'symbol')
-                vary = $hyoo_crus_ref_resolve(this.ref(), vary);
-            return vary;
+            try {
+                let vary = this.sand_decode_raw(sand);
+                if (typeof vary === 'symbol')
+                    vary = $hyoo_crus_ref_resolve(this.ref(), vary);
+                return vary;
+            }
+            catch (error) {
+                this.$.$mol_fail_log(error);
+                return null;
+            }
         }
         sand_decode_raw(sand) {
             if (this.sand.get(sand.head())?.get(sand.peer())?.get(sand.self()) !== sand) {

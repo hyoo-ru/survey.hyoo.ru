@@ -1849,6 +1849,8 @@ var $;
             const val = fields[key];
             if (val === undefined)
                 continue;
+            if (val === el[key])
+                continue;
             el[key] = val;
         }
     }
@@ -2143,7 +2145,6 @@ var $;
         return suffix;
     }
     $.$mol_view_state_key = $mol_view_state_key;
-    const error_showed = new WeakMap();
     class $mol_view extends $mol_object {
         static Root(id) {
             return new this;
@@ -2290,14 +2291,11 @@ var $;
                 $mol_dom_render_attributes(node, { mol_view_error });
                 if ($mol_promise_like(error))
                     break render;
-                if ((error_showed.get(error) ?? this) !== this)
-                    break render;
                 try {
                     const message = error.message || error;
                     node.innerText = message.replace(/^|$/mg, '\xA0\xA0');
                 }
                 catch { }
-                error_showed.set(error, this);
             }
             try {
                 this.auto();
@@ -6264,6 +6262,9 @@ var $;
 		arg(id){
 			return {};
 		}
+		menu_link_arg(id){
+			return (this.arg(id));
+		}
 		spread_title(id){
 			return "";
 		}
@@ -6278,7 +6279,7 @@ var $;
 		}
 		Menu_link(id){
 			const obj = new this.$.$mol_link();
-			(obj.arg) = () => ((this.arg(id)));
+			(obj.arg) = () => ((this.menu_link_arg(id)));
 			(obj.sub) = () => ((this.menu_link_content(id)));
 			return obj;
 		}
@@ -8841,8 +8842,8 @@ var $;
         filled() {
             return this.units().length > 0;
         }
-        can_change(lord = this.land().auth().lord()) {
-            return this.land().lord_rank(lord) >= $hyoo_crus_rank.reg;
+        can_change() {
+            return this.land().lord_rank(this.land().auth().lord()) >= $hyoo_crus_rank.reg;
         }
         last_change() {
             const land = this.land();
@@ -11947,6 +11948,9 @@ var $;
         ], $hyoo_crus_list_ref_to.prototype, "remote_add", null);
         __decorate([
             $mol_action
+        ], $hyoo_crus_list_ref_to.prototype, "make", null);
+        __decorate([
+            $mol_action
         ], $hyoo_crus_list_ref_to.prototype, "local_make", null);
         return $hyoo_crus_list_ref_to;
     }
@@ -13065,6 +13069,7 @@ var $;
 var $;
 (function ($) {
     $.$hyoo_crus_yard.masters = [
+        'https://crus.85-92-119-30.ip.hyoo.ru/',
         'https://crus.hyoo.ru/',
         'https://i-love-crus.ru/',
         'https://crus.xedth.ru/',

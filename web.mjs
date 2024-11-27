@@ -10583,7 +10583,7 @@ var $;
                 return $hyoo_crus_rank.law;
             const prev = this.gift.get(lord)?.rank()
                 ?? this.gift.get($hyoo_crus_ref(''))?.rank()
-                ?? $hyoo_crus_rank.get;
+                ?? (this.encrypted() ? $hyoo_crus_rank.nil : $hyoo_crus_rank.get);
             if (next === undefined)
                 return prev;
             if (next === prev)
@@ -10847,7 +10847,6 @@ var $;
         }
         sand_ordered({ head, peer }) {
             this.sync();
-            this.secret();
             const queue = peer
                 ? [...this.sand.get(head)?.get(peer)?.values() ?? []]
                 : [...this.sand.get(head)?.values() ?? []].flatMap(units => [...units.values()]);
@@ -11919,8 +11918,8 @@ var $;
                 this.add(item.ref());
             }
             make(config) {
-                if (config === null) {
-                    const self = this.land().self_make();
+                if (config === null || typeof config === 'number') {
+                    const self = this.land().self_make(config || undefined);
                     const node = this.land().Node(Value()).Item(self);
                     this.splice([node.ref()]);
                     return node;

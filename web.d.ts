@@ -4564,7 +4564,7 @@ declare namespace $ {
             [x: symbol]: () => any[];
             remote_list(next?: Vals): Vals;
             remote_add(item: Vals[number]): void;
-            make(config?: null | $hyoo_crus_rank_preset | $hyoo_crus_land): Vals[number];
+            make(config?: null | number | $hyoo_crus_rank_preset | $hyoo_crus_land): Vals[number];
             remote_make(config: $hyoo_crus_rank_preset): Vals[number];
             local_make(idea?: number): Vals[number];
             items(next?: readonly ((symbol & {
@@ -6057,7 +6057,7 @@ declare namespace $ {
             [x: symbol]: () => any[];
             remote_list(next?: readonly $hyoo_survey_meet[] | undefined): readonly $hyoo_survey_meet[];
             remote_add(item: $hyoo_survey_meet): void;
-            make(config?: null | $hyoo_crus_rank_preset | $hyoo_crus_land): $hyoo_survey_meet;
+            make(config?: null | number | $hyoo_crus_rank_preset | $hyoo_crus_land): $hyoo_survey_meet;
             remote_make(config: $hyoo_crus_rank_preset): $hyoo_survey_meet;
             local_make(idea?: number): $hyoo_survey_meet;
             items(next?: readonly ((symbol & {
@@ -6109,7 +6109,7 @@ declare namespace $ {
                     [x: symbol]: () => any[];
                     remote_list(next?: readonly $hyoo_survey_meet[] | undefined): readonly $hyoo_survey_meet[];
                     remote_add(item: $hyoo_survey_meet): void;
-                    make(config?: null | $hyoo_crus_rank_preset | $hyoo_crus_land): $hyoo_survey_meet;
+                    make(config?: null | number | $hyoo_crus_rank_preset | $hyoo_crus_land): $hyoo_survey_meet;
                     remote_make(config: $hyoo_crus_rank_preset): $hyoo_survey_meet;
                     local_make(idea?: number): $hyoo_survey_meet;
                     items(next?: readonly ((symbol & {
@@ -7333,12 +7333,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    function $mol_wait_timeout_async(this: $, timeout: number): Promise<void> & {
-        done: (res: void | PromiseLike<void>) => void;
-        fail: (error?: any) => void;
-    } & {
-        destructor: () => void;
-    };
+    function $mol_wait_timeout_async(this: $, timeout: number): Promise<void>;
     function $mol_wait_timeout(this: $, timeout: number): void;
 }
 

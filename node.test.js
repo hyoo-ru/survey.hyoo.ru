@@ -10808,9 +10808,9 @@ var $;
                     message: error,
                     hint: 'Send it to developer',
                 });
+            area.bus();
             area.sync_mine();
             area.sync_yard();
-            area.bus();
             return area;
         }
         Data(Node) {
@@ -11325,9 +11325,9 @@ var $;
         }
         sync() {
             this.loading();
+            this.bus();
             this.sync_mine();
             this.sync_yard();
-            this.bus();
             return this;
         }
         destructor() {
@@ -11398,8 +11398,8 @@ var $;
             $mol_wire_race(...encoding.map(unit => () => this.sand_encode(unit)));
             $mol_wire_race(...signing.map(unit => () => this.unit_sign(unit)));
             if (persisting.length) {
-                mine.units(this.ref(), persisting);
                 this.bus().send(persisting.map(unit => unit.buffer));
+                mine.units(this.ref(), persisting);
                 $mol_wire_sync(this.$).$mol_log3_done({
                     place: this,
                     message: 'Saved Units',

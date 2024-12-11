@@ -6685,9 +6685,9 @@ var $;
 "use strict";
 
 ;
-	($.$mol_icon_brightness_6) = class $mol_icon_brightness_6 extends ($.$mol_icon) {
+	($.$mol_icon_brightness_4) = class $mol_icon_brightness_4 extends ($.$mol_icon) {
 		path(){
-			return "M12,18V6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,15.31L23.31,12L20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31Z";
+			return "M12,18C11.11,18 10.26,17.8 9.5,17.45C11.56,16.5 13,14.42 13,12C13,9.58 11.56,7.5 9.5,6.55C10.26,6.2 11.11,6 12,6A6,6 0 0,1 18,12A6,6 0 0,1 12,18M20,8.69V4H15.31L12,0.69L8.69,4H4V8.69L0.69,12L4,15.31V20H8.69L12,23.31L15.31,20H20V15.31L23.31,12L20,8.69Z";
 		}
 	};
 
@@ -6698,7 +6698,7 @@ var $;
 ;
 	($.$mol_lights_toggle) = class $mol_lights_toggle extends ($.$mol_check_icon) {
 		Lights_icon(){
-			const obj = new this.$.$mol_icon_brightness_6();
+			const obj = new this.$.$mol_icon_brightness_4();
 			return obj;
 		}
 		lights(next){
@@ -10464,6 +10464,16 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    function $hyoo_crus_log() {
+        return this.$mol_state_arg.value('hyoo_crus_log') !== null;
+    }
+    $.$hyoo_crus_log = $hyoo_crus_log;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
     function $mol_wire_race(...tasks) {
         const results = tasks.map(task => {
             try {
@@ -11088,11 +11098,12 @@ var $;
         }
         loading() {
             let units = this.unit_sort(this.$.$hyoo_crus_mine.units(this.ref()) ?? []);
-            $mol_wire_sync(this.$).$mol_log3_rise({
-                place: this,
-                message: 'Load Unit',
-                units: units.length,
-            });
+            if (this.$.$hyoo_crus_log())
+                $mol_wire_sync(this.$).$mol_log3_rise({
+                    place: this,
+                    message: 'Load Unit',
+                    units: units.length,
+                });
             const errors = this.apply_unit(units, 'skip_check').filter(Boolean);
             if (errors.length)
                 this.$.$mol_log3_fail({
@@ -11137,11 +11148,12 @@ var $;
             if (persisting.length) {
                 this.bus().send(persisting.map(unit => unit.buffer));
                 mine.units(this.ref(), persisting);
-                $mol_wire_sync(this.$).$mol_log3_done({
-                    place: this,
-                    message: 'Saved Units',
-                    units: persisting.length,
-                });
+                if (this.$.$hyoo_crus_log())
+                    $mol_wire_sync(this.$).$mol_log3_done({
+                        place: this,
+                        message: 'Saved Units',
+                        units: persisting.length,
+                    });
             }
         }
         unit_sign(unit) {
@@ -12903,13 +12915,14 @@ var $;
         port_income(port, msg) {
             const pack = $mol_wire_sync($hyoo_crus_pack).from(msg);
             const parts = $mol_wire_sync(pack).parts();
-            $mol_wire_sync(this.$).$mol_log3_rise({
-                place: this,
-                message: 'Gain Pack',
-                port: $mol_key(port),
-                lands: parts.lands,
-                rocks: parts.rocks.length,
-            });
+            if (this.$.$hyoo_crus_log())
+                $mol_wire_sync(this.$).$mol_log3_rise({
+                    place: this,
+                    message: 'Gain Pack',
+                    port: $mol_key(port),
+                    lands: parts.lands,
+                    rocks: parts.rocks.length,
+                });
             forget: {
                 if (parts.rocks.length)
                     break forget;
@@ -12967,12 +12980,13 @@ var $;
                 if (!this.port_lands_passive(port).has(land.ref()))
                     continue;
                 this.port_lands_passive(port).delete(land.ref());
-                this.$.$mol_log3_rise({
-                    place: this,
-                    message: 'Forget Land',
-                    port: $mol_key(port),
-                    land: land.ref(),
-                });
+                if (this.$.$hyoo_crus_log())
+                    this.$.$mol_log3_rise({
+                        place: this,
+                        message: 'Forget Land',
+                        port: $mol_key(port),
+                        land: land.ref(),
+                    });
                 port.send_bin(pack);
             }
         }
@@ -12987,13 +13001,14 @@ var $;
                 const parts = Land.delta_parts(faces);
                 if (!parts)
                     return;
-                this.$.$mol_log3_rise({
-                    place: this,
-                    message: 'Send Unit',
-                    port: $mol_key(port),
-                    lands: parts.lands,
-                    rocks: parts.rocks.length,
-                });
+                if (this.$.$hyoo_crus_log())
+                    this.$.$mol_log3_rise({
+                        place: this,
+                        message: 'Send Unit',
+                        port: $mol_key(port),
+                        lands: parts.lands,
+                        rocks: parts.rocks.length,
+                    });
                 port.send_bin($hyoo_crus_pack.make(parts).asArray());
                 faces.sync(Land.faces);
             }
@@ -13004,13 +13019,14 @@ var $;
         init_port_land([port, land]) {
             const Land = this.$.$hyoo_crus_glob.Land(land);
             Land.loading();
-            this.$.$mol_log3_rise({
-                place: this,
-                message: 'Send Face',
-                port: $mol_key(port),
-                land: land,
-                faces: Land.faces,
-            });
+            if (this.$.$hyoo_crus_log())
+                this.$.$mol_log3_rise({
+                    place: this,
+                    message: 'Send Face',
+                    port: $mol_key(port),
+                    land: land,
+                    faces: Land.faces,
+                });
             port.send_bin(Land.faces_pack().asArray());
         }
         face_port_land([port, land], next = null) {

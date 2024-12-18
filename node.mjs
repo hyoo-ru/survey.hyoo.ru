@@ -4580,7 +4580,8 @@ var $;
                     stabilityThreshold: 100,
                 },
             });
-            watcher.on('all', (type, path) => {
+            watcher
+                .on('all', (type, path) => {
                 if (path instanceof Error) {
                     this.$.$mol_fail_log(path);
                     return;
@@ -4593,7 +4594,8 @@ var $;
                 else {
                     file.parent().reset();
                 }
-            });
+            })
+                .on('error', $mol_fail_log);
             return {
                 destructor() {
                     watcher.close();
@@ -7956,6 +7958,16 @@ var $;
                 return val;
             $mol_fail(new Error(`Wrong ref (${val.description})`));
         } }).$hyoo_crus_ref;
+    function $hyoo_crus_ref_check(val) {
+        try {
+            $.$hyoo_crus_ref(val);
+            return val;
+        }
+        catch {
+            return '';
+        }
+    }
+    $.$hyoo_crus_ref_check = $hyoo_crus_ref_check;
     function $hyoo_crus_ref_lord(ref) {
         return $.$hyoo_crus_ref(ref.description.split('_').slice(0, 2).join('_'));
     }

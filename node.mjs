@@ -12386,9 +12386,11 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    function $mol_reconcile({ prev, from, to, next, equal, drop, insert, update, }) {
+    function $mol_reconcile({ prev, from, to, next, equal, drop, insert, update, replace, }) {
         if (!update)
-            update = (next, prev, lead) => insert(next, drop(prev, lead));
+            update = (next, prev, lead) => prev;
+        if (!replace)
+            replace = (next, prev, lead) => insert(next, drop(prev, lead));
         if (to > prev.length)
             to = prev.length;
         if (from > to)
@@ -12398,7 +12400,7 @@ var $;
         let lead = p ? prev[p - 1] : null;
         while (p < to || n < next.length) {
             if (p < to && n < next.length && equal(next[n], prev[p])) {
-                lead = prev[p];
+                lead = update(next[n], prev[p], lead);
                 ++p;
                 ++n;
             }
@@ -12411,7 +12413,7 @@ var $;
                 ++p;
             }
             else {
-                lead = update(next[n], prev[p], lead);
+                lead = replace(next[n], prev[p], lead);
                 ++p;
                 ++n;
             }
@@ -12443,7 +12445,7 @@ var $;
                 equal: (next, prev) => $mol_compare_deep(this.land().sand_decode(prev), next),
                 drop: (prev, lead) => this.land().post(lead?.self() ?? '', prev.head(), prev.self(), null),
                 insert: (next, lead) => this.land().post(lead?.self() ?? '', this.head(), land.self_make(), next, tag),
-                update: (next, prev, lead) => this.land().post(lead?.self() ?? '', prev.head(), prev.self(), next, prev.tag()),
+                replace: (next, prev, lead) => this.land().post(lead?.self() ?? '', prev.head(), prev.self(), next, prev.tag()),
             });
         }
         find(vary) {
@@ -13915,28 +13917,25 @@ var $;
             ],
             'link': /\b(https?:\/\/[^\s,.;:!?")]+(?:[,.;:!?")][^\s,.;:!?")]+)+)/,
             'Word': [
+                [char_only(' ', 0xA0)],
                 repeat_greedy(char_only([
                     unicode_only('General_Category', 'Uppercase_Letter'),
                     unicode_only('Diacritic'),
                     unicode_only('General_Category', 'Number'),
-                    0xA0,
                 ]), 1),
                 repeat_greedy(char_only([
                     unicode_only('General_Category', 'Lowercase_Letter'),
                     unicode_only('Diacritic'),
                     unicode_only('General_Category', 'Number'),
-                    0xA0,
                 ])),
-                [char_only(' ')],
             ],
             'word': [
+                [char_only(' ', 0xA0)],
                 repeat_greedy(char_only([
                     unicode_only('General_Category', 'Lowercase_Letter'),
                     unicode_only('Diacritic'),
                     unicode_only('General_Category', 'Number'),
-                    0xA0,
                 ]), 1),
-                [char_only(' ')],
             ],
             'spaces': [
                 forbid_after(line_end),
@@ -13955,6 +13954,7 @@ var $;
                 ]),
             ],
             'others': [
+                [char_only(' ', 0xA0)],
                 repeat_greedy(char_except([
                     unicode_only('General_Category', 'Uppercase_Letter'),
                     unicode_only('General_Category', 'Lowercase_Letter'),
@@ -13962,7 +13962,6 @@ var $;
                     unicode_only('General_Category', 'Number'),
                     unicode_only('White_Space'),
                 ]), 1),
-                [char_only(' ')],
             ],
         },
     });
@@ -13996,7 +13995,7 @@ var $;
                         land.Node($hyoo_crus_text).Item(sand.self()).str(next);
                         return sand;
                     },
-                    update: (next, prev, lead) => {
+                    replace: (next, prev, lead) => {
                         land.Node($hyoo_crus_text).Item(prev.self()).str(next);
                         return prev;
                     },

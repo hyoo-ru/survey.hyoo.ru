@@ -9534,6 +9534,130 @@ var $;
 
 ;
 "use strict";
+
+;
+"use strict";
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_data_setup(value, config) {
+        return Object.assign(value, {
+            config,
+            Value: null
+        });
+    }
+    $.$mol_data_setup = $mol_data_setup;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_func_is_class(func) {
+        return Object.getOwnPropertyDescriptor(func, 'prototype')?.writable === false;
+    }
+    $.$mol_func_is_class = $mol_func_is_class;
+})($ || ($ = {}));
+
+;
+"use strict";
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_data_pipe(...funcs) {
+        return $mol_data_setup(function (input) {
+            let value = input;
+            for (const func of funcs)
+                value = $mol_func_is_class(func) ? new func(value) : func.call(this, value);
+            return value;
+        }, { funcs });
+    }
+    $.$mol_data_pipe = $mol_data_pipe;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    class $mol_data_error extends $mol_error_mix {
+    }
+    $.$mol_data_error = $mol_data_error;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $.$mol_data_number = (val) => {
+        if (typeof val === 'number')
+            return val;
+        return $mol_fail(new $mol_data_error(`${val} is not a number`));
+    };
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    function $mol_data_integer(val) {
+        const val2 = $mol_data_number(val);
+        if (Math.floor(val2) === val2)
+            return val2;
+        return $mol_fail(new $mol_data_error(`${val} is not an integer`));
+    }
+    $.$mol_data_integer = $mol_data_integer;
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $.$hyoo_crus_rank = $mol_data_tagged({
+        $hyoo_crus_rank: $mol_data_pipe($mol_data_integer, (rank) => {
+            if (rank >= $.$hyoo_crus_rank_deny && rank <= $.$hyoo_crus_rank_rule)
+                return rank;
+            $mol_fail(new $mol_data_error(`${rank} is out of Ran range`));
+        }),
+    }).$hyoo_crus_rank;
+    function $hyoo_crus_rank_make(tier, fame) {
+        return ($hyoo_crus_rank_tier[tier] | $hyoo_crus_rank_rate[fame]);
+    }
+    $.$hyoo_crus_rank_make = $hyoo_crus_rank_make;
+    let $hyoo_crus_rank_tier;
+    (function ($hyoo_crus_rank_tier) {
+        $hyoo_crus_rank_tier[$hyoo_crus_rank_tier["deny"] = 0] = "deny";
+        $hyoo_crus_rank_tier[$hyoo_crus_rank_tier["read"] = 16] = "read";
+        $hyoo_crus_rank_tier[$hyoo_crus_rank_tier["join"] = 48] = "join";
+        $hyoo_crus_rank_tier[$hyoo_crus_rank_tier["post"] = 112] = "post";
+        $hyoo_crus_rank_tier[$hyoo_crus_rank_tier["rule"] = 240] = "rule";
+    })($hyoo_crus_rank_tier = $.$hyoo_crus_rank_tier || ($.$hyoo_crus_rank_tier = {}));
+    let $hyoo_crus_rank_rate;
+    (function ($hyoo_crus_rank_rate) {
+        $hyoo_crus_rank_rate[$hyoo_crus_rank_rate["late"] = 0] = "late";
+        $hyoo_crus_rank_rate[$hyoo_crus_rank_rate["long"] = 3] = "long";
+        $hyoo_crus_rank_rate[$hyoo_crus_rank_rate["slow"] = 7] = "slow";
+        $hyoo_crus_rank_rate[$hyoo_crus_rank_rate["fast"] = 11] = "fast";
+        $hyoo_crus_rank_rate[$hyoo_crus_rank_rate["just"] = 15] = "just";
+    })($hyoo_crus_rank_rate = $.$hyoo_crus_rank_rate || ($.$hyoo_crus_rank_rate = {}));
+    $.$hyoo_crus_rank_deny = $hyoo_crus_rank_make('deny', 'late');
+    $.$hyoo_crus_rank_read = $hyoo_crus_rank_make('read', 'late');
+    $.$hyoo_crus_rank_rule = $hyoo_crus_rank_make('rule', 'just');
+    function $hyoo_crus_rank_join(rate) {
+        return $hyoo_crus_rank_make('join', rate);
+    }
+    $.$hyoo_crus_rank_join = $hyoo_crus_rank_join;
+    function $hyoo_crus_rank_post(rate) {
+        return $hyoo_crus_rank_make('post', rate);
+    }
+    $.$hyoo_crus_rank_post = $hyoo_crus_rank_post;
+})($ || ($ = {}));
+
+;
+"use strict";
 var $;
 (function ($) {
     function $mol_base64_url_encode(buffer) {
@@ -9851,24 +9975,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    let $hyoo_crus_rank;
-    (function ($hyoo_crus_rank) {
-        $hyoo_crus_rank[$hyoo_crus_rank["nil"] = 0] = "nil";
-        $hyoo_crus_rank[$hyoo_crus_rank["get"] = 1] = "get";
-        $hyoo_crus_rank[$hyoo_crus_rank["reg"] = 3] = "reg";
-        $hyoo_crus_rank[$hyoo_crus_rank["mod"] = 7] = "mod";
-        $hyoo_crus_rank[$hyoo_crus_rank["law"] = 15] = "law";
-    })($hyoo_crus_rank = $.$hyoo_crus_rank || ($.$hyoo_crus_rank = {}));
-    $.$hyoo_crus_rank_private = {};
-    $.$hyoo_crus_rank_public = { '': $hyoo_crus_rank.get };
-    $.$hyoo_crus_rank_lobby = { '': $hyoo_crus_rank.mod };
-    $.$hyoo_crus_rank_orgy = { '': $hyoo_crus_rank.mod };
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
     class $hyoo_crus_node extends $mol_object {
         static tag = 'vals';
         land() {
@@ -9909,7 +10015,7 @@ var $;
             return this.units().length > 0;
         }
         can_change() {
-            return this.land().lord_rank(this.land().auth().lord()) >= $hyoo_crus_rank.reg;
+            return this.land().lord_rank(this.land().auth().lord()) >= $hyoo_crus_rank_tier.join;
         }
         last_change() {
             const land = this.land();
@@ -10202,9 +10308,6 @@ var $;
     }
     $.$mol_time_interval = $mol_time_interval;
 })($ || ($ = {}));
-
-;
-"use strict";
 
 ;
 "use strict";
@@ -11171,10 +11274,8 @@ var $;
         self_make(idea = Math.floor(Math.random() * 2 ** 48)) {
             const auth = this.auth();
             const rank = this.lord_rank(auth.lord());
-            if (rank === $hyoo_crus_rank.reg)
-                return auth.peer();
-            if (rank === $hyoo_crus_rank.nil)
-                $mol_fail(new Error('Rank too low (nil)'));
+            if (rank < $hyoo_crus_rank_tier.post)
+                $mol_fail(new Error(`Rank too low (${rank})`));
             for (let i = 0; i < 4096; ++i) {
                 idea = (idea + 1) % 2 ** 48;
                 if (!idea)
@@ -11249,10 +11350,10 @@ var $;
         }
         lord_rank(lord, next) {
             if (lord === $hyoo_crus_ref_lord(this.ref()))
-                return $hyoo_crus_rank.law;
+                return $hyoo_crus_rank_rule;
             const prev = this.gift.get(lord)?.rank()
                 ?? this.gift.get($hyoo_crus_ref(''))?.rank()
-                ?? (this.encrypted() ? $hyoo_crus_rank.nil : $hyoo_crus_rank.get);
+                ?? (this.encrypted() ? $hyoo_crus_rank_deny : $hyoo_crus_rank_read);
             if (next === undefined)
                 return prev;
             if (next === prev)
@@ -11262,9 +11363,9 @@ var $;
         }
         peer_rank(peer) {
             const auth = this.pass.get(peer);
-            if (!auth)
-                return $hyoo_crus_rank.get;
-            return this.lord_rank(auth.lord());
+            if (auth)
+                return this.lord_rank(auth.lord());
+            return this.encrypted() ? $hyoo_crus_rank_deny : $hyoo_crus_rank_read;
         }
         unit_sort(units) {
             const dict = new Map();
@@ -11433,7 +11534,7 @@ var $;
                     pass: next => {
                         const lord = next.lord();
                         const peer = next.peer();
-                        if (!skip_check && this.lord_rank(lord) < $hyoo_crus_rank.reg)
+                        if (!skip_check && this.lord_rank(lord) < next.rank_min())
                             return 'Need reg rank to join';
                         const exists = this.pass.get(peer);
                         if (exists)
@@ -11445,7 +11546,7 @@ var $;
                     gift: next => {
                         const peer = next.peer();
                         const dest = next.dest();
-                        if (!skip_check && this.peer_rank(peer) < $hyoo_crus_rank.law)
+                        if (!skip_check && this.peer_rank(peer) < next.rank_min())
                             return 'Need law rank to change rank';
                         const prev = this.gift.get(dest);
                         if (prev && $hyoo_crus_gift.compare(prev, next) <= 0)
@@ -11454,14 +11555,14 @@ var $;
                         this.faces.time_max(peer, next.time());
                         if (!prev)
                             this.faces.total++;
-                        if ((prev?.rank() ?? $hyoo_crus_rank.nil) > next.rank())
+                        if ((prev?.rank() ?? $hyoo_crus_rank_deny) > next.rank())
                             need_recheck = true;
                     },
                     sand: next => {
                         const head = next.head();
                         const peer = next.peer();
                         const self = next.self();
-                        if (!skip_check && this.peer_rank(peer) < $hyoo_crus_rank.mod)
+                        if (!skip_check && this.peer_rank(peer) < next.rank_min())
                             return 'Need mod rank to post data';
                         let peers = this.sand.get(head);
                         if (!peers)
@@ -11489,27 +11590,30 @@ var $;
         }
         recheck() {
             for (const [peer, pass] of this.pass) {
-                if (this.lord_rank(pass.lord()) >= $hyoo_crus_rank.reg)
+                if (this.lord_rank(pass.lord()) >= pass.rank_min())
                     continue;
                 this.pass.delete(peer);
                 this.faces.total--;
             }
             for (const [lord, gift] of this.gift) {
-                if (this.peer_rank(gift.peer()) >= $hyoo_crus_rank.law)
+                if (this.peer_rank(gift.peer()) >= gift.rank_min())
                     continue;
                 this.gift.delete(lord);
                 this.faces.total--;
             }
             for (const [head, peers] of this.sand) {
-                for (const [peer, units] of peers) {
-                    if (this.peer_rank(peer) >= $hyoo_crus_rank.mod)
-                        continue;
-                    peers.delete(peer);
-                    this.faces.total -= units.size;
+                for (const [peer, sands] of peers) {
+                    const rank = this.peer_rank(peer);
+                    for (const [self, sand] of sands) {
+                        if (rank >= sand.rank_min())
+                            continue;
+                        sands.delete(self);
+                        this.faces.total--;
+                    }
                 }
             }
         }
-        fork(preset = { '': $hyoo_crus_rank.get }) {
+        fork(preset = { '': $hyoo_crus_rank_read }) {
             const land = this.$.$hyoo_crus_glob.land_grab(preset);
             land.Tine().items_vary([this.ref()]);
             return land;
@@ -11631,13 +11735,13 @@ var $;
             unit.peer(auth.peer());
             unit.dest(dest ? dest instanceof $hyoo_crus_auth ? dest.lord() : dest : $hyoo_crus_ref(''));
             unit._land = this;
-            if (rank >= $hyoo_crus_rank.get) {
+            if (rank >= $hyoo_crus_rank_read) {
                 const secret_land = this.secret();
                 if (secret_land) {
                     if (!dest)
                         $mol_fail(new Error(`Encrypted land can't be shared to everyone`));
                     const prev = this.gift.get(dest instanceof $hyoo_crus_auth ? dest.lord() : dest);
-                    if (prev && prev.rank() >= $hyoo_crus_rank.get) {
+                    if (prev && prev.rank() >= $hyoo_crus_rank_read) {
                         unit.bill().set(prev.bill());
                     }
                     else {
@@ -11819,8 +11923,20 @@ var $;
             const sens = unit.sens().slice();
             for (let i = 0; i < mixin.length; ++i)
                 sens[i + 2] ^= mixin[i];
-            const sign = key.sign(sens);
-            unit.sign(sign);
+            while (true) {
+                const sign = key.sign(sens);
+                unit.sign(sign.slice(0, 2));
+                const rank = unit instanceof $hyoo_crus_pass
+                    ? this.lord_rank(unit.lord())
+                    : this.peer_rank(unit.peer());
+                if (rank >= unit.rank_min()) {
+                    unit.sign(sign);
+                    return;
+                }
+                else {
+                    unit.sign(new Uint8Array([0, 0]));
+                }
+            }
         }
         sand_encode(sand) {
             if (sand._open === null)
@@ -11908,7 +12024,7 @@ var $;
             const secret_mutual = auth.secret_mutual(auth.public().toString());
             const unit = new $hyoo_crus_gift;
             $hyoo_crus_unit_trusted.add(unit);
-            unit.rank($hyoo_crus_rank.law);
+            unit.rank($hyoo_crus_rank_rule);
             unit.time(this.faces.tick());
             unit.peer(auth.peer());
             unit.dest(auth.lord());
@@ -12170,6 +12286,22 @@ var $;
         signed() {
             return this.sign().some(b => b);
         }
+        work() {
+            if (!this.signed()) {
+                return $hyoo_crus_rank_rate.just;
+            }
+            const sign = this.sign();
+            let int = sign[0] | (sign[1] << 8);
+            let count = 0;
+            while (int & 1) {
+                int >>>= 1;
+                ++count;
+            }
+            return count;
+        }
+        rank_min() {
+            return $hyoo_crus_rank_rule;
+        }
         _land = null;
         dump() {
             return {};
@@ -12183,9 +12315,6 @@ var $;
 var $;
 (function ($) {
     class $hyoo_crus_pass extends $hyoo_crus_unit {
-        work() {
-            return this.uint8(1);
-        }
         _lord;
         lord(next) {
             if (next === undefined && this._lord !== undefined)
@@ -12208,6 +12337,9 @@ var $;
                 lord: this.lord().description,
             };
         }
+        rank_min() {
+            return $hyoo_crus_rank($hyoo_crus_rank_tier.join | ($hyoo_crus_rank_rate.just - this.work()));
+        }
         [$mol_dev_format_head]() {
             return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' 🔑 ', $mol_dev_format_span({}, this.lord().description));
         }
@@ -12223,11 +12355,11 @@ var $;
         rank(next) {
             if (next !== undefined)
                 this.uint8(0, $hyoo_crus_unit_kind.gift);
-            next = this.uint8(1, next);
-            if (next < $hyoo_crus_rank.nil || next > $hyoo_crus_rank.law) {
-                $mol_fail(new RangeError(`Wrong rank ${next}`));
+            const res = this.uint8(1, next);
+            if (res < $hyoo_crus_rank_deny || res > $hyoo_crus_rank_rule) {
+                $mol_fail(new RangeError(`Wrong rank ${res}`));
             }
-            return next;
+            return res;
         }
         time(next) {
             return this.uint48(8, next);
@@ -12256,12 +12388,16 @@ var $;
                 kind: this.kind(),
                 peer: this.peer(),
                 dest: this.dest().description,
-                rank: $hyoo_crus_rank[this.rank()],
+                tier: $hyoo_crus_rank_tier[this.rank() & ~$hyoo_crus_rank_rate.just],
+                work: this.work(),
                 time: $hyoo_crus_time_dump(this.time()),
             };
         }
+        rank_min() {
+            return $hyoo_crus_rank($hyoo_crus_rank_rule | ($hyoo_crus_rank_rate.just - this.work()));
+        }
         [$mol_dev_format_head]() {
-            return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' 🏅 ', $mol_dev_format_span({}, this.dest().description || '_'), this.bill().some(v => v) ? ' 🔐' : ' 📢', $hyoo_crus_rank[this.rank()], ' ', $mol_dev_format_shade($hyoo_crus_time_dump(this.time())));
+            return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' 🏅 ', $mol_dev_format_span({}, this.dest().description || '_'), this.bill().some(v => v) ? ' 🔐' : ' 👀', $hyoo_crus_rank_tier[this.rank() & ~$hyoo_crus_rank_rate.just], ':', this.rank() & $hyoo_crus_rank_rate.just, ' ', $mol_dev_format_shade($hyoo_crus_time_dump(this.time())));
         }
     }
     $.$hyoo_crus_gift = $hyoo_crus_gift;
@@ -12379,6 +12515,9 @@ var $;
                 size: this.size(),
                 time: $hyoo_crus_time_dump(this.time()),
             };
+        }
+        rank_min() {
+            return $hyoo_crus_rank($hyoo_crus_rank_tier.post | ($hyoo_crus_rank_rate.just - this.work()));
         }
         [$mol_dev_format_head]() {
             return $mol_dev_format_span({}, $mol_dev_format_native(this), ' ', this.peer(), ' ', this.lead() || 'AAAAAAAA', $mol_dev_format_shade('\\'), $mol_dev_format_accent(this.head() || 'AAAAAAAA'), $mol_dev_format_shade('/'), this.self() || 'AAAAAAAA', ' ', $mol_dev_format_shade($hyoo_crus_time_dump(this.time())), ' ', {
@@ -13721,27 +13860,27 @@ var $;
         home() {
             return this.$.$hyoo_crus_glob.home();
         }
-        static king_grab(preset = { '': $hyoo_crus_rank.get }) {
+        static king_grab(preset = { '': $hyoo_crus_rank_read }) {
             const king = this.$.$hyoo_crus_auth.grab();
             const colony = $mol_wire_sync($hyoo_crus_land).make({ $: this.$ });
             colony.auth = $mol_const(king);
-            if ((preset[''] ?? $hyoo_crus_rank.nil) === $hyoo_crus_rank.nil) {
+            if ((preset[''] ?? $hyoo_crus_rank_deny) === $hyoo_crus_rank_deny) {
                 colony.encrypted(true);
             }
             const self = this.$.$hyoo_crus_auth.current();
-            colony.give(self, $hyoo_crus_rank.law);
+            colony.give(self, $hyoo_crus_rank_rule);
             for (const key in preset)
                 colony.give(key ? $hyoo_crus_auth.from(key) : null, preset[key]);
             this.Land(colony.ref()).apply_unit(colony.delta_unit());
             return king;
         }
-        king_grab(preset = { '': $hyoo_crus_rank.get }) {
+        king_grab(preset = { '': $hyoo_crus_rank_read }) {
             return this.$.$hyoo_crus_glob.king_grab(preset);
         }
-        static land_grab(preset = { '': $hyoo_crus_rank.get }) {
+        static land_grab(preset = { '': $hyoo_crus_rank_read }) {
             return this.Land(this.king_grab(preset).lord());
         }
-        land_grab(preset = { '': $hyoo_crus_rank.get }) {
+        land_grab(preset = { '': $hyoo_crus_rank_read }) {
             return this.$.$hyoo_crus_glob.land_grab(preset);
         }
         static Land(ref) {
@@ -14145,7 +14284,7 @@ var $;
         Meets: $hyoo_crus_list_ref_to(() => $hyoo_survey_meet),
     }) {
         meet_make() {
-            const meet = this.Meets(null).remote_make({ '': $hyoo_crus_rank.get });
+            const meet = this.Meets(null).remote_make({ '': $hyoo_crus_rank_read });
             meet.Owner(null).val(this.land().auth().lord());
             return meet;
         }
@@ -14170,10 +14309,10 @@ var $;
             const owner_key = this.Owner()?.remote()?.land().key();
             if (!owner_key)
                 return null;
-            const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank.mod });
+            const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank_post('just') });
             const opinion = opinions?.ensure_of(my_auth.peer(), {
-                [owner_key.toString()]: $hyoo_crus_rank.get,
-                [my_auth.public().toString()]: $hyoo_crus_rank.law,
+                [owner_key.toString()]: $hyoo_crus_rank_read,
+                [my_auth.public().toString()]: $hyoo_crus_rank_rule,
             }) ?? null;
             return opinion;
         }
@@ -21208,26 +21347,6 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    class $mol_data_error extends $mol_error_mix {
-    }
-    $.$mol_data_error = $mol_data_error;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_data_number = (val) => {
-        if (typeof val === 'number')
-            return val;
-        return $mol_fail(new $mol_data_error(`${val} is not a number`));
-    };
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
     $mol_test({
         'Is number'() {
             $mol_data_number(0);
@@ -21243,19 +21362,6 @@ var $;
             }, '0 is not a number');
         },
     });
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_data_integer(val) {
-        const val2 = $mol_data_number(val);
-        if (Math.floor(val2) === val2)
-            return val2;
-        return $mol_fail(new $mol_data_error(`${val} is not an integer`));
-    }
-    $.$mol_data_integer = $mol_data_integer;
 })($ || ($ = {}));
 
 ;
@@ -21468,6 +21574,84 @@ var $;
         'comparison'() {
             const iso = '2021-01-02T03:04:05.678+09:10';
             $mol_assert_like(new $mol_time_moment(iso), new $mol_time_moment(iso));
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'config by value'() {
+            const N = $mol_data_setup((a) => a, 5);
+            $mol_assert_equal(N.config, 5);
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'function'() {
+            $mol_assert_not($mol_func_is_class(function () { }));
+        },
+        'generator'() {
+            $mol_assert_not($mol_func_is_class(function* () { }));
+        },
+        'async'() {
+            $mol_assert_not($mol_func_is_class(async function () { }));
+        },
+        'arrow'() {
+            $mol_assert_not($mol_func_is_class(() => null));
+        },
+        'named class'() {
+            $mol_assert_ok($mol_func_is_class(class Foo {
+            }));
+        },
+        'unnamed class'() {
+            $mol_assert_ok($mol_func_is_class(class {
+            }));
+        },
+    });
+})($ || ($ = {}));
+
+;
+"use strict";
+
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'single function'() {
+            const stringify = $mol_data_pipe((input) => input.toString());
+            $mol_assert_equal(stringify(5), '5');
+        },
+        'two functions'() {
+            const isLong = $mol_data_pipe((input) => input.toString(), (input) => input.length > 2);
+            $mol_assert_equal(isLong(5.0), false);
+            $mol_assert_equal(isLong(5.1), true);
+        },
+        'three functions'() {
+            const pattern = $mol_data_pipe((input) => input.toString(), (input) => new RegExp(input), (input) => input.toString());
+            $mol_assert_equal(pattern(5), '/5/');
+        },
+        'classes'() {
+            class Box {
+                value;
+                constructor(value) {
+                    this.value = value;
+                }
+            }
+            const boxify = $mol_data_pipe((input) => input.toString(), Box);
+            $mol_assert_ok(boxify(5) instanceof Box);
+            $mol_assert_like(boxify(5).value, '5');
         },
     });
 })($ || ($ = {}));
@@ -21771,9 +21955,6 @@ var $;
         },
     });
 })($ || ($ = {}));
-
-;
-"use strict";
 
 ;
 "use strict";
@@ -22111,34 +22292,34 @@ var $;
         'Join'($) {
             const land = $hyoo_crus_land.make({ $ });
             $mol_assert_equal(land.joined_list(), []);
-            $mol_assert_equal(land.lord_rank(land.ref()), $hyoo_crus_rank.law);
+            $mol_assert_equal(land.lord_rank(land.ref()), $hyoo_crus_rank_rule);
             land.join();
             $mol_assert_equal(land.joined_list(), [land.ref()]);
         },
         'Give rights'($) {
             const land1 = $hyoo_crus_land.make({ $ });
             const land2 = $hyoo_crus_land.make({ $, ref: () => land1.ref(), auth: () => auth1 });
-            $mol_assert_equal(land1.lord_rank(land1.ref()), $hyoo_crus_rank.law);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.get);
-            $mol_assert_fail(() => land2.give(auth2, $hyoo_crus_rank.reg), 'Need reg rank to join');
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.get);
-            land1.give(auth1, $hyoo_crus_rank.get);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.get);
-            land1.give(auth1, $hyoo_crus_rank.reg);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.reg);
-            land1.give(auth1, $hyoo_crus_rank.get);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.get);
-            land1.give(auth1, $hyoo_crus_rank.mod);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.mod);
-            land1.give(auth1, $hyoo_crus_rank.reg);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.reg);
-            land1.give(auth1, $hyoo_crus_rank.law);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.law);
-            land1.give(auth1, $hyoo_crus_rank.mod);
-            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank.mod);
+            $mol_assert_equal(land1.lord_rank(land1.ref()), $hyoo_crus_rank_rule);
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_read);
+            $mol_assert_fail(() => land2.give(auth2, $hyoo_crus_rank_join('just')), 'Need reg rank to join');
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_read);
+            land1.give(auth1, $hyoo_crus_rank_read);
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_read);
+            land1.give(auth1, $hyoo_crus_rank_join('just'));
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_join('just'));
+            land1.give(auth1, $hyoo_crus_rank_read);
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_read);
+            land1.give(auth1, $hyoo_crus_rank_post('just'));
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_post('just'));
+            land1.give(auth1, $hyoo_crus_rank_join('just'));
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_join('just'));
+            land1.give(auth1, $hyoo_crus_rank_rule);
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_rule);
+            land1.give(auth1, $hyoo_crus_rank_post('just'));
+            $mol_assert_equal(land1.lord_rank(auth1.lord()), $hyoo_crus_rank_post('just'));
             land2.apply_unit(land1.delta_unit());
-            $mol_assert_equal(land2.lord_rank(auth1.lord()), $hyoo_crus_rank.mod);
-            $mol_assert_fail(() => land2.give(auth2, $hyoo_crus_rank.reg), 'Need law rank to change rank');
+            $mol_assert_equal(land2.lord_rank(auth1.lord()), $hyoo_crus_rank_post('just'));
+            $mol_assert_fail(() => land2.give(auth2, $hyoo_crus_rank_join('just')), 'Need law rank to change rank');
         },
         'Post Data and pick Delta'($) {
             const land1 = $hyoo_crus_land.make({ $ });
@@ -22154,7 +22335,7 @@ var $;
             $mol_assert_fail(() => land2.join(), 'Need reg rank to join');
             $mol_assert_equal(land2.delta_unit().length, 3);
             $mol_assert_equal(land2.delta_unit(face).length, 1);
-            land1.give(auth2, $hyoo_crus_rank.reg);
+            land1.give(auth2, $hyoo_crus_rank_join('just'));
             land2.apply_unit(land1.delta_unit());
             land2.join();
             $mol_assert_equal(land2.delta_unit().length, 5);
@@ -22162,15 +22343,15 @@ var $;
             $mol_assert_fail(() => land2.post('AA222222', '', 'AA333333', new Uint8Array([3])), 'Need mod rank to post data');
             $mol_assert_equal(land2.delta_unit().length, 5);
             $mol_assert_equal(land2.delta_unit(face).length, 3);
-            land1.give(auth2, $hyoo_crus_rank.mod);
+            land1.give(auth2, $hyoo_crus_rank_post('just'));
             land2.apply_unit(land1.delta_unit());
             land2.post('AA222222', '', 'AA333333', new Uint8Array([4]));
             $mol_assert_equal(land2.delta_unit().length, 6);
             $mol_assert_equal(land2.delta_unit(face).length, 4);
-            land1.give(auth2, $hyoo_crus_rank.reg);
+            land1.give(auth2, $hyoo_crus_rank_join('just'));
             land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 5);
-            land1.give(auth2, $hyoo_crus_rank.get);
+            land1.give(auth2, $hyoo_crus_rank_read);
             land2.apply_unit(land1.delta_unit());
             $mol_assert_equal(land2.delta_unit().length, 4);
         },
@@ -22225,10 +22406,10 @@ var $;
             $mol_assert_equal(bella_ref.val(), bella_val.ref());
         },
         'Land Area inherits rights'($) {
-            const base = $.$hyoo_crus_glob.land_grab({ '': $hyoo_crus_rank.mod });
+            const base = $.$hyoo_crus_glob.land_grab({ '': $hyoo_crus_rank_post('just') });
             const area = base.area_make();
-            $mol_assert_equal(area.lord_rank(area.auth().lord()), $hyoo_crus_rank.law);
-            $mol_assert_equal(area.lord_rank($hyoo_crus_ref('')), $hyoo_crus_rank.mod);
+            $mol_assert_equal(area.lord_rank(area.auth().lord()), $hyoo_crus_rank_rule);
+            $mol_assert_equal(area.lord_rank($hyoo_crus_ref('')), $hyoo_crus_rank_post('just'));
         },
     });
 })($ || ($ = {}));
@@ -22357,9 +22538,9 @@ var $;
         },
         'gift unit type'() {
             const gift = new $hyoo_crus_gift;
-            gift.rank($hyoo_crus_rank.law);
+            gift.rank($hyoo_crus_rank_rule);
             $mol_assert_equal(gift.kind(), 'gift');
-            $mol_assert_equal(gift.rank(), $hyoo_crus_rank.law);
+            $mol_assert_equal(gift.rank(), $hyoo_crus_rank_rule);
         },
         'data unit type'() {
             const unit = new $hyoo_crus_sand;
@@ -22928,14 +23109,14 @@ var $;
                 $mol_assert_equal(user.Articles()?.remote_list() ?? [], []);
                 user.Title(null).val('Jin');
                 $mol_assert_equal(user.Title().val() ?? '', 'Jin');
-                const account = user.Account(null).ensure({ '': $hyoo_crus_rank.get });
+                const account = user.Account(null).ensure({ '': $hyoo_crus_rank_read });
                 $mol_assert_equal(user.Account()?.remote() ?? null, account);
                 $mol_assert_equal(account.User()?.remote() ?? null, null);
                 account.User(null).remote(user);
                 $mol_assert_equal(account.User()?.remote(), user);
                 const articles = [
-                    user.Articles(null).remote_make({ '': $hyoo_crus_rank.get }),
-                    user.Articles(null).remote_make({ '': $hyoo_crus_rank.get }),
+                    user.Articles(null).remote_make({ '': $hyoo_crus_rank_read }),
+                    user.Articles(null).remote_make({ '': $hyoo_crus_rank_read }),
                 ];
                 $mol_assert_equal(user.Articles()?.remote_list(), articles);
                 articles[0].Title(null).key('en', 'auto').val('Hello!');
@@ -22946,31 +23127,6 @@ var $;
             },
         });
     })($$ = $_1.$$ || ($_1.$$ = {}));
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    function $mol_data_setup(value, config) {
-        return Object.assign(value, {
-            config,
-            Value: null
-        });
-    }
-    $.$mol_data_setup = $mol_data_setup;
-})($ || ($ = {}));
-
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'config by value'() {
-            const N = $mol_data_setup((a) => a, 5);
-            $mol_assert_equal(N.config, 5);
-        },
-    });
 })($ || ($ = {}));
 
 ;
@@ -23110,7 +23266,7 @@ var $;
             "Hyper link to another land"($) {
                 const land = $.$hyoo_crus_glob.home().land();
                 const reg = land.Node($hyoo_crus_atom_ref_to(() => $hyoo_crus_atom_vary)).Item('11111111');
-                const remote = reg.ensure({ '': $hyoo_crus_rank.get });
+                const remote = reg.ensure({ '': $hyoo_crus_rank_read });
                 $mol_assert_unique(reg.land(), remote.land());
                 $mol_assert_equal(reg.vary(), remote.ref());
                 $mol_assert_equal(reg.remote(), remote);
@@ -23147,7 +23303,7 @@ var $;
     $mol_test({
         'Per app profiles'($) {
             const base = $.$hyoo_crus_glob.home();
-            const hall = base.hall_by($hyoo_crus_dict, { '': $hyoo_crus_rank.get });
+            const hall = base.hall_by($hyoo_crus_dict, { '': $hyoo_crus_rank_read });
             $mol_assert_unique(base.land(), hall);
         },
     });

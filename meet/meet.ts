@@ -13,11 +13,11 @@ namespace $ {
 			const owner_key = this.Owner()?.remote()?.land().key()
 			if( !owner_key ) return null
 			
-			const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank.mod })
+			const opinions = this.Opinions(null)?.ensure({ '': $hyoo_crus_rank_post( 'just' ) })
 			
 			const opinion = opinions?.ensure_of( my_auth.peer(), {
-				[ owner_key.toString() ]: $hyoo_crus_rank.get,
-				[ my_auth.public().toString() ]: $hyoo_crus_rank.law,
+				[ owner_key.toString() ]: $hyoo_crus_rank_read,
+				[ my_auth.public().toString() ]: $hyoo_crus_rank_rule,
 			} ) ?? null
 			
 			return opinion

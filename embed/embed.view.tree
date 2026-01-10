@@ -1,0 +1,11 @@
+$hyoo_survey_embed $mol_page
+	id \
+	realm $hyoo_crus_realm
+	sub /
+		<= Feedback $mol_pick
+			hint \Обратная связь
+			trigger_content /
+				<= Feedback_icon $mol_icon_creation_outline
+			bubble_content /
+				<= Form $hyoo_survey_meet_form
+					meet <= meet $hyoo_survey_meet

@@ -6212,7 +6212,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/button/minor/minor.view.css", "[mol_button_minor] {\n\tcolor: var(--mol_theme_control);\n}\n\n[mol_button_minor][disabled] {\n\tcolor: var(--mol_theme_shade);\n}\n");
+    $mol_style_attach("mol/button/minor/minor.view.css", "[mol_button_minor]:not([disabled]) {\n\tcolor: var(--mol_theme_control);\n}\n");
 })($ || ($ = {}));
 
 ;
@@ -8318,6 +8318,9 @@ var $;
 		Trigger_icon(){
 			const obj = new this.$.$mol_icon_dots_vertical();
 			return obj;
+		}
+		trigger_enabled(){
+			return (this.enabled());
 		}
 	};
 	($mol_mem_key(($.$mol_select.prototype), "event_select"));
@@ -18306,9 +18309,9 @@ var $;
 			return "h1";
 		}
 		Title(){
-			const obj = new this.$.$mol_paragraph();
+			const obj = new this.$.$mol_view();
 			(obj.dom_name) = () => ((this.title_dom_name()));
-			(obj.title) = () => ((this.title()));
+			(obj.sub) = () => ([(this.title())]);
 			return obj;
 		}
 		tools(){

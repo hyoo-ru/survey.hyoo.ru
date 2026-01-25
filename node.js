@@ -6663,7 +6663,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/button/minor/minor.view.css", "[mol_button_minor]:not([disabled]) {\n\tcolor: var(--mol_theme_control);\n}\n");
+    $mol_style_attach("mol/button/minor/minor.view.css", "[mol_button_minor]:where(:not([disabled])) {\n\tcolor: var(--mol_theme_control);\n}\n");
 })($ || ($ = {}));
 
 ;
@@ -8855,7 +8855,7 @@ var $;
             trigger_content() {
                 return [
                     ...this.option_content(this.value()),
-                    this.Trigger_icon(),
+                    ...this.trigger_enabled() ? [this.Trigger_icon()] : [],
                 ];
             }
             menu_content() {
@@ -9792,6 +9792,11 @@ var $;
                 }
                 throw new Error(`Can not parse time duration (${config})`);
             }
+            if (config instanceof Array) {
+                ;
+                [this.year, this.month, this.day, this.hour, this.minute, this.second] = config;
+                return;
+            }
             this.year = config.year || 0;
             this.month = config.month || 0;
             this.day = config.day || 0;
@@ -9810,11 +9815,11 @@ var $;
             let minute = this.minute ?? 0;
             let hour = this.hour ?? 0;
             let day = this.day ?? 0;
-            minute += Math.floor(second / 60);
+            minute += Math.trunc(second / 60);
             second = second % 60;
-            hour += Math.floor(minute / 60);
+            hour += Math.trunc(minute / 60);
             minute = minute % 60;
-            day += Math.floor(hour / 24);
+            day += Math.trunc(hour / 24);
             hour = hour % 24;
             return new $mol_time_duration({
                 year: this.year,
@@ -9858,6 +9863,9 @@ var $;
         toJSON() { return this.toString(); }
         toString(pattern = 'P#Y#M#DT#h#m#s') {
             return super.toString(pattern);
+        }
+        toArray() {
+            return [this.year, this.month, this.day, this.hour, this.minute, this.second];
         }
         [Symbol.toPrimitive](mode) {
             return mode === 'number' ? this.valueOf() : this.toString();
@@ -10004,11 +10012,14 @@ var $;
                 this.hour = config.getHours();
                 this.minute = config.getMinutes();
                 this.second = config.getSeconds() + config.getMilliseconds() / 1000;
-                const offset = -config.getTimezoneOffset();
-                this.offset = new $mol_time_duration({
-                    hour: (offset < 0) ? Math.ceil(offset / 60) : Math.floor(offset / 60),
-                    minute: offset % 60
-                });
+                this.offset = new $mol_time_duration({ minute: -config.getTimezoneOffset() });
+                return;
+            }
+            if (config instanceof Array) {
+                ;
+                [this.year, this.month, this.day, this.hour, this.minute, this.second] = config;
+                if (config[6])
+                    this.offset = new $mol_time_duration(config[6] * 60_000);
                 return;
             }
             this.year = config.year;
@@ -10120,6 +10131,9 @@ var $;
         toJSON() { return this.toString(); }
         toString(pattern = 'YYYY-MM-DDThh:mm:ss.sssZ') {
             return super.toString(pattern);
+        }
+        toArray() {
+            return [this.year, this.month, this.day, this.hour, this.minute, this.second, this.offset?.count('PT1m')];
         }
         [Symbol.toPrimitive](mode) {
             return mode === 'number' ? this.valueOf() : this.toString();
@@ -10332,7 +10346,7 @@ var $;
                 return millisecond.slice(2);
             },
             'Z': (moment) => {
-                const offset = moment.offset;
+                const offset = moment.offset?.normal;
                 if (!offset)
                     return '';
                 let hour = offset.hour;
@@ -10341,7 +10355,7 @@ var $;
                     sign = '-';
                     hour = -hour;
                 }
-                return sign + String(100 + hour).slice(1) + ':' + String(100 + offset.minute).slice(1);
+                return sign + hour.toString().padStart(2, '0') + ':' + offset.minute.toString().padStart(2, '0');
             }
         };
     }
@@ -15546,7 +15560,7 @@ var $;
         'code-docs': /\/\/\/.*?$/,
         'code-comment-block': /(?:\/\*[^]*?\*\/|\/\+[^]*?\+\/|<![^]*?>)/,
         'code-link': /(?:\w+:\/\/|#)\S+?(?=\s|\\\\|""|$)/,
-        'code-comment-inline': /\/\/.*?(?:$|\/\/)|- \\(?!\\).*|#!? .*/,
+        'code-comment-inline': /\/\/.*?(?:$|\/\/)|- \\(?!\\).*|(?<=^| )#!? .*/,
         'code-string': /(?:".*?"|'.*?'|`.*?`| ?\\\\.+?\\\\|\/.+?\/[dygimsu]*(?!\p{Letter})|[ \t]*\\[^\n]*)/u,
         'code-number': /[+-]?(?:\d*\.)?\d+\w*/,
         'code-call': /\.?\w+(?=\()/,
@@ -18439,7 +18453,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
-    $mol_style_attach("mol/section/section.view.css", "[mol_section_head] {\n\tjustify-content: space-between;\n\talign-items: flex-end;\n\tflex-wrap: wrap;\n}\n\n[mol_section_title] {\n\tpadding: var(--mol_gap_text);\n\ttext-shadow: 0 0;\n\tfont-weight: normal;\n}\n\n[mol_section_title]:where(h1) {\n\tfont-size: 1.5rem;\n}\n\n[mol_section_title]:where(h2) {\n\tfont-size: 1.5rem;\n\tfont-style: italic;\n}\n\n[mol_section_title]:where(h3) {\n\tfont-size: 1.25rem;\n}\n\n[mol_section_title]:where(h4) {\n\tfont-size: 1.25rem;\n\tfont-style: italic;\n}\n\n[mol_section_title]:where(h5) {\n\tfont-size: 1rem;\n}\n\n[mol_section_title]:where(h6) {\n\tfont-size: 1rem;\n\tfont-style: italic;\n}\n");
+    $mol_style_attach("mol/section/section.view.css", "[mol_section_head] {\n\tjustify-content: space-between;\n\talign-items: flex-end;\n\tflex-wrap: wrap;\n}\n\n[mol_section_title] {\n\tmargin: 0;\n\tpadding: var(--mol_gap_text);\n\ttext-shadow: 0 0;\n\tfont-weight: normal;\n}\n\n[mol_section_title]:where(h1) {\n\tfont-size: 1.5rem;\n}\n\n[mol_section_title]:where(h2) {\n\tfont-size: 1.5rem;\n\tfont-style: italic;\n}\n\n[mol_section_title]:where(h3) {\n\tfont-size: 1.25rem;\n}\n\n[mol_section_title]:where(h4) {\n\tfont-size: 1.25rem;\n\tfont-style: italic;\n}\n\n[mol_section_title]:where(h5) {\n\tfont-size: 1rem;\n}\n\n[mol_section_title]:where(h6) {\n\tfont-size: 1rem;\n\tfont-style: italic;\n}\n");
 })($ || ($ = {}));
 
 ;

@@ -2172,7 +2172,7 @@ declare namespace $ {
     export class $mol_regexp<Groups extends Record<string, string>> extends RegExp {
         readonly groups: (Extract<keyof Groups, string>)[];
         constructor(source: string, flags?: string, groups?: (Extract<keyof Groups, string>)[]);
-        [Symbol.matchAll](str: string): RegExpStringIterator<RegExpMatchArray & $mol_type_override<RegExpMatchArray, {
+        [Symbol.matchAll](str: string): RegExpStringIterator<RegExpExecArray & $mol_type_override<RegExpExecArray, {
             groups?: {
                 [key in keyof Groups]: string;
             };
@@ -3801,6 +3801,11 @@ declare namespace $ {
             from<T>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => number, thisArg?: any): Uint8Array<ArrayBuffer>;
             from(elements: Iterable<number>): Uint8Array<ArrayBuffer>;
             from<T>(elements: Iterable<T>, mapfn?: (v: T, k: number) => number, thisArg?: any): Uint8Array<ArrayBuffer>;
+            fromBase64(string: string, options?: {
+                alphabet?: "base64" | "base64url" | undefined;
+                lastChunkHandling?: "loose" | "strict" | "stop-before-partial" | undefined;
+            }): Uint8Array<ArrayBuffer>;
+            fromHex(string: string): Uint8Array<ArrayBuffer>;
         };
         bool: BooleanConstructor;
         int: BigIntConstructor;

@@ -1943,7 +1943,7 @@ var $;
         handler = handler2;
         error = undefined;
         result = undefined;
-        window.dispatchEvent(new Event('$mol_try'));
+        self.dispatchEvent(new Event('$mol_try'));
         const error2 = error;
         const result2 = result;
         error = undefined;
@@ -5411,9 +5411,7 @@ var $;
 var $;
 (function ($) {
     class $mol_file_web extends $mol_file_webdav {
-        static base = $mol_dom_context.document?.currentScript
-            ? new URL('.', $mol_dom_context.document.currentScript['src']).toString()
-            : '';
+        static base = new URL('.', ($mol_dom_context.document?.currentScript)['src'] ?? globalThis.location.href).toString();
         version() { return '1'; }
         info() {
             try {
@@ -14924,6 +14922,9 @@ var $;
 
 ;
 "use strict";
+
+;
+"use strict";
 var $;
 (function ($) {
     var $$;
@@ -14988,9 +14989,6 @@ var $;
 (function ($) {
     $mol_style_attach("hyoo/crus/status/status.view.css", "[hyoo_crus_status_option_row] {\n\tpadding: var(--mol_gap_text);\n}\n\n[hyoo_crus_status_well] {\n\tcolor: var(--mol_theme_current);\n}\n\n[hyoo_crus_status_fail] {\n\tcolor: var(--mol_theme_focus);\n}\n\n[hyoo_crus_status][mol_view_error=\"Promise\"] {\n\tanimation: hyoo_crus_status_wait 1s linear infinite;\n}\n\n@keyframes hyoo_crus_status_wait {\n\tfrom {\n\t\topacity: 1;\n\t}\n\tto {\n\t\topacity: .5;\n\t}\n}\n");
 })($ || ($ = {}));
-
-;
-"use strict";
 
 ;
 	($.$mol_theme_auto) = class $mol_theme_auto extends ($.$mol_plugin) {

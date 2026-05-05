@@ -10,6 +10,12 @@ function require( path ){ return $node[ path ] };
 
 ;
 "use strict";
+
+;
+"use strict";
+
+;
+"use strict";
 var $;
 (function ($_1) {
     function $mol_test(set) {
@@ -108,18 +114,34 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Argument must be Truthy
+     * @deprecated use $mol_assert_equal instead
+     */
     function $mol_assert_ok(value) {
         if (value)
             return;
         $mol_fail(new Error(`${value} ≠ true`));
     }
     $.$mol_assert_ok = $mol_assert_ok;
+    /**
+     * Argument must be Falsy
+     * @deprecated use $mol_assert_equal instead
+     */
     function $mol_assert_not(value) {
         if (!value)
             return;
         $mol_fail(new Error(`${value} ≠ false`));
     }
     $.$mol_assert_not = $mol_assert_not;
+    /**
+     * Handler must throw an error.
+     * @example
+     * $mol_assert_fail( ()=>{ throw new Error( 'Parse error' ) } ) // Passes because throws error
+     * $mol_assert_fail( ()=>{ throw new Error( 'Parse error' ) } , 'Parse error' ) // Passes because throws right message
+     * $mol_assert_fail( ()=>{ throw new Error( 'Parse error' ) } , Error ) // Passes because throws right class
+     * @see https://mol.hyoo.ru/#!section=docs/=9q9dv3_fgxjsf
+     */
     function $mol_assert_fail(handler, ErrorRight) {
         const fail = $.$mol_fail;
         try {
@@ -142,10 +164,18 @@ var $;
         $mol_fail(new Error('Not failed', { cause: { expect: ErrorRight } }));
     }
     $.$mol_assert_fail = $mol_assert_fail;
+    /** @deprecated Use $mol_assert_equal */
     function $mol_assert_like(...args) {
         $mol_assert_equal(...args);
     }
     $.$mol_assert_like = $mol_assert_like;
+    /**
+     * All arguments must not be structural equal to each other.
+     * @example
+     * $mol_assert_unique( 1 , 2 , 3 ) // Passes
+     * $mol_assert_unique( 1 , 1 , 2 ) // Fails because 1 === 1
+     * @see https://mol.hyoo.ru/#!section=docs/=9q9dv3_fgxjsf
+     */
     function $mol_assert_unique(...args) {
         for (let i = 0; i < args.length; ++i) {
             for (let j = 0; j < args.length; ++j) {
@@ -158,6 +188,13 @@ var $;
         }
     }
     $.$mol_assert_unique = $mol_assert_unique;
+    /**
+     * All arguments must be structural equal each other.
+     * @example
+     * $mol_assert_like( [1] , [1] , [1] ) // Passes
+     * $mol_assert_like( [1] , [1] , [2] ) // Fails because 1 !== 2
+     * @see https://mol.hyoo.ru/#!section=docs/=9q9dv3_fgxjsf
+     */
     function $mol_assert_equal(...args) {
         for (let i = 1; i < args.length; ++i) {
             if ($mol_compare_deep(args[0], args[i]))
@@ -208,6 +245,8 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
+/** @jsxFrag $mol_jsx_frag */
 var $;
 (function ($) {
     $mol_test({
@@ -380,9 +419,6 @@ var $;
 
 ;
 "use strict";
-
-;
-"use strict";
 var $;
 (function ($_1) {
     $mol_test_mocks.push($ => {
@@ -497,6 +533,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /// @todo right orderinng
     $.$mol_after_mock_queue = [];
     function $mol_after_mock_warp() {
         const queue = $.$mol_after_mock_queue.splice(0);
@@ -629,6 +666,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Lazy computed lists with native Array interface. $mol_range2_array is mutable but all derived ranges are immutable. */
     function $mol_range2(item = index => index, size = () => Number.POSITIVE_INFINITY) {
         const source = typeof item === 'function' ? new $mol_range2_array() : item;
         if (typeof item !== 'function') {
@@ -677,6 +715,7 @@ var $;
     }
     $.$mol_range2 = $mol_range2;
     class $mol_range2_array extends Array {
+        // Lazy
         concat(...tail) {
             if (tail.length === 0)
                 return this;
@@ -688,6 +727,7 @@ var $;
             }
             return $mol_range2(index => index < this.length ? this[index] : tail[0][index - this.length], () => this.length + tail[0].length);
         }
+        // Lazy
         filter(check, context) {
             const filtered = [];
             let cursor = -1;
@@ -700,13 +740,16 @@ var $;
                 return filtered[index];
             }, () => cursor < this.length ? Number.POSITIVE_INFINITY : filtered.length);
         }
+        // Diligent
         forEach(proceed, context) {
             for (let [key, value] of this.entries())
                 proceed.call(context, value, key, this);
         }
+        // Lazy
         map(proceed, context) {
             return $mol_range2(index => proceed.call(context, this[index], index, this), () => this.length);
         }
+        // Diligent
         reduce(merge, result) {
             let index = 0;
             if (arguments.length === 1) {
@@ -717,12 +760,15 @@ var $;
             }
             return result;
         }
+        // Lazy
         toReversed() {
             return $mol_range2(index => this[this.length - 1 - index], () => this.length);
         }
+        // Lazy
         slice(from = 0, to = this.length) {
             return $mol_range2(index => this[from + index], () => Math.min(to, this.length) - from);
         }
+        // Lazy
         some(check, context) {
             for (let index = 0; index < this.length; ++index) {
                 if (check.call(context, this[index], index, this))
@@ -915,6 +961,7 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
 var $;
 (function ($) {
     $mol_test({
@@ -976,6 +1023,7 @@ var $;
             const obj3_copy = { test: 3, obj2: obj2_copy };
             obj1.obj3 = obj3;
             obj1_copy.obj3 = obj3_copy;
+            // warmup cache
             $mol_assert_not($mol_compare_deep(obj1, {}));
             $mol_assert_not($mol_compare_deep(obj2, {}));
             $mol_assert_not($mol_compare_deep(obj3, {}));
@@ -1236,6 +1284,7 @@ var $;
 var $;
 (function ($_1) {
     $mol_test({
+        // https://github.com/nin-jin/slides/tree/master/reactivity#component-states
         'Cached channel'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1293,6 +1342,7 @@ var $;
             $mol_assert_equal(App.value(5), 21);
             $mol_assert_equal(App.value(), 21);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-consistency
         'Auto recalculation of cached values'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1320,6 +1370,7 @@ var $;
             App.xxx(5);
             $mol_assert_equal(App.zzz(), 7);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-reasonability
         'Skip recalculation when actually no dependency changes'($) {
             const log = [];
             class App extends $mol_object2 {
@@ -1353,6 +1404,7 @@ var $;
             App.zzz();
             $mol_assert_like(log, ['zzz', 'yyy', 'xxx', 'xxx', 'yyy']);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#flow-auto
         'Flow: Auto'($) {
             class App extends $mol_object2 {
                 static get $() { return $; }
@@ -1390,6 +1442,7 @@ var $;
             $mol_assert_equal(App.result(), 23);
             $mol_assert_equal(App.counter, 4);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#dupes-equality
         'Dupes: Equality'($) {
             let counter = 0;
             class App extends $mol_object2 {
@@ -1413,6 +1466,7 @@ var $;
             App.foo({ numbs: [2] });
             $mol_assert_like(App.bar(), { numbs: [2], count: 2 });
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#cycle-fail
         'Cycle: Fail'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1437,6 +1491,29 @@ var $;
             ], App, "test", null);
             App.test();
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
+        // 'Update deps on push'( $ ) {
+        // 	class App extends $mol_object2 {
+        // 		static $ = $
+        // 		@ $mol_wire_solo
+        // 		static left( next = false ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static right( next = false ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static res( next?: boolean ) {
+        // 			return this.left( next ) && this.right()
+        // 		}
+        // 	}
+        // 	$mol_assert_equal( App.res(), false )
+        // 	$mol_assert_equal( App.res( true ), false )
+        // 	$mol_assert_equal( App.right( true ), true )
+        // 	$mol_assert_equal( App.res(), true )
+        // } ,
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
         'Different order of pull and push'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1448,7 +1525,7 @@ var $;
                 }
                 static slow(next) {
                     if (next !== undefined)
-                        this.slow();
+                        this.slow(); // enforce pull before push
                     return this.store(next);
                 }
             }
@@ -1467,6 +1544,7 @@ var $;
             App.store(777);
             $mol_assert_equal(App.fast(), App.slow(), 777);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
         'Actions inside invariant'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1506,6 +1584,7 @@ var $;
                 static toggle() {
                     const prev = this.checked();
                     $mol_assert_unique(this.checked(!prev), prev);
+                    // $mol_assert_equal( this.checked() , prev )
                 }
                 static res() {
                     return this.checked();
@@ -1530,6 +1609,39 @@ var $;
             ], App, "test", null);
             await $mol_wire_async(App).test();
         },
+        // // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
+        // 'Stable order of multiple root'( $ ) {
+        // 	class App extends $mol_object2 {
+        // 		static $ = $
+        // 		static counter = 0
+        // 		@ $mol_wire_solo
+        // 		static left_trigger( next = 0 ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static left_root() {
+        // 			this.left_trigger()
+        // 			return ++ this.counter
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static right_trigger( next = 0 ) {
+        // 			return next
+        // 		}
+        // 		@ $mol_wire_solo
+        // 		static right_root() {
+        // 			this.right_trigger()
+        // 			return ++ this.counter
+        // 		}
+        // 	}
+        // 	$mol_assert_equal( App.left_root(), 1 )
+        // 	$mol_assert_equal( App.right_root(), 2 )
+        // 	App.right_trigger( 1 )
+        // 	App.left_trigger( 1 )
+        // 	$mol_wire_fiber.sync()
+        // 	$mol_assert_equal( App.right_root(), 4 )
+        // 	$mol_assert_equal( App.left_root(), 3 )
+        // } ,
+        // https://github.com/nin-jin/slides/tree/master/reactivity#error-store
         'Restore after error'($) {
             class App extends $mol_object2 {
                 static get $() { return $; }
@@ -1627,6 +1739,7 @@ var $;
             App.showing(true);
             $mol_assert_unique(App.render(), details);
         },
+        // https://github.com/nin-jin/slides/tree/master/reactivity#wish-stability
         async 'Hold pubs while wait async task'($) {
             class App extends $mol_object2 {
                 static $ = $;
@@ -1842,6 +1955,7 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
 var $;
 (function ($) {
     $mol_test({
@@ -1927,6 +2041,12 @@ var $;
         'return result without errors'() {
             $mol_assert_equal($mol_try(() => false), false);
         },
+        //'return error if thrown'() {
+        //	
+        //	const error = new Error( '$mol_try test error' )
+        //	$mol_assert_equal( $mol_try( ()=> { throw error } ) , error )
+        //	
+        //} ,
     });
 })($ || ($ = {}));
 
@@ -1941,6 +2061,7 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** Watch and logs reactive states. Logger automatically added to test bundle which is adding to `test.html`. */
     class $mol_wire_log extends $mol_object2 {
         static watch(task) {
             return task;
@@ -2181,6 +2302,9 @@ var $;
         },
     });
 })($ || ($ = {}));
+
+;
+"use strict";
 
 ;
 "use strict";
@@ -3333,11 +3457,14 @@ var $;
                 Weight: $mol_data_integer,
                 Length: $mol_data_integer,
             });
-            Length(20);
-            let len = Length(10);
-            len = 20;
-            let num = len;
-            len = Length(Weight(20));
+            Length(20); // Validate
+            let len = Length(10); // Inferred type
+            len = 20; // Explicit type
+            let num = len; // Implicit cast
+            len = Length(Weight(20)); // Explicit cast
+            // len = 20 // Compile time error
+            // len = Weight( 20 ) // Compile time error
+            // len = Length( 20.1 ) // Run time error
         },
     });
 })($ || ($ = {}));
@@ -3595,6 +3722,14 @@ var $;
 var $;
 (function ($) {
     $mol_test({
+        // @todo enable on strict
+        // 'no functions'() {
+        // 	const stringify = $mol_data_pipe()
+        // 	type Type = $mol_type_assert<
+        // 		typeof stringify,
+        // 		( input : never )=> never
+        // 	>
+        // },
         'single function'() {
             const stringify = $mol_data_pipe((input) => input.toString());
             $mol_assert_equal(stringify(5), '5');
@@ -4207,6 +4342,7 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
 var $;
 (function ($_1) {
     var $$;
@@ -4238,6 +4374,10 @@ var $;
                 check(Number.MAX_VALUE);
                 check(Number.MIN_VALUE);
             },
+            // "Ref"( $ ) {
+            // 	check( $hyoo_crus_ref.make() )
+            // 	check( $hyoo_crus_ref.make( 4611686018427387904n, 2, 3 ) )
+            // },
             "Str"($) {
                 check('');
                 check('123');
@@ -4703,6 +4843,66 @@ var $;
             $mol_assert_equal(area.lord_rank(area.auth().lord()), $hyoo_crus_rank_rule);
             $mol_assert_equal(area.lord_rank($hyoo_crus_ref('')), $hyoo_crus_rank_post('just'));
         },
+        // async 'Merge text changes'() {
+        // 	const base = new $hyoo_crus_land( 1n, 1 )
+        // 	base.chief.as( $hyoo_crowd_text ).str( 'Hello World and fun!' )
+        // 	const left = base.fork( await $hyoo_crowd_peer.generate() )
+        // 	const right = base.fork( await $hyoo_crowd_peer.generate() )
+        // 	right.clock_data.tick( right.peer().id )
+        // 	left.chief.as( $hyoo_crowd_text ).str( 'Hello Alice and fun!' )
+        // 	right.chief.as( $hyoo_crowd_text ).str( 'Bye World and fun!' )
+        // 	const left_delta = left.delta()
+        // 	const right_delta = right.delta()
+        // 	left.apply( right_delta )
+        // 	right.apply( left_delta )
+        // 	$mol_assert_equal(
+        // 		left.chief.as( $hyoo_crowd_text ).str(),
+        // 		right.chief.as( $hyoo_crowd_text ).str(),
+        // 		'Bye Alice and fun!',
+        // 	)
+        // },
+        // async 'Write into token'() {
+        // 	const store = new $hyoo_crus_land( 1n, 1 )
+        // 	store.chief.as( $hyoo_crowd_text ).str( 'foobar' )
+        // 	store.chief.as( $hyoo_crowd_text ).write( 'xyz', 3 )
+        // 	$mol_assert_equal( store.chief.as( $hyoo_crowd_list ).list(), [ 'fooxyzbar' ] )
+        // },
+        // async 'Write into token with split'() {
+        // 	const store = new $hyoo_crus_land( 1n, 1 )
+        // 	store.chief.as( $hyoo_crowd_text ).str( 'foobar' )
+        // 	store.chief.as( $hyoo_crowd_text ).write( 'XYZ', 2, 4 )
+        // 	$mol_assert_equal( store.chief.as( $hyoo_crowd_list ).list(), [ 'fo', 'XYZar' ] )
+        // },
+        // async 'Write over few tokens'() {
+        // 	const store = new $hyoo_crus_land( 1n, 1 )
+        // 	store.chief.as( $hyoo_crowd_text ).str( 'xxx foo bar yyy' )
+        // 	store.chief.as( $hyoo_crowd_text ).write( 'X Y Z', 6, 9 )
+        // 	$mol_assert_equal( store.chief.as( $hyoo_crowd_list ).list(), [ 'xxx', ' fo', 'X', ' Y', ' Zar', ' yyy' ] )
+        // },
+        // async 'Write whole token'() {
+        // 	const store = new $hyoo_crus_land( 1n, 1 )
+        // 	store.chief.as( $hyoo_crowd_text ).str( 'xxxFoo yyy' )
+        // 	store.chief.as( $hyoo_crowd_text ).write( 'bar', 3, 7 )
+        // 	$mol_assert_equal( store.chief.as( $hyoo_crowd_list ).list(), [ 'xxxbaryyy' ] )
+        // },
+        // async 'Write whole text'() {
+        // 	const store = new $hyoo_crus_land( 1n, 1 )
+        // 	store.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
+        // 	store.chief.as( $hyoo_crowd_text ).write( 'xxx', 0, 7 )
+        // 	$mol_assert_equal( store.chief.as( $hyoo_crowd_list ).list(), [ 'xxx' ] )
+        // },
+        // async 'Write at the end'() {
+        // 	const store = new $hyoo_crus_land( 1n, 1 )
+        // 	store.chief.as( $hyoo_crowd_text ).str( 'foo' )
+        // 	store.chief.as( $hyoo_crowd_text ).write( 'bar' )
+        // 	$mol_assert_equal( store.chief.as( $hyoo_crowd_list ).list(), [ 'foobar' ] )
+        // },
+        // async 'Write between tokens'() {
+        // 	const store = new $hyoo_crus_land( 1n, 1 )
+        // 	store.chief.as( $hyoo_crowd_text ).str( 'foo bar' )
+        // 	store.chief.as( $hyoo_crowd_text ).write( 'xxx', 4 )
+        // 	$mol_assert_equal( store.chief.as( $hyoo_crowd_list ).list(), [ 'foo', ' xxxbar' ] )
+        // },
     });
 })($ || ($ = {}));
 
@@ -4710,11 +4910,13 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /** @FIXME Need polyfill for Safari and Node (https://github.com/microsoft/MSR-JavaScript-Crypto/) */
     const algorithm = {
         name: 'ECDSA',
         hash: 'SHA-256',
         namedCurve: "P-256",
     };
+    /** Asymmetric signing pair with shortest payload */
     async function $mol_crypto_auditor_pair() {
         const pair = await $mol_crypto_native.subtle.generateKey(algorithm, true, ['sign', 'verify']);
         return {
@@ -4723,8 +4925,10 @@ var $;
         };
     }
     $.$mol_crypto_auditor_pair = $mol_crypto_auditor_pair;
+    /** Asymmetric signing public key wrapper with shortest payload */
     class $mol_crypto_auditor_public extends Object {
         native;
+        /** Key size in bytes. */
         static size_str = 86;
         static size_bin = 64;
         constructor(native) {
@@ -4745,10 +4949,12 @@ var $;
                 y: serial.slice(43, 86),
             }, algorithm, true, ['verify']));
         }
+        /** 86 bytes */
         async serial() {
             const { x, y } = await $mol_crypto_native.subtle.exportKey('jwk', this.native);
             return x + y;
         }
+        /** 64 bytes */
         async toArray() {
             const { x, y, d } = await $mol_crypto_native.subtle.exportKey('jwk', this.native);
             return new Uint8Array([
@@ -4761,8 +4967,10 @@ var $;
         }
     }
     $.$mol_crypto_auditor_public = $mol_crypto_auditor_public;
+    /** Asymmetric signing private key wrapper with shortest payload */
     class $mol_crypto_auditor_private extends Object {
         native;
+        /** Key size in bytes. */
         static size_str = 129;
         static size_bin = 96;
         constructor(native) {
@@ -4785,10 +4993,12 @@ var $;
                 d: serial.slice(86, 129),
             }, algorithm, true, ['sign']));
         }
+        /** 129 bytes */
         async serial() {
             const { x, y, d } = await $mol_crypto_native.subtle.exportKey('jwk', this.native);
             return x + y + d;
         }
+        /** 96 bytes */
         async toArray() {
             const { x, y, d } = await $mol_crypto_native.subtle.exportKey('jwk', this.native);
             return new Uint8Array([
@@ -4797,14 +5007,17 @@ var $;
                 ...$mol_base64_url_decode(d),
             ]);
         }
+        /** 64 bytes */
         async sign(data) {
             return await $mol_crypto_native.subtle.sign(algorithm, this.native, data);
         }
+        /** Makes public key from private */
         async public() {
             return await $mol_crypto_auditor_public.from($mol_crypto_auditor_private_to_public(await this.serial()));
         }
     }
     $.$mol_crypto_auditor_private = $mol_crypto_auditor_private;
+    /** Sign size in bytes. */
     $.$mol_crypto_auditor_sign_size = 64;
     function $mol_crypto_auditor_private_to_public(serial) {
         return serial.slice(0, 86);
@@ -4909,6 +5122,12 @@ var $;
             $mol_assert_equal(unit.size(), 2);
             $mol_assert_equal(unit.data(), new Uint8Array([0xFF, 0xFF]));
         },
+        // 'big data unit type'() {
+        // 	const unit = new $hyoo_crus_sand
+        // 	unit.hash( 0xa1a2a3a4a5a6a7a8b1b2b3b4b5b6b7b8n )
+        // 	// $mol_assert_equal( unit.size(), 255 )
+        // 	$mol_assert_equal( unit.hash(), 0xa1a2a3a4a5a6a7a8b1b2b3b4b5b6b7b8n )
+        // },
         'unit peer'() {
             const unit = new $hyoo_crus_unit;
             $mol_assert_equal(unit.peer(), '');
@@ -4951,6 +5170,8 @@ var $;
 
 ;
 "use strict";
+/** @jsx $mol_jsx */
+/** @jsxFrag $mol_jsx_frag */
 var $;
 (function ($) {
     $mol_test({
@@ -5492,6 +5713,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Checks for string and returns string type.
+     * @see https://mol.hyoo.ru/#!section=demos/demo=mol_data_string_demo
+     */
     $.$mol_data_string = (val) => {
         if (typeof val === 'string')
             return val;
@@ -5524,6 +5749,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Checks for matching to given regular expression.
+     * @see https://mol.hyoo.ru/#!section=demos/demo=mol_data_pattern_demo
+     */
     function $mol_data_pattern(pattern) {
         return $mol_data_setup((val) => {
             const val2 = $mol_data_string(val);
@@ -5555,6 +5784,10 @@ var $;
 "use strict";
 var $;
 (function ($) {
+    /**
+     * Checks for E-Mail and returns string type.
+     * @see https://mol.hyoo.ru/#!section=demos/demo=mol_data_email_demo
+     */
     $.$mol_data_email = $mol_data_pattern(/.+@.+/);
 })($ || ($ = {}));
 
